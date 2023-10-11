@@ -1,0 +1,85 @@
+C251 COMPILER V5.60.0,  encoder                                                            11/10/23  16:55:29  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE encoder
+OBJECT MODULE PLACED IN .\Out_File\encoder.obj
+COMPILER INVOKED BY: D:\Software\Keil_v5\C251\BIN\C251.EXE ..\USER\src\encoder.c XSMALL UNSIGNED_CHAR WARNINGLEVEL(3) BR
+                    -OWSE INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\
+                    -USER\inc;..\USER\src) DEBUG PRINT(.\Out_File\encoder.lst) OBJECT(.\Out_File\encoder.obj) 
+
+stmt  level    source
+
+    1          #include "headfile.h"
+    2          int32 MotorPulse_L = 0;
+    3          int32 MotorPulse_R = 0;
+    4          
+    5          int16 MotorSpeed_L = 0;
+    6          int16 MotorSpeed_R = 0;
+    7          
+    8          void EncoderInit(void)
+    9          {
+   10   1              ctimer_count_init(ENCODER_PULSE_L);     //初始化定时器0作为外部计数
+   11   1              ctimer_count_init(ENCODER_PULSE_R);     //初始化定时器3作为外部计数
+   12   1      }
+   13          
+   14          
+   15          void EncoderPulseGet()
+   16          {
+   17   1                if(ENCODER_DIR_L == 1)
+   18   1                      {
+   19   2                              MotorPulse_L = (int32)ctimer_count_read(ENCODER_PULSE_L)*2;
+   20   2                      }
+   21   1                      else
+   22   1                      {
+   23   2                              MotorPulse_L = (int32)ctimer_count_read(ENCODER_PULSE_L) *-2 ;
+   24   2                      }
+   25   1                      
+   26   1                if(ENCODER_DIR_R == 1)
+   27   1                      {
+   28   2                              MotorPulse_R = (int32)ctimer_count_read(ENCODER_PULSE_R)*-2;
+   29   2                      }
+   30   1                      else
+   31   1                      {
+   32   2                              MotorPulse_R = (int32)ctimer_count_read(ENCODER_PULSE_R)*2 ;
+   33   2                      }
+   34   1              
+   35   1      
+   36   1                      ctimer_count_clean(ENCODER_PULSE_L);
+   37   1                      ctimer_count_clean(ENCODER_PULSE_R);
+   38   1      
+   39   1                      //单位转换
+   40   1                      car.motor_left.speed_Current = ((float)MotorPulse_L / 116.6)  * 100; //单位cm/s
+   41   1                      car.motor_right.speed_Current = ((float)MotorPulse_R / 116.6) * 100; //单位cm/s
+   42   1                      car.speed_ave = (car.motor_left.speed_Current + car.motor_right.speed_Current)/2;//两轮平均速度
+   43   1                      car.motor_average.speed_Current = car.speed_ave;//两轮平均速度
+   44   1      
+   45   1                      car.motor_left.distance += car.motor_left.speed_Current/200;
+   46   1                      car.motor_right.distance += car.motor_right.speed_Current/200;  
+   47   1                      car.distance += car.speed_ave/200;  //计量里程
+   48   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       253     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+C251 COMPILER V5.60.0,  encoder                                                            11/10/23  16:55:29  PAGE 2   
+
+  xdata-const size     =    ------     ------
+  edata size           =        12     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        28     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

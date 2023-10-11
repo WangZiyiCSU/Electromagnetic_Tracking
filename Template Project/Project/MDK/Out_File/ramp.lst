@@ -1,0 +1,197 @@
+C251 COMPILER V5.60.0,  ramp                                                               11/10/23  16:55:31  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE ramp
+OBJECT MODULE PLACED IN .\Out_File\ramp.obj
+COMPILER INVOKED BY: D:\Software\Keil_v5\C251\BIN\C251.EXE ..\USER\src\ramp.c XSMALL UNSIGNED_CHAR WARNINGLEVEL(3) BROWS
+                    -E INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\USE
+                    -R\inc;..\USER\src) DEBUG PRINT(.\Out_File\ramp.lst) OBJECT(.\Out_File\ramp.obj) 
+
+stmt  level    source
+
+    1          /* Includes ------------------------------------------------------------------*/
+    2          #include "ramp.h"
+    3          #include "control.h"
+    4          #include "car.h"
+    5          /* Includes ------------------------------------------------------------------*/
+    6          
+    7          /****************************************************
+    8           * @name              Ramp_parameter_init
+    9           * @function    坡道检测
+   10           * @parameter   NULL
+   11           * @return                NULL
+   12           * @date                    2023/7/27
+   13           ***************************************************/
+   14           void Ramp_parameter_init(){
+   15   1       
+   16   1              //坡道使能
+   17   1              car.ramp.enable                            = 1;
+   18   1      
+   19   1              //坡道状态机
+   20   1              car.ramp.state                             = 0; 
+   21   1      
+   22   1              //坡道初始俯仰角
+   23   1              car.ramp.angle                             = 0;
+   24   1      
+   25   1              //坡道计数
+   26   1              car.ramp.count                             = 0;
+   27   1      
+   28   1              //坡道kp和kd
+   29   1              car.ramp.kp                                =15;
+   30   1              car.ramp.kd                                =0.7;
+   31   1      
+   32   1              //上坡道速度
+   33   1              car.ramp.speed                             =100;
+   34   1      
+   35   1              //下坡道速度
+   36   1              car.ramp.speed2                            =200;
+   37   1      
+   38   1              //识别条件
+   39   1              car.ramp.adc_middle                        =75;
+   40   1              car.ramp.adc_left                          =50; 
+   41   1              car.ramp.adc_right                         =50;
+   42   1      
+   43   1              car.ramp.distance_passed                   = 0;
+   44   1              car.ramp.in_point                          = 0;
+   45   1       }
+   46           
+   47          /****************************************************
+   48           * @name              Ramp_judge
+   49           * @function      坡道检测
+   50           * @parameter     NULL
+   51           * @return                NULL
+   52           * @date                  2023/7/27
+   53           ***************************************************/
+   54          void Ramp_judge()
+   55          {
+   56   1              
+   57   1              static int step= 0;
+C251 COMPILER V5.60.0,  ramp                                                               11/10/23  16:55:31  PAGE 2   
+
+   58   1              static int judge_count = 0;
+   59   1              //下坡后一段距离再打开检测
+   60   1              // if(car.ramp.enable == 0)
+   61   1              // {
+   62   1      
+   63   1              //      if ( car.distance -  car.ramp.out_point > 250 )
+   64   1              //      {
+   65   1              //              car.ramp.enable = 1;
+   66   1              //      }       
+   67   1              // }
+   68   1              if(car.ramp.enable == 1){
+   69   2                      //电感条件
+   70   2                      // if(car.adc_parameter.adc_normalized[MIDDLE]>80 &&
+   71   2                      //      car.adc_parameter.adc_normalized[LEFT_H]<30 &&
+   72   2                      //      car.adc_parameter.adc_normalized[RIGHT_H]<30 
+   73   2                      //if( distance_data.Dist!=0&&distance_data.Dist < 40 &&car.adc_parameter.adc_normalized[MIDDLE]>80 && m
+             -y_abs(car.servo.error_Now) < 20)
+   74   2                      if( car.adc_parameter.adc_normalized[MIDDLE]>car.ramp.adc_middle &&
+   75   2                              car.adc_parameter.adc_normalized[LEFT_H]<car.ramp.adc_left   &&
+   76   2                              car.adc_parameter.adc_normalized[RIGHT_H]<car.ramp.adc_right )
+   77   2                      {
+   78   3                                      judge_count++;
+   79   3                                      if(judge_count>2){
+   80   4      //                                      if(car.hinder.count==0)
+   81   4      //                                      {
+   82   4      //                                              Force_Stop();
+   83   4      //                                      }
+   84   4                                              judge_count = 0;
+   85   4                                              car.ramp.count++;
+   86   4                                              car.road_type = RAMP;
+   87   4                                              car.ramp.in_point = car.distance;
+   88   4                                              car.ramp.enable = 0;  //关闭检测
+   89   4                                        
+   90   4                                              BEEP_ON;
+   91   4                                      }
+   92   3                      }
+   93   2                      else{
+   94   3                              judge_count = 0;
+   95   3                      }
+   96   2              }
+   97   1      }
+   98          
+   99          /****************************************************
+  100           * @name              Ramp_control
+  101           * @function      坡道
+  102           * @parameter     NULL
+  103           * @return                NULL
+  104           * @date                  2023/7/5
+  105           ***************************************************/
+  106          void Ramp_control()
+  107          {
+  108   1              //static int step_ramp = 0;
+  109   1      
+  110   1              car.ramp.distance_passed =  car.distance  - car.ramp.in_point;
+  111   1              car.adc_parameter.adc_min[LEFT_H]  = 200;
+  112   1              car.adc_parameter.adc_min[MIDDLE]  = 200;
+  113   1              car.adc_parameter.adc_min[RIGHT_H] = 200;
+  114   1              error_calculate(car.ramp.kp,car.ramp.kd);
+  115   1              car.ramp.angle = icmdata.Pitch;
+  116   1              // car.ramp.speed = 100+ 0.9*(car.ramp.distance_passed);
+  117   1              // if(car.ramp.speed>250)car.ramp.speed = 250;
+  118   1      
+  119   1      
+  120   1              motor_control(car.ramp.speed-car.steering.duty,car.ramp.speed+car.steering.duty);
+  121   1              // if(car.ramp.distance_passed>200)
+  122   1              // {
+C251 COMPILER V5.60.0,  ramp                                                               11/10/23  16:55:31  PAGE 3   
+
+  123   1              //      car.road_type = STRAIGHT;
+  124   1              //      BEEP_OFF;
+  125   1              // }
+  126   1      
+  127   1              switch(car.ramp.state){
+  128   2      
+  129   2                      case 0:
+  130   2                      /***********************状态0：上坡减速*************************/
+  131   2                      car.ramp.speed = (-3)*car.ramp.angle+250;
+  132   2                      if(car.ramp.speed<150)car.ramp.speed = 150;
+  133   2                      if(car.ramp.distance_passed>90){
+  134   3                              car.ramp.state = 1;
+  135   3                      }
+  136   2                      break;
+  137   2                      /***********************状态0：上坡减速*************************/
+  138   2      
+  139   2                      case 1:
+  140   2                      /***********************状态1：下坡加速*************************/
+  141   2                      car.ramp.speed = (-1)*car.ramp.angle+150;
+  142   2                      if(car.ramp.speed>250)car.ramp.speed = 250;
+  143   2                      if(car.ramp.speed<150)car.ramp.speed = 150;
+  144   2                      /*****走过180距离切换直道*****/
+  145   2                      if(car.ramp.distance_passed>120){
+  146   3                              car.ramp.state  = 0;
+  147   3                              car.road_type   = STRAIGHT; 
+  148   3                              car.element.ELEMENT_NUM++;  //元素表个数加1
+  149   3                              car.ramp.enable = 1 ;
+  150   3                      }
+  151   2                      break;
+  152   2                      /***********************状态1：下坡加速*************************/
+  153   2      
+  154   2              }
+  155   1      
+  156   1      
+  157   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       469     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =         4     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        12     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,91 @@
+C251 COMPILER V5.60.0,  key                                                                11/10/23  16:55:30  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE key
+OBJECT MODULE PLACED IN .\Out_File\key.obj
+COMPILER INVOKED BY: D:\Software\Keil_v5\C251\BIN\C251.EXE ..\USER\src\key.c XSMALL UNSIGNED_CHAR WARNINGLEVEL(3) BROWSE
+                    - INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\USER
+                    -\inc;..\USER\src) DEBUG PRINT(.\Out_File\key.lst) OBJECT(.\Out_File\key.obj) 
+
+stmt  level    source
+
+    1          #include "headfile.h"
+    2          #include "key.h"
+    3          
+    4          KEYn_e KEY_Scan()
+    5          {
+    6   1              if(KEY1_PIN == KEY_DOWN){
+    7   2                      BEEP_ON;
+    8   2                      delay_ms(100);
+    9   2                      BEEP_OFF;
+   10   2                      if(KEY1_PIN == KEY_DOWN){
+   11   3                              return KEY_1;
+   12   3                      }
+   13   2                      
+   14   2              }
+   15   1              else if(KEY2_PIN == KEY_DOWN){
+   16   2                      BEEP_ON;
+   17   2                      delay_ms(100);
+   18   2                      BEEP_OFF;
+   19   2                      if(KEY2_PIN == KEY_DOWN){
+   20   3                              return KEY_2;
+   21   3                      }
+   22   2                      
+   23   2              }
+   24   1              else if(KEY3_PIN == KEY_DOWN){
+   25   2                      BEEP_ON;
+   26   2                      delay_ms(100);
+   27   2                      BEEP_OFF;
+   28   2                      if(KEY3_PIN == KEY_DOWN){
+   29   3                              return KEY_3;
+   30   3                      }
+   31   2              }
+   32   1              else if(KEY4_PIN == KEY_DOWN){
+   33   2                      BEEP_ON;
+   34   2                      delay_ms(100);
+   35   2                      BEEP_OFF;
+   36   2                      if(KEY4_PIN == KEY_DOWN){
+   37   3                              return KEY_4;
+   38   3                      }
+   39   2              }
+   40   1              else if(KEY5_PIN == KEY_DOWN){
+   41   2                      BEEP_ON;
+   42   2                      while(KEY5_PIN==KEY_DOWN);
+   43   2                      return KEY_5;
+   44   2                      // delay_ms(500);
+   45   2                      // BEEP_OFF;
+   46   2      
+   47   2                      // if(KEY5_PIN == KEY_DOWN){
+   48   2                      //      return KEY_5;
+   49   2                      // }
+   50   2      
+   51   2              }
+   52   1              return KEY_NULL;
+   53   1              
+   54   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+C251 COMPILER V5.60.0,  key                                                                11/10/23  16:55:30  PAGE 2   
+
+  code size            =       134     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =    ------     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,138 @@
+C251 COMPILER V5.60.0,  icm                                                                11/10/23  16:55:30  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE icm
+OBJECT MODULE PLACED IN .\Out_File\icm.obj
+COMPILER INVOKED BY: D:\Software\Keil_v5\C251\BIN\C251.EXE ..\USER\src\icm.c XSMALL UNSIGNED_CHAR WARNINGLEVEL(3) BROWSE
+                    - INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\USER
+                    -\inc;..\USER\src) DEBUG PRINT(.\Out_File\icm.lst) OBJECT(.\Out_File\icm.obj) 
+
+stmt  level    source
+
+    1          /*
+    2           * icm.c
+    3           *
+    4           *  Created on: 2021年6月1日
+    5           *      Author: 周文奇
+    6           */
+    7          
+    8          #include "icm.h"
+    9          #include "math.h"
+   10          //#include "C_H.h"
+   11          //#include "MOTOR.h"
+   12          //#include "System.h"
+   13          //#include "buzzer.h"
+   14          #include "headfile.h"
+   15          #include "SEEKFREE_ICM20602.h"
+   16          //#include "car.h"
+   17          ICMDatatypedef icmdata;
+   18          
+   19          
+   20          /*一阶互补滤波参数*/
+   21          #define RAD2DEG 57.295779513
+   22          short aacx_0=0,aacy_0=0,aacz_0=0;                       //加速度计零偏
+   23          short gyrox_0=0,gyroy_0=0,gyroz_0=0;    //陀螺仪零偏
+   24          
+   25          float K1=0.15;          //相信加速度计的程度    （变化跟不上DMP时，适当增大）
+   26          float dt=0.005;         //周期 5ms
+   27          
+   28          float pitch_aac,roll_aac,yaw_aac;                       //由加速度计得到的角度
+   29          float pitch_gyro,roll_gyro,yaw_gyro;    //由陀螺仪得到的角度
+   30          
+   31          float pitch_fuse,roll_fuse,yaw_fuse;    //一阶互补滤波融合后的角度
+   32          
+   33          
+   34          void ICM_OneOrderFilter(void)
+   35          {
+   36   1      //      mpu6050_get_accdata();
+   37   1      //      mpu6050_get_gyro();
+   38   1      //      icmdata.YawVelocity = 2.21+(float)mpu6050_gyro_z /16.23;
+   39   1      //      icmdata.Yaw = (icmdata.YawVelocity) * dt + icmdata.Yaw;
+   40   1      //      if(abs(icmdata.YawVelocity)<0.5)icmdata.YawVelocity=0;
+   41   1              
+   42   1              icm20602_get_gyro();
+   43   1              icm20602_get_acc();
+   44   1              /****************偏航角计算求解**************************/
+   45   1              icmdata.YawVelocity = (-1)+(float)icm20602_gyro_z /16.23;
+   46   1              icmdata.Yaw         = (icmdata.YawVelocity) * dt + icmdata.Yaw;
+   47   1              if(abs(icmdata.YawVelocity)<0.5)icmdata.YawVelocity=0;
+   48   1              /****************偏航角计算求解**************************/
+   49   1      
+   50   1              /****************俯仰角计算求解**************************/
+   51   1              icmdata.PitchVelocity = (float)icm20602_gyro_y/11;
+   52   1              icmdata.Pitch         = (icmdata.PitchVelocity) *dt + icmdata.Pitch;
+   53   1              if(abs(icmdata.PitchVelocity)<0.5)icmdata.PitchVelocity = 0;
+   54   1              /****************俯仰角计算求解**************************/
+   55   1      }
+   56          
+   57          
+C251 COMPILER V5.60.0,  icm                                                                11/10/23  16:55:30  PAGE 2   
+
+   58          // float Pitch; 俯仰角
+   59          // float Yaw; 偏航角
+   60          // float Roll; 滚转角
+   61          //Pitch轴一阶互补滤波
+   62                  // static float Last_Data = 0;
+   63                  // static float angle_x = 0;
+   64                  // static float angle_y = 0;
+   65                  // static float angle_up = 0;
+   66                  // static float angle_up_last = 0;
+   67                  // static float K1 = 0.01;
+   68                  // static float K2 = 0.04;
+   69          //      imu660ra_get_acc();             //获取加速度数据
+   70          //  imu660ra_get_gyro();        //获取陀螺仪数据
+   71          //      get_icm20602_accdata_simiic();
+   72          //      get_icm20602_gyro_simiic();
+   73          
+   74                  // //计算俯仰角 
+   75                  // pitch_aac=-atan((float)mpu_acc_x/(float)mpu_acc_z)*RAD2DEG;
+   76                  // //±2000°/s -->  32768/2000=16.384
+   77                  // mpu_gyro_y=mpu_gyro_y/16.384;
+   78                  // pitch_gyro=mpu_gyro_y*dt;
+   79                  // pitch_fuse=K1*pitch_aac+(1-K1)*(Last_Data+pitch_gyro);
+   80                  // //pitch_temp +=pitch_fuse;
+   81                  // icmdata.Pitch = pitch_fuse;
+   82                  // Last_Data=pitch_fuse;
+   83          
+   84          
+   85          
+   86                  //计算偏航角
+   87                  //icmdata.YawVelocity =3.4+ (float)icm_gyro_z /16.384 ;
+   88                  //icmdata.YawVelocity = (float)mpu_gyro_z / 16.23;
+   89                  // icmdata.Yaw = (icmdata.YawVelocity) * dt + icmdata.Yaw ;
+   90          
+   91          
+   92                  // //?????
+   93                  // angle_x = atan2((float)mpu_acc_x,(float)mpu_acc_z)*57.295;
+   94                  // angle_y = atan2((float)mpu_acc_y,(float)mpu_acc_z)*57.295;
+   95          
+   96                  // angle_up = (1-K1)*(angle_up_last-(icm_gyro_y*0.005)*K2)+K1*angle_x;
+   97                  // angle_up_last = angle_up;
+   98          
+   99          
+  100                  // icmdata.Pitch =  angle_up;
+  101                  // icmdata.ACCEL_X = angle_x;
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       166     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =       108     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        52     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

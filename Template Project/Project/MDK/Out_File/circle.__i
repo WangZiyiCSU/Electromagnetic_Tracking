@@ -1,0 +1,1 @@
+"..\USER\src\circle.c" XSMALL UNSIGNED_CHAR WARNINGLEVEL (3) BROWSE INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\USER\inc;..\USER\src) DEBUG PRINT(.\Out_File\circle.lst) OBJECT(.\Out_File\circle.obj)

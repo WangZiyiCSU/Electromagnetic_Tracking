@@ -1,0 +1,108 @@
+C251 COMPILER V5.60.0,  dircetion                                                          27/09/23  22:02:25  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE dircetion
+OBJECT MODULE PLACED IN .\Out_File\dircetion.obj
+COMPILER INVOKED BY: D:\Software\Keil_v5\C251\BIN\C251.EXE dircetion.c XSMALL INTR2 WARNINGLEVEL(3) BROWSE INCDIR(..\..\
+                    -Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\USER\inc;..\USER\s
+                    -rc;..\MDK) DEBUG PRINT(.\Out_File\dircetion.lst) OBJECT(.\Out_File\dircetion.obj) 
+
+stmt  level    source
+
+    1          /* Includes ------------------------------------------------------------------*/
+    2          #include "headfile.h"
+    3          /* Includes ------------------------------------------------------------------*/
+    4          
+    5          float   steer_error=0;        //舵机偏差
+    6          uint16  steer_out=0;          //舵机输出pwm数值
+    7          uint16   kp=10;
+    8          uint16   kd=10;
+    9          uint16   dutyL, dutyR;
+   10          /************************************
+   11           * @name                cha_bi_he
+   12           * @function    差比和
+   13           * @parameter   date1：数据1(一般是左横电感)
+   14                          date2：数据2(一般是右横电感)
+   15           * @return                差比和计算结果
+   16           * @author              Sun Xiaoquan
+   17           * @date                    2022/9/22
+   18           ************************************/
+   19          float cha_bi_he(float date1,float date2){
+   20   1      
+   21   1              float cha=0;
+   22   1              float he=0;
+   23   1              float result=0;
+   24   1              float A=10;      //需要自行去调
+   25   1              
+   26   1              he=date1+date2;
+   27   1              cha=date1-date2;
+   28   1              result=A*cha/he;
+   29   1              
+   30   1              return result;
+   31   1      }
+   32          /************************************
+   33           * @name                steer_pd
+   34           * @function    舵机pd计算
+   35           * @parameter   error:差比和计算error
+   36           * @return                pd计算结果
+   37           * @author              Sun Xiaoquan
+   38           * @date                    2022/9/22
+   39           ************************************/
+   40          uint16 steer_pd(float error){
+   41   1              
+   42   1              static float cur_error=0;
+   43   1              static float last_error=0;
+   44   1              static uint16 pwm_out=0;
+   45   1      
+   46   1              cur_error=error;
+   47   1              pwm_out=kp*cur_error+kd*(cur_error-last_error);                 
+   48   1              last_error=cur_error;
+   49   1              
+   50   1              return pwm_out;
+   51   1      }
+   52          /************************************
+   53           * @name                steer_control
+   54           * @function    舵机输出控制
+   55           * @parameter   NULL
+   56           * @return                NULL
+   57           * @author              Sun Xiaoquan
+C251 COMPILER V5.60.0,  dircetion                                                          27/09/23  22:02:25  PAGE 2   
+
+   58           * @date                    2022/9/22
+   59           ************************************/
+   60          void steer_control(){
+   61   1              
+   62   1              steer_error = cha_bi_he(adc_left_h, adc_right_h);
+   63   1      //      pwm_duty(PWMA_CH2P_P62, 0);
+   64   1      //      pwm_duty(PWMA_CH1P_P60, dutyL*12);
+   65   1      //      pwm_duty(PWMA_CH4P_P66, 0);
+   66   1      //      pwm_duty(PWMA_CH3P_P64, dutyR*12);
+   67   1      }
+*** WARNING C183 IN LINE 21 OF dircetion.c: dead assignment eliminated
+*** WARNING C183 IN LINE 22 OF dircetion.c: dead assignment eliminated
+*** WARNING C183 IN LINE 23 OF dircetion.c: dead assignment eliminated
+*** WARNING C183 IN LINE 24 OF dircetion.c: dead assignment eliminated
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       124     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =        24     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        48     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  4 WARNING(S),  0 ERROR(S)

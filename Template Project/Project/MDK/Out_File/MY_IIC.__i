@@ -1,0 +1,1 @@
+"..\USER\src\MY_IIC.c" XSMALL UNSIGNED_CHAR WARNINGLEVEL (3) BROWSE INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\USER\inc;..\USER\src) DEBUG PRINT(.\Out_File\MY_IIC.lst) OBJECT(.\Out_File\MY_IIC.obj)

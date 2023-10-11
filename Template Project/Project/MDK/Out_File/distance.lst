@@ -1,0 +1,66 @@
+C251 COMPILER V5.60.0,  distance                                                           27/09/23  23:10:15  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE distance
+OBJECT MODULE PLACED IN .\Out_File\distance.obj
+COMPILER INVOKED BY: D:\Software\Keil_v5\C251\BIN\C251.EXE distance.c XSMALL INTR2 WARNINGLEVEL(3) BROWSE INCDIR(..\..\L
+                    -ibraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\USER\inc;..\USER\sr
+                    -c;..\MDK) DEBUG PRINT(.\Out_File\distance.lst) OBJECT(.\Out_File\distance.obj) 
+
+stmt  level    source
+
+    1          #include "headfile.h"
+    2          
+    3          float    distance_error = 0;        //舵机偏差
+    4          uint16   motor_out = 0;          //舵机输出pwm数值
+    5          uint16   d_kp=10;
+    6          uint16   d_kd=10;
+    7          int16    duty;
+    8          
+    9          uint16 distance_pd(float error)
+   10          {
+   11   1          static float cur_error=0;
+   12   1              static float last_error=0;
+   13   1              static uint16 pwm_out=0;
+   14   1      
+   15   1              cur_error=error;
+   16   1              pwm_out=d_kp*cur_error+d_kd*(cur_error-last_error);             
+   17   1              last_error=cur_error;
+   18   1              
+   19   1              return pwm_out;
+   20   1      }
+   21          void distance_control()
+   22          {
+   23   1          distance_error = dl1a_distance_mm - 200;
+   24   1          motor_out = distance_pd(distance_error); 
+   25   1              
+   26   1              duty = -1 * motor_out;
+   27   1          
+   28   1              //电机动作 单极控制
+   29   1          WheelMotor_output(duty, duty);
+   30   1      
+   31   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       102     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =        22     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        48     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

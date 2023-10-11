@@ -1,0 +1,111 @@
+C251 COMPILER V5.60.0,  motor                                                              11/10/23  16:55:30  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE motor
+OBJECT MODULE PLACED IN .\Out_File\motor.obj
+COMPILER INVOKED BY: D:\Software\Keil_v5\C251\BIN\C251.EXE ..\USER\src\motor.c XSMALL UNSIGNED_CHAR WARNINGLEVEL(3) BROW
+                    -SE INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\US
+                    -ER\inc;..\USER\src) DEBUG PRINT(.\Out_File\motor.lst) OBJECT(.\Out_File\motor.obj) 
+
+stmt  level    source
+
+    1          #include "headfile.h"
+    2          void Motor_Init()
+    3          {
+    4   1          pwm_init(LEFT_MOTOR_PWM_PIN, 17000, 1);       //左电机pwm初始化
+    5   1              pwm_init(RIGHT_MOTOR_PWM_PIN,17000, 1);       //右电机pwm初始化        
+    6   1              gpio_mode(LEFT_MOTOR_DIR_PIN,GPO_PP);                   //左电机方向控制管脚推挽输出
+    7   1              gpio_mode(RIGHT_MOTOR_DIR_PIN,GPO_PP);                  //右电机方向控制管脚推挽输出
+    8   1      }
+    9          
+   10          //void MotorPID_Caculate(Motor *motor)
+   11          //{
+   12          //  motor->error_Sum += motor->error_Now;
+   13          //  if(motor->error_Sum > motor->error_Sum_Max)motor->error_Sum = motor->error_Sum_Max;
+   14          //  if(motor->error_Sum > motor->error_Sum_Mini)motor->error_Sum = motor->error_Sum_Mini;
+   15          //  motor->duty = motor->duty_Last + (int)(motor->kp*motor->error_Now + motor->ki*motor->error_Sum + moto
+             -r->kd*(motor->error_Now - motor->error_Last));   //得到pwm控制输出量
+   16          //  motor->error_Pre = motor->error_Last;//保存误差量
+   17          //  motor->error_Last = motor->error_Now;
+   18          //  motor->duty_Last = motor->duty;
+   19          //}
+   20          
+   21          void MotorPID_Caculate(Motor *motor)
+   22          {
+   23   1          motor->error_Now = (motor->speed_Expected - motor->speed_Current);  
+   24   1          motor->duty += (int)(motor->kp*(motor->error_Now - motor->error_Pre) 
+   25   1          + motor->ki*motor->error_Now 
+   26   1          + motor->kd*(motor->error_Now + motor->error_PrePre - 2 * motor->error_Pre));   //得到pwm控制输出量
+   27   1        //限幅
+   28   1              if(motor->duty > MOTOR_DUTY_MAX)motor->duty=MOTOR_DUTY_MAX;
+   29   1              else if(motor->duty < -MOTOR_DUTY_MAX)motor->duty=-MOTOR_DUTY_MAX;
+   30   1              motor->error_PrePre = motor->error_Pre;//保存误差量
+   31   1          motor->error_Pre = motor->error_Now;
+   32   1      }
+   33          
+   34          
+   35          void MotorPWM_Out(int left_duty,int right_duty)//电机输出函数
+   36          {
+   37   1          // if(car.start_flag == STOP){
+   38   1          //   LEFT_MOTOR_DIR_PIN = 0;
+   39   1          //   RIGHT_MOTOR_DIR_PIN = 0;
+   40   1          //   pwm_duty(LEFT_MOTOR_PWM_PIN, 0); 
+   41   1                //    pwm_duty(RIGHT_MOTOR_PWM_PIN , 0); 
+   42   1          // }
+   43   1          // else{
+   44   1      
+   45   1            if(left_duty > MOTOR_DUTY_MAX)left_duty = MOTOR_DUTY_MAX;
+   46   1            else if(left_duty < -MOTOR_DUTY_MAX)left_duty = -MOTOR_DUTY_MAX;
+   47   1      
+   48   1            if(right_duty > MOTOR_DUTY_MAX)right_duty = MOTOR_DUTY_MAX;
+   49   1            else if(right_duty < -MOTOR_DUTY_MAX)right_duty = -MOTOR_DUTY_MAX;
+   50   1            //}
+   51   1          
+   52   1            if(left_duty >= 0 )
+   53   1            {
+   54   2              LEFT_MOTOR_DIR_PIN = 0;
+   55   2            }
+   56   1            else if(left_duty < 0 )
+C251 COMPILER V5.60.0,  motor                                                              11/10/23  16:55:30  PAGE 2   
+
+   57   1            {
+   58   2              LEFT_MOTOR_DIR_PIN = 1;
+   59   2              left_duty = -left_duty;
+   60   2            }
+   61   1      
+   62   1            if(right_duty >= 0 )
+   63   1            {
+   64   2              RIGHT_MOTOR_DIR_PIN = 0;
+   65   2            }
+   66   1            else if(right_duty < 0 )
+   67   1            {
+   68   2              RIGHT_MOTOR_DIR_PIN = 1;
+   69   2              right_duty = -right_duty;
+   70   2            }         
+   71   1            pwm_duty(LEFT_MOTOR_PWM_PIN , left_duty); 
+   72   1            pwm_duty(RIGHT_MOTOR_PWM_PIN, right_duty);   
+   73   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       377     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =    ------     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,378 @@
+C251 COMPILER V5.60.0,  circle                                                             11/10/23  16:55:27  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE circle
+OBJECT MODULE PLACED IN .\Out_File\circle.obj
+COMPILER INVOKED BY: D:\Software\Keil_v5\C251\BIN\C251.EXE ..\USER\src\circle.c XSMALL UNSIGNED_CHAR WARNINGLEVEL(3) BRO
+                    -WSE INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\U
+                    -SER\inc;..\USER\src) DEBUG PRINT(.\Out_File\circle.lst) OBJECT(.\Out_File\circle.obj) 
+
+stmt  level    source
+
+    1          /* Includes ------------------------------------------------------------------*/
+    2          #include "circle.h"
+    3          #include "control.h"
+    4          #include "car.h"
+    5          /* Includes ------------------------------------------------------------------*/
+    6          
+    7          /****************************************************
+    8           * @name              Circle_parameter_init
+    9           * @function      Ô²»·²ÎÊý³õÊ¼»¯
+   10           * @parameter     NULL
+   11           * @return                NULL
+   12           * @date              2023/7/27
+   13           ***************************************************/
+   14           void Circle_parameter_init(){
+   15   1       
+   16   1              //»·µºÊýÁ¿(µÚ¼¸¸ö»·µº)
+   17   1              car.circle.cur_num = 0;                    
+   18   1      
+   19   1        //Ô²»·Ê¶±ð±êÖ¾Î»£º0Îª²»Ê¶±ð£¬1ÎªÊ¶±ð
+   20   1      
+   21   1              car.circle.enable[0]                       =1;
+   22   1              car.circle.enable[1]                       =1;
+   23   1              car.circle.enable[2]                       =1;
+   24   1      
+   25   1              //Ô²»·ºáµç¸ÐÊýÖµÊ¶±ðÌõ¼þ
+   26   1              car.circle.PRE_ENTER_H_STRENGTH[0]        =140;
+   27   1              car.circle.PRE_ENTER_H_STRENGTH[1]        =140;
+   28   1              car.circle.PRE_ENTER_H_STRENGTH[2]        =140;
+   29   1              
+   30   1              //Ô²»·ÖÐ¼äµç¸ÐÊýÖµÊ¶±ðÌõ¼þ
+   31   1              car.circle.PRE_ENTER_MIDDLE[0]            =70;
+   32   1              car.circle.PRE_ENTER_MIDDLE[1]            =70;
+   33   1              car.circle.PRE_ENTER_MIDDLE[2]            =70;
+   34   1              
+   35   1              //Ô²»·ÄÚµÄÔËÐÐËÙ¶È
+   36   1              car.circle.speed[0]                       =280;
+   37   1              car.circle.speed[1]                       =280;
+   38   1              car.circle.speed[2]                       =280;
+   39   1      
+   40   1              //Ô¤Èë»·µ½Èë»·µãµÄ¾àÀë
+   41   1              car.circle.Enter_DIST[0]                  =33;
+   42   1              car.circle.Enter_DIST[1]                  =44;
+   43   1              car.circle.Enter_DIST[2]                  =50;
+   44   1              
+   45   1              //Èë»·µãµç¸ÐÊýÖµ
+   46   1              car.circle.Enter_MID[0]                   =95;
+   47   1              car.circle.Enter_MID[1]                   =80;
+   48   1              car.circle.Enter_MID[2]                   =70;
+   49   1      
+   50   1              //Ô²»·³õÊ¼×´Ì¬
+   51   1              car.circle.state                          =0 ;
+   52   1              
+   53   1              //Èë»·µã×ª½Ç½Ç¶È¶ÈÊý
+   54   1              car.circle.Enter_ANGLE[0]                 =30;
+   55   1              car.circle.Enter_ANGLE[1]                 =30;
+   56   1              car.circle.Enter_ANGLE[2]                 =30;
+   57   1      
+C251 COMPILER V5.60.0,  circle                                                             11/10/23  16:55:27  PAGE 2   
+
+   58   1              //Èë»·×ª½Ç(plan_B)
+   59   1              car.circle.enter_angle_plan_B[0]          = 60;
+   60   1              car.circle.enter_angle_plan_B[1]          = 60;
+   61   1              car.circle.enter_angle_plan_B[2]          = 60;
+   62   1      
+   63   1              //Èë»·°ë¾¶
+   64   1              car.circle.enter_R_circle[0]              = 35;
+   65   1              car.circle.enter_R_circle[1]              = 45;
+   66   1              car.circle.enter_R_circle[2]              = 50;
+   67   1              
+   68   1              //³ö»·Æ«ÖÃ
+   69   1              car.circle.BIAS_ADJUST[0]                 = -20;
+   70   1              car.circle.BIAS_ADJUST[1]                 = -10;
+   71   1              car.circle.BIAS_ADJUST[2]                 = -10;
+   72   1      
+   73   1              //µÚÒ»¸ö»·ÄÚkpºÍkd
+   74   1              car.circle.kp[0]                          =20;
+   75   1              car.circle.kd[0]                          =0.75;
+   76   1      
+   77   1              //µÚ¶þ¸ö»·ÄÚkpºÍkd
+   78   1              car.circle.kp[1]                          =15;
+   79   1              car.circle.kd[1]                          =0.7;
+   80   1      
+   81   1              //µÚÈý¸ö»·ÄÚkpºÍkd
+   82   1              car.circle.kp[2]                          =25;
+   83   1              car.circle.kd[2]                          =0.7;
+   84   1      
+   85   1              //»·ÄÚÑ­¼£´ò½Ç
+   86   1              car.circle.angle_1[0]                     =300;
+   87   1              car.circle.angle_1[1]                     =300;
+   88   1              car.circle.angle_1[2]                     =330;
+   89   1      
+   90   1              //¾ùÖµ´ò½Ç
+   91   1              car.circle.angle_2[0]                     =330;
+   92   1              car.circle.angle_2[1]                     =330;
+   93   1              car.circle.angle_2[2]                     =350;
+   94   1      
+   95   1              car.circle.out_point                      = 0;
+   96   1       }
+   97          
+   98          /****************************************************
+   99           * @name              Circle_judge_dir
+  100           * @function      »·µº¼ì²â
+  101           * @parameter     NULL
+  102           * @return                NULL
+  103           * @date                  2023/7/4
+  104           ***************************************************/
+  105          void Circle_judge_dir()
+  106          {
+  107   1              static int v_error = 0;
+  108   1              static int h_error = 0;
+  109   1                      /*-----
+  110   1                      ×óÐ¡»·(R50)£º  2
+  111   1                      ÓÒÐ¡»·(R50):   3 
+  112   1                      ×ó´ó»·(R60)£º  4
+  113   1                      ÓÒ´ó»·(R60):   5
+  114   1                      ------*/
+  115   1                      /***********ÔªËØ±íÅÐ¶ÏÔ²»··½ÏòºÍ´óÐ¡*************/
+  116   1                      if(car.element.excel[car.element.ELEMENT_NUM]==2)
+  117   1                      {
+  118   2                              car.circle.dir     = LEFT; //·½Ïò£º×ó
+  119   2                              car.circle.cur_num = 0;    //Ð¡»·
+  120   2                      } 
+  121   1                      if(car.element.excel[car.element.ELEMENT_NUM]==3)
+  122   1                      {
+  123   2                              car.circle.dir     = RIGHT;//·½Ïò£ºÓÒ
+C251 COMPILER V5.60.0,  circle                                                             11/10/23  16:55:27  PAGE 3   
+
+  124   2                              car.circle.cur_num = 0;    //Ð¡»·
+  125   2                      }
+  126   1                      if(car.element.excel[car.element.ELEMENT_NUM]==4)
+  127   1                      {
+  128   2                              car.circle.dir     = LEFT;//·½Ïò£º×ó
+  129   2                              car.circle.cur_num = 1;   //´ó»·
+  130   2                      }
+  131   1                  if(car.element.excel[car.element.ELEMENT_NUM]==5)
+  132   1                      {
+  133   2                              car.circle.dir     = RIGHT;//·½Ïò£ºÓÒ
+  134   2                              car.circle.cur_num = 1;    //´ó»·
+  135   2                      }
+  136   1                      if(car.element.excel[car.element.ELEMENT_NUM]==11)
+  137   1                      {
+  138   2                              car.circle.dir     = LEFT; //·½Ïò£º×ó
+  139   2                              car.circle.cur_num = 2;    //´ó»·(R90)
+  140   2                      }
+  141   1                      if(car.element.excel[car.element.ELEMENT_NUM]==12)
+  142   1                      {
+  143   2                              car.circle.dir     = RIGHT;//·½Ïò£ºÓÒ
+  144   2                              car.circle.cur_num = 2;    //´ó»·(R90)
+  145   2                      }
+  146   1                      /******×óÓÒÔ²»·ÅÐ¶ÏÌõ¼þ(ÔªËØ±íÅÐ¶Ï·½Ïò)******/
+  147   1      
+  148   1          /****************»·µº¼ì²âÌõ¼þ*********************/
+  149   1              if(     car.adc_parameter.H_strength               > car.circle.PRE_ENTER_H_STRENGTH[car.circle.cur_num]    
+             -//ºáµç¸ÐÌõ¼þ
+  150   1                      &&car.adc_parameter.adc_normalized[MIDDLE] > car.circle.PRE_ENTER_MIDDLE[car.circle.cur_num]   )    //Ö
+             -Ð¼äµç¸ÐÌõ¼þ
+  151   1              { 
+  152   2                      /************×óÓÒÔ²»·ÅÐ¶ÏÌõ¼þ*******************/
+  153   2                      // if(car.circle.cur_num%2==0)
+  154   2                      // {
+  155   2                      //      car.circle.dir = RIGHT;
+  156   2                              
+  157   2                      // }
+  158   2                      // if(car.circle.cur_num%2==1)
+  159   2                      // {
+  160   2                      //      car.circle.dir = LEFT;
+  161   2                      // }
+  162   2                      /************×óÓÒÔ²»·ÅÐ¶ÏÌõ¼þ*******************/
+  163   2                      BEEP_ON;//·äÃùÆ÷¿ªÆô
+  164   2                      car.circle.enter_point = car.distance;     //¼ÇÂ¼Ô¤Èë»·µã
+  165   2                      car.road_type = CIRCLE;                            //ÇÐ»»µ½»·µº
+  166   2                      
+  167   2              }
+  168   1          /****************»·µº¼ì²âÌõ¼þ*********************/
+  169   1      }
+  170          /****************************************************
+  171           * @name              Circle_control
+  172           * @function      Ô²»·
+  173           * @parameter     NULL
+  174           * @return                NULL
+  175           * @date                  2023/7/4
+  176           ***************************************************/
+  177          void Circle_control()
+  178          {
+  179   1              
+  180   1              static float error_ave = 0;
+  181   1              static int error_count=0;
+  182   1              static float ENTER_DIFF;
+  183   1              
+  184   1              //×ª¹ýµÄ½Ç¶È
+  185   1              car.circle.angle_turned =  icmdata.Yaw-car.circle.enter_angle;
+  186   1              
+  187   1              switch (car.circle.state)
+C251 COMPILER V5.60.0,  circle                                                             11/10/23  16:55:27  PAGE 4   
+
+  188   1              {
+  189   2              /***********************×´Ì¬0:Ô¤Èë»·µ½Èë»·µã*************************/
+  190   2              case 0: 
+  191   2                      
+  192   2              
+  193   2                      error_calculate(car.circle.kp[car.circle.cur_num],car.circle.kd[car.circle.cur_num]);   
+  194   2      
+  195   2                      if(car.circle.dir == RIGHT)    car.steering.error_now = car.adc_parameter.adc_error   ; 
+  196   2                      else if(car.circle.dir == LEFT)car.steering.error_now = car.adc_parameter.adc_error   ;
+  197   2      
+  198   2      
+  199   2                      //motor_control(car.straight.base_speed-car.steering.duty-30,car.straight.base_speed+car.steering.duty-
+             -30);
+  200   2                      motor_control(car.circle.speed[0]-car.steering.duty,car.circle.speed[0]+car.steering.duty);
+  201   2                      car.circle.distance_passed = car.distance - car.circle.enter_point;
+  202   2                      if (car.circle.distance_passed             > car.circle.Enter_DIST[car.circle.cur_num]  //Èë»·±àÂëÆ÷Ìõ¼
+             -þ
+  203   2                      &&car.adc_parameter.adc_normalized[MIDDLE] < car.circle.Enter_MID[car.circle.cur_num])  //Èë»·µç¸ÐÌõ¼þ
+  204   2                      {
+  205   3                              //Èë»·µã
+  206   3                              BEEP_ON;
+  207   3                              car.circle.enter_angle = icmdata.Yaw;//¼ÇÂ¼Èë»·µãÊ±¿ÌµÄÍÓÂÝÒÇÖµ
+  208   3                              car.circle.state = 1;                //ÇÐ»»ÏÂÒ»¸ö×´Ì¬
+  209   3                      }
+  210   2                      break;
+  211   2                      /***********************×´Ì¬0:Ô¤Èë»·µ½Èë»·µã*************************/
+  212   2      
+  213   2                      /***********************×´Ì¬1:Èë»·µãµ½´ò½Ç½áÊø***********************/
+  214   2      
+  215   2                      /*******·½°¸1£º±äËÙ²îËÙÈë»·*********/
+  216   2              // case 1:
+  217   2              //      if(car.circle.cur_num == 0)     car.speed_set =  car.circle.speed[car.circle.cur_num%2];
+  218   2              //      else if(car.circle.cur_num == 1)car.speed_set =  car.circle.speed[car.circle.cur_num%2];
+  219   2              //      ENTER_DIFF = 300-my_abs(car.circle.angle_turned)*6.6;
+  220   2              //      //×ó»·µº
+  221   2              //      if (car.circle.dir == LEFT)
+  222   2              //      {                       
+  223   2              //              motor_control(car.speed_set-ENTER_DIFF,car.speed_set+ENTER_DIFF);
+  224   2              //      }
+  225   2              //      //ÓÒ»·µº
+  226   2              //      else if (car.circle.dir == RIGHT)
+  227   2              //      {
+  228   2              //              motor_control(car.speed_set+ENTER_DIFF,car.speed_set-ENTER_DIFF);
+  229   2              //      }
+  230   2              //      //´ò½ÇÂú×ãÉè¶¨Öµ ÇÐ»»»ØÕý³£Ñ°¼£
+  231   2              //      if( my_abs(car.circle.angle_turned) > car.circle.Enter_ANGLE[car.circle.cur_num%2])
+  232   2              //      {
+  233   2              //              car.circle.state =2;
+  234   2              //      }
+  235   2              //      break;
+  236   2                      /*******·½°¸1£º±äËÙ²îËÙÈë»·*********/
+  237   2      
+  238   2      
+  239   2                      /*******·½°¸2£º¹ßµ¼ÔÈËÙÈë»·*********/
+  240   2              case 1:
+  241   2                      error_calculate(car.circle.kp[car.circle.cur_num],car.circle.kd[car.circle.cur_num]);
+  242   2      
+  243   2                      if(car.circle.cur_num == 0)     car.speed_set =  car.circle.speed[car.circle.cur_num];
+  244   2                      else if(car.circle.cur_num == 1)car.speed_set =  car.circle.speed[car.circle.cur_num];
+  245   2                      //×ó»·µº
+  246   2                      if (car.circle.dir == LEFT)
+  247   2                      {                       
+  248   3                              turn_angle(car.circle.enter_angle_plan_B[car.circle.cur_num],car.circle.angle_turned,car.speed_set,car
+             -.circle.enter_R_circle[car.circle.cur_num]);
+  249   3                              motor_control(car.speed_set-car.steering.duty,car.speed_set+car.steering.duty); 
+  250   3                      }
+C251 COMPILER V5.60.0,  circle                                                             11/10/23  16:55:27  PAGE 5   
+
+  251   2                      //ÓÒ»·µº
+  252   2                       if (car.circle.dir == RIGHT)
+  253   2                      {
+  254   3                              turn_angle(-car.circle.enter_angle_plan_B[car.circle.cur_num],car.circle.angle_turned,car.speed_set,ca
+             -r.circle.enter_R_circle[car.circle.cur_num]);
+  255   3                              motor_control(car.speed_set-car.steering.duty,car.speed_set+car.steering.duty);
+  256   3                      }
+  257   2                      //´ò½ÇÂú×ãÉè¶¨Öµ ÇÐ»»»ØÕý³£Ñ°¼£
+  258   2                      if( my_abs(car.circle.angle_turned) > car.circle.Enter_ANGLE[car.circle.cur_num]*0.9)
+  259   2                      {
+  260   3                              car.circle.state =2;
+  261   3                      }
+  262   2                      break;
+  263   2                      /*******·½°¸2£º¹ßµ¼ÔÈËÙÈë»·*********/
+  264   2      
+  265   2                      /***********************×´Ì¬1:Èë»·µãµ½´ò½Ç½áÊø***********************/
+  266   2      
+  267   2                      /***********************×´Ì¬2:»·ÄÚÑ­¼£******************************/
+  268   2              case 2://»·ÄÚÑ°¼£
+  269   2      
+  270   2                      motor_control(car.straight.base_speed-car.steering.duty,car.straight.base_speed+car.steering.duty);
+  271   2                      if (my_abs(car.circle.angle_turned) < car.circle.angle_1[car.circle.cur_num])  //25¶È-280¶È ÏÞ·ù
+  272   2                      {
+  273   3                              if(car.adc_parameter.adc_normalized[MIDDLE]<5)car.adc_parameter.adc_normalized[MIDDLE] = 5;
+  274   3      
+  275   3                              car.adc_parameter.adc_min[LEFT_H]  = 100;
+  276   3                              car.adc_parameter.adc_min[MIDDLE]  = 100;
+  277   3                              car.adc_parameter.adc_min[RIGHT_H] = 100;
+  278   3                              error_calculate(car.circle.kp[car.circle.cur_num],car.circle.kd[car.circle.cur_num]);
+  279   3                              
+  280   3                              error_count++;
+  281   3                              error_ave = error_ave + (car.steering.duty - error_ave )/error_count;
+  282   3                      }
+  283   2                      else if (my_abs(car.circle.angle_turned) <car.circle.angle_2[car.circle.cur_num])  //310¶È-330Ö®¼ä ¾ùÖµ
+             -´ò½Ç
+  284   2                      {
+  285   3                              BEEP_ON;
+  286   3                              //car.speed_set = car.circle.speed[car.circle.cur_num] ;
+  287   3                              //ÓÃÆ½¾ùÖµ³ö»·
+  288   3                              car.steering.duty  =  error_ave + car.circle.BIAS_ADJUST[car.circle.cur_num];           
+  289   3                      }
+  290   2                      else //´óÓÚ330¶È ³ö»·
+  291   2                      {
+  292   3                              car.circle.state = 3;
+  293   3                              car.circle.out_point = car.distance;
+  294   3                              BEEP_OFF;
+  295   3                      }
+  296   2                      break;
+  297   2                      /***********************×´Ì¬2:»·ÄÚÑ­¼£******************************/
+  298   2      
+  299   2                      /***********************×´Ì¬3:³ö»·*********************************/
+  300   2              case 3:
+  301   2                      //³ö»·½áÊø
+  302   2                      car.adc_parameter.adc_min[LEFT_H]  = 400;
+  303   2                      car.adc_parameter.adc_min[MIDDLE]  = 400;
+  304   2                      car.adc_parameter.adc_min[RIGHT_H] = 400;
+  305   2                      error_calculate(car.straight.kp,car.straight.kd);
+  306   2                      motor_control(car.straight.base_speed-car.steering.duty,car.straight.base_speed+car.steering.duty);
+  307   2                      //ÇÐ»»ÎªÖ±µÀ
+  308   2                      car.circle.distance_passed =   car.distance -  car.circle.out_point;
+  309   2                      if (car.circle.distance_passed > 120)
+  310   2                      {
+  311   3                              car.circle.state = 0;
+  312   3                              //µ±Ç°»·µº¸öÊý¼ÓÒ»
+  313   3                              car.circle.cur_num ++ ;
+  314   3                              //ÔªËØ±í¸öÊý¼ÓÒ»
+C251 COMPILER V5.60.0,  circle                                                             11/10/23  16:55:27  PAGE 6   
+
+  315   3                              car.element.ELEMENT_NUM++;
+  316   3                              car.road_type = STRAIGHT;                       
+  317   3                              car.circle.out_point = car.distance;
+  318   3                              error_count =0;
+  319   3                              error_ave = 0;
+  320   3                              BEEP_OFF;
+  321   3                      }
+  322   2                      break;
+  323   2                      /***********************×´Ì¬3:³ö»·*********************************/
+  324   2      
+  325   2              }
+  326   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =      1423     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =        14     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        26     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

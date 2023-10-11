@@ -1,0 +1,1 @@
+"dircetion.c" XSMALL INTR2 WARNINGLEVEL (3) BROWSE INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\USER\inc;..\USER\src;..\MDK) DEBUG PRINT(.\Out_File\dircetion.lst) OBJECT(.\Out_File\dircetion.obj)

@@ -1,0 +1,1542 @@
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE UI
+OBJECT MODULE PLACED IN .\Out_File\UI.obj
+COMPILER INVOKED BY: D:\Software\Keil_v5\C251\BIN\C251.EXE ..\USER\src\UI.c XSMALL UNSIGNED_CHAR WARNINGLEVEL(3) BROWSE 
+                    -INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\USER\
+                    -inc;..\USER\src) DEBUG PRINT(.\Out_File\UI.lst) OBJECT(.\Out_File\UI.obj) 
+
+stmt  level    source
+
+    1          #include "UI.h"
+    2          #include "car.h"
+    3          
+    4          int edit_mode = 0;
+    5          float step_size = 2;//²½³¤
+    6          struct MenuItem* MenuPoint = NULL;//µ±Ç°²Ëµ¥µÄµØÖ·
+    7          short selectItem;//µ±Ç°ÔÚµÚ¼¸ÐÐ
+    8          
+    9          float Get_Float(uint8 addr);
+   10          int16 Get_Int16(uint8 addr);
+   11          uint16 Get_uInt16(uint8 addr);
+   12          
+   13          /**************************²Ëµ¥Ïî¶¨Òå**************************/
+   14          #define MAINMENU_LEN 9
+   15          struct MenuItem MainMenu[MAINMENU_LEN] = {
+   16          { MAINMENU_LEN,"START",     NULL         , NULL_TYPE, Start_Up      ,NULL,NULL },
+   17          { MAINMENU_LEN,"AD",        NULL         , NULL_TYPE, NULL          ,NULL,NULL },
+   18          { MAINMENU_LEN,"Element",   NULL         , NULL_TYPE, NULL          ,NULL,NULL },
+   19          { MAINMENU_LEN,"TEST",      NULL         , NULL_TYPE, NULL          ,NULL,NULL },
+   20          { MAINMENU_LEN,"MPU6050",   NULL         , NULL_TYPE, NULL          ,NULL,NULL },
+   21          { MAINMENU_LEN,"data",      NULL         , NULL_TYPE, Store_Para    ,NULL,NULL },
+   22          { MAINMENU_LEN,"data280",   NULL         , NULL_TYPE, Store_280     ,NULL,NULL },
+   23          { MAINMENU_LEN,"mode"   ,   &car.road_type , MY_INT16  , NULL       ,NULL,NULL },
+   24          { MAINMENU_LEN,"dis"    ,   &car.meter_distance , MY_INT16  , NULL  ,NULL,NULL },
+   25          };
+   26          
+   27          /**************µç¸ÐÏà¹Ø*************************/
+   28          
+   29          //µç¸Ð¹éÒ»»¯Öµ
+   30          #define AD_MENU_LEN  3
+   31          struct MenuItem Ad_Menu[AD_MENU_LEN]={
+   32          { AD_MENU_LEN,(u8 *)"Normalized",NULL ,NULL_TYPE,NULL,NULL,MainMenu },
+   33          { AD_MENU_LEN,(u8 *)"Max"       ,NULL ,NULL_TYPE,NULL,NULL,MainMenu },
+   34          { AD_MENU_LEN,(u8 *)"Original"  ,NULL ,NULL_TYPE,NULL,NULL,MainMenu },
+   35          };
+   36          
+   37          //µç¸Ð¹éÒ»»¯Öµ
+   38          #define AD_MENU1_LEN  3
+   39          struct MenuItem Ad_Menu1[AD_MENU1_LEN]={
+   40                  { AD_MENU1_LEN,(u8 *)"Left_H", &car.adc_parameter.adc_normalized[LEFT_H] ,MY_FLOAT,NULL,NULL,Ad_Menu },
+   41                  { AD_MENU1_LEN,(u8 *)"Middle", &car.adc_parameter.adc_normalized[MIDDLE] ,MY_FLOAT,NULL,NULL,Ad_Menu },
+   42                  { AD_MENU1_LEN,(u8 *)"Right_H",&car.adc_parameter.adc_normalized[RIGHT_H],MY_FLOAT,NULL,NULL,Ad_Menu },
+   43          };
+   44          
+   45          
+   46          
+   47          #define AD_MAX_LEN  5
+   48          struct MenuItem AD_MAX[AD_MAX_LEN]={
+   49          { AD_MAX_LEN,(u8 *)"Left_H" ,&car.adc_parameter.adc_max[LEFT_H] , MY_UINT16,NULL,NULL,Ad_Menu },
+   50          { AD_MAX_LEN,(u8 *)"Left_X" ,&car.adc_parameter.adc_max[LEFT_X] , MY_UINT16,NULL,NULL,Ad_Menu },
+   51          { AD_MAX_LEN,(u8 *)"Middle" ,&car.adc_parameter.adc_max[MIDDLE] , MY_UINT16,NULL,NULL,Ad_Menu },
+   52          { AD_MAX_LEN,(u8 *)"Right_X",&car.adc_parameter.adc_max[RIGHT_X], MY_UINT16,NULL,NULL,Ad_Menu },
+   53          { AD_MAX_LEN,(u8 *)"Right_H",&car.adc_parameter.adc_max[RIGHT_H], MY_UINT16,NULL,NULL,Ad_Menu },
+   54          };
+   55          
+   56          //µç¸ÐÔ­Ê¼Öµ
+   57          #define AD_MENU2_LEN  3
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 2   
+
+   58          struct MenuItem Ad_Menu2[AD_MENU2_LEN]={
+   59          { AD_MENU2_LEN,(u8 *)"Left_H", &car.adc_parameter.adc_ave[LEFT_H]  ,MY_UINT16,NULL,NULL,Ad_Menu },
+   60          { AD_MENU2_LEN,(u8 *)"Middle", &car.adc_parameter.adc_ave[MIDDLE]  ,MY_UINT16,NULL,NULL,Ad_Menu },
+   61          { AD_MENU2_LEN,(u8 *)"Right_H", &car.adc_parameter.adc_ave[RIGHT_H],MY_UINT16,NULL,NULL,Ad_Menu },
+   62          };
+   63          
+   64          
+   65          /**************************ÔªËØÏà¹Ø*************************/
+   66          #define PID_LEN 8
+   67          struct MenuItem PID[PID_LEN] = {
+   68          { PID_LEN,(u8 *)"Straight"      ,NULL,NULL_TYPE,NULL,NULL,MainMenu },
+   69          { PID_LEN,(u8 *)"Circle"        ,NULL,NULL_TYPE,NULL,NULL,MainMenu },
+   70          { PID_LEN,(u8 *)"Ramp"          ,NULL,NULL_TYPE,NULL,NULL,MainMenu },
+   71          { PID_LEN,(u8 *)"Hinder"        ,NULL,NULL_TYPE,NULL,NULL,MainMenu },
+   72          { PID_LEN,(u8 *)"out_garage"    ,NULL,NULL_TYPE,NULL,NULL,MainMenu },
+   73          { PID_LEN,(u8 *)"enter_garage"  ,NULL,NULL_TYPE,NULL,NULL,MainMenu },
+   74          { PID_LEN,(u8 *)"fan"           ,NULL,NULL_TYPE,NULL,NULL,MainMenu },
+   75          { PID_LEN,(u8 *)"excel"         ,NULL,NULL_TYPE,NULL,NULL,MainMenu },
+   76          };
+   77          /*********************ÔªËØ±í***********************/
+   78          #define EXCEL_LEN 8
+   79          struct MenuItem ELEMENT_EXCEL[EXCEL_LEN] = {
+   80          {EXCEL_LEN,(u8 *)"order1:" ,&car.element.excel[0] ,MY_INT16,NULL,NULL,PID},
+   81          {EXCEL_LEN,(u8 *)"order2:" ,&car.element.excel[1] ,MY_INT16,NULL,NULL,PID},
+   82          {EXCEL_LEN,(u8 *)"order3:" ,&car.element.excel[2] ,MY_INT16,NULL,NULL,PID},
+   83          {EXCEL_LEN,(u8 *)"order4:" ,&car.element.excel[3] ,MY_INT16,NULL,NULL,PID},
+   84          {EXCEL_LEN,(u8 *)"order5:" ,&car.element.excel[4] ,MY_INT16,NULL,NULL,PID},
+   85          {EXCEL_LEN,(u8 *)"order6:" ,&car.element.excel[5] ,MY_INT16,NULL,NULL,PID},
+   86          {EXCEL_LEN,(u8 *)"order7:" ,&car.element.excel[6] ,MY_INT16,NULL,NULL,PID},
+   87          {EXCEL_LEN,(u8 *)"order8:" ,&car.element.excel[7] ,MY_INT16,NULL,NULL,PID},
+   88          };
+   89          /*********************ÔªËØ±í***********************/
+   90          
+   91          /**********************Ö±µÀ************************/
+   92          #define STRAIGHT_LEN 3
+   93          struct MenuItem Straight_Pid[STRAIGHT_LEN]={
+   94          { STRAIGHT_LEN,(u8 *)"Kp"   ,&car.straight.kp        ,MY_FLOAT,NULL,NULL,PID },
+   95          { STRAIGHT_LEN,(u8 *)"kd"   ,&car.straight.kd        ,MY_FLOAT,NULL,NULL,PID },
+   96          { STRAIGHT_LEN,(u8 *)"Speed",&car.straight.base_speed,MY_FLOAT,NULL,NULL,PID },
+   97          };
+   98          /**********************Ö±µÀ************************/
+   99          
+  100          /**********************»·µº************************/
+  101          #define CIRCLE_Para_LEN 3
+  102          struct MenuItem Circle_Para[CIRCLE_Para_LEN]={
+  103          { CIRCLE_Para_LEN,(u8 *)"Circle1",  NULL, NULL_TYPE,NULL,NULL,PID },
+  104          { CIRCLE_Para_LEN,(u8 *)"Circle2",  NULL, NULL_TYPE,NULL,NULL,PID },
+  105          { CIRCLE_Para_LEN,(u8 *)"Circle3",  NULL, NULL_TYPE,NULL,NULL,PID },
+  106          };
+  107          
+  108          /***********»·µº1(Ð¡»·R50)²ÎÊý**********/
+  109          #define CIRCLE_LEN_1 12
+  110          struct MenuItem Circle_Para_1[CIRCLE_LEN_1]={
+  111          { CIRCLE_LEN_1,(u8 *)"Spd",   & car.circle.speed[0]               ,MY_UINT16,NULL,NULL,Circle_Para},//»·Ä
+             -ÚËÙ¶È
+  112          { CIRCLE_LEN_1,(u8 *)"L_R",   & car.circle.PRE_ENTER_H_STRENGTH[0],MY_UINT16,NULL,NULL,Circle_Para},//×ó¼
+             -ÓÓÒ
+  113          { CIRCLE_LEN_1,(u8 *)"Mid",   & car.circle.PRE_ENTER_MIDDLE[0]    ,MY_UINT16,NULL,NULL,Circle_Para},//ÖÐ¼
+             -äµç¸Ð
+  114          { CIRCLE_LEN_1,(u8 *)"kp",    & car.circle.kp[0]                  ,MY_FLOAT ,NULL,NULL,Circle_Para},//»·Ä
+             -Úkp
+  115          { CIRCLE_LEN_1,(u8 *)"kd",    & car.circle.kd[0]                  ,MY_FLOAT ,NULL,NULL,Circle_Para},//»·Ä
+             -Úkd
+  116          { CIRCLE_LEN_1,(u8 *)"dis",   & car.circle.Enter_DIST[0]          ,MY_UINT16,NULL,NULL,Circle_Para},//Ô¤È
+             -ë»·µ½Èë»·µãµÄ¾àÀë
+  117          { CIRCLE_LEN_1,(u8 *)"ENMID", & car.circle.Enter_MID[0]           ,MY_UINT16,NULL,NULL,Circle_Para},//Èë»
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 3   
+
+             -·µãµç¸ÐÖµ
+  118          { CIRCLE_LEN_1,(u8 *)"angle", & car.circle.Enter_ANGLE[0]         ,MY_UINT16,NULL,NULL,Circle_Para},//Èë»
+             -·µãµ½»·ÄÚÑ­¼£×ª½Ç
+  119          { CIRCLE_LEN_1,(u8 *)"ang_1", & car.circle.angle_1[0]             ,MY_UINT16,NULL,NULL,Circle_Para},//»·Ä
+             -ÚÑ­¼£×ª½Ç
+  120          { CIRCLE_LEN_1,(u8 *)"ang_2", & car.circle.angle_2[0]             ,MY_UINT16,NULL,NULL,Circle_Para},//¾ùÖ
+             -µ´ò½Ç
+  121          { CIRCLE_LEN_1,(u8 *)"R"    , & car.circle.enter_R_circle[0]      ,MY_UINT16,NULL,NULL,Circle_Para},//Èë»
+             -·°ë¾¶
+  122          { CIRCLE_LEN_1,(u8 *)"pz   ", & car.circle.BIAS_ADJUST[0]         ,MY_INT16 ,NULL,NULL,Circle_Para},//³ö»
+             -·Æ«ÖÃ
+  123          };
+  124          /***********»·µº1(Ð¡»·R50)²ÎÊý**********/
+  125          
+  126          /***********»·µº2(´ó»·R60)²ÎÊý**********/
+  127          #define CIRCLE_LEN_2 12
+  128          struct MenuItem Circle_Para_2[CIRCLE_LEN_2]={
+  129          { CIRCLE_LEN_2,(u8 *)"Spd",   & car.circle.speed[1]               ,MY_UINT16,NULL,NULL,Circle_Para},//»·Ä
+             -ÚËÙ¶È
+  130          { CIRCLE_LEN_2,(u8 *)"L_R",   & car.circle.PRE_ENTER_H_STRENGTH[1],MY_UINT16,NULL,NULL,Circle_Para},//×ó¼
+             -ÓÓÒ
+  131          { CIRCLE_LEN_2,(u8 *)"Mid",   & car.circle.PRE_ENTER_MIDDLE[1]    ,MY_UINT16,NULL,NULL,Circle_Para},//ÖÐ¼
+             -äµç¸Ð
+  132          { CIRCLE_LEN_2,(u8 *)"kp",    & car.circle.kp[1]                  ,MY_FLOAT ,NULL,NULL,Circle_Para},//»·Ä
+             -Úkp
+  133          { CIRCLE_LEN_2,(u8 *)"kd",    & car.circle.kd[1]                  ,MY_FLOAT ,NULL,NULL,Circle_Para},//»·Ä
+             -Úkd
+  134          { CIRCLE_LEN_2,(u8 *)"dis",   & car.circle.Enter_DIST[1]          ,MY_UINT16,NULL,NULL,Circle_Para},//Ô¤È
+             -ë»·µ½Èë»·µãµÄ¾àÀë
+  135          { CIRCLE_LEN_2,(u8 *)"ENMID", & car.circle.Enter_MID[1]           ,MY_UINT16 ,NULL,NULL,Circle_Para},//Èë
+             -»·µãµç¸ÐÖµ
+  136          { CIRCLE_LEN_2,(u8 *)"angle", & car.circle.Enter_ANGLE[1]         ,MY_UINT16,NULL,NULL,Circle_Para},//Èë»
+             -·µãµ½»·ÄÚÑ­¼£×ª½Ç
+  137          { CIRCLE_LEN_2,(u8 *)"ang_1", & car.circle.angle_1[1]             ,MY_UINT16,NULL,NULL,Circle_Para},//»·Ä
+             -ÚÑ­¼£×ª½Ç
+  138          { CIRCLE_LEN_2,(u8 *)"ang_2", & car.circle.angle_2[1]             ,MY_UINT16,NULL,NULL,Circle_Para},//¾ùÖ
+             -µ´ò½Ç
+  139          { CIRCLE_LEN_2,(u8 *)"R"    , & car.circle.enter_R_circle[1]      ,MY_UINT16,NULL,NULL,Circle_Para},//Èë»
+             -·°ë¾¶
+  140          { CIRCLE_LEN_2,(u8 *)"pz   ", & car.circle.BIAS_ADJUST[1]         ,MY_INT16 ,NULL,NULL,Circle_Para},//³ö»
+             -·Æ«ÖÃ
+  141          };
+  142          /***********»·µº2(´ó»·R60)²ÎÊý**********/
+  143          
+  144          /***********»·µº3(´ó»·R90)²ÎÊý**********/
+  145          #define CIRCLE_LEN_3 3
+  146          struct MenuItem Circle_Para_3[CIRCLE_LEN_3]={
+  147          { CIRCLE_LEN_3,(u8 *)"dis"  , & car.circle.Enter_DIST[2]          ,MY_UINT16,NULL,NULL,Circle_Para},//Ô¤È
+             -ë»·µ½Èë»·µãµÄ¾àÀë
+  148          { CIRCLE_LEN_3,(u8 *)"ENMID", & car.circle.Enter_MID[2]           ,MY_UINT16,NULL,NULL,Circle_Para},//Èë»
+             -·µãµç¸ÐÖµ
+  149          { CIRCLE_LEN_3,(u8 *)"R"    , & car.circle.enter_R_circle[2]      ,MY_UINT16,NULL,NULL,Circle_Para},//Èë»
+             -·°ë¾¶
+  150          };
+  151          /***********»·µº3(´ó»·R90)²ÎÊý**********/
+  152          
+  153          /**********************»·µº************************/
+  154          
+  155          
+  156          /**********************ÆÂµÀ************************/
+  157          #define RAMP_LEN 5
+  158          struct MenuItem Ramp_element[RAMP_LEN]={
+  159          { RAMP_LEN,(u8 *)"spd1" ,&car.ramp.speed     ,MY_FLOAT,NULL,NULL,PID },//ÉÏÆÂËÙ¶È
+  160          { RAMP_LEN,(u8 *)"spd2" ,&car.ramp.speed2    ,MY_FLOAT,NULL,NULL,PID },//ÏÂÆÂËÙ¶È
+  161          { RAMP_LEN,(u8 *)"mid"  ,&car.ramp.adc_middle,MY_FLOAT,NULL,NULL,PID },//ÖÐ¼äµç¸ÐÊ¶±ð
+  162          { RAMP_LEN,(u8 *)"left" ,&car.ramp.adc_left  ,MY_FLOAT,NULL,NULL,PID },//×óµç¸ÐÊ¶±ð
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 4   
+
+  163          { RAMP_LEN,(u8 *)"right",&car.ramp.adc_right ,MY_FLOAT,NULL,NULL,PID },//ÓÒµç¸ÐÊ¶±ð
+  164          };
+  165          /**********************ÆÂµÀ************************/
+  166          
+  167          
+  168          /**********************ÕÏ°­************************/
+  169          #define HINDER_LEN 12
+  170          struct MenuItem HINDER_element[HINDER_LEN]={
+  171          { HINDER_LEN,(u8 *)"spd"   ,&car.hinder.speed            ,MY_FLOAT,NULL,NULL,PID },//ÕÏ°­ËÙ¶È
+  172          { HINDER_LEN,(u8 *)"dif"   ,&car.hinder.diff             ,MY_FLOAT,NULL,NULL,PID },//²îËÙ
+  173          { HINDER_LEN,(u8 *)"dis"   ,&car.hinder.judge_distance   ,MY_FLOAT,NULL,NULL,PID },//Ê¶±ð¾àÀë
+  174          { HINDER_LEN,(u8 *)"1_ang" ,&car.hinder.point_1.angle    ,MY_FLOAT,NULL,NULL,PID },//¹Õµã1½Ç¶È
+  175          { HINDER_LEN,(u8 *)"1_dis" ,&car.hinder.point_1.distance ,MY_FLOAT,NULL,NULL,PID },//¹Õµã1ÐÐÊ»¾àÀë
+  176          { HINDER_LEN,(u8 *)"1_R"   ,&car.hinder.R_circle         ,MY_FLOAT,NULL,NULL,PID },//µÚÒ»¶Î×ªÍä°ë¾¶
+  177          { HINDER_LEN,(u8 *)"2_ang" ,&car.hinder.point_2.angle    ,MY_FLOAT,NULL,NULL,PID },//¹Õµã2½Ç¶È
+  178          { HINDER_LEN,(u8 *)"2_dis" ,&car.hinder.point_2.distance ,MY_UINT16,NULL,NULL,PID},//¹Õµã2ÐÐÊ»¾àÀë
+  179          { HINDER_LEN,(u8 *)"2_R"   ,&car.hinder.R_circle_2       ,MY_FLOAT,NULL,NULL,PID },//µÚ¶þ¶Î×ªÍä°ë¾¶
+  180          { HINDER_LEN,(u8 *)"dir"   ,&car.hinder.dir              ,MY_UINT16,NULL,NULL,PID },//±ÜÕÏ·½Ïò
+  181          { HINDER_LEN,(u8 *)"circle",&car.circle_distance         ,MY_UINT16,NULL,NULL,PID },//±ÜÕÏ·½Ïò
+  182          { HINDER_LEN,(u8 *)"ramp"  ,&car.ramp_distance           ,MY_UINT16,NULL,NULL,PID },//±ÜÕÏ·½Ïò
+  183          };
+  184          /**********************ÕÏ°­************************/
+  185          
+  186          /**********************³ö¿â************************/
+  187          #define Out_garage_Mode_Len 5
+  188          struct MenuItem Out_garage_Mode[Out_garage_Mode_Len] = {
+  189          { Out_garage_Mode_Len,(u8 *) "spd" , &car.garage.out_garage_speed    ,MY_UINT16,NULL,NULL ,PID },//³ö¿âËÙ
+             -¶È
+  190          { Out_garage_Mode_Len,(u8 *) "dis" , &car.garage.out_garage_distance ,MY_UINT16,NULL,NULL ,PID },//³ö¿âÐÐ
+             -Ê»¾àÀë
+  191          { Out_garage_Mode_Len,(u8 *) "ang" , &car.garage.out_garage_angle    ,MY_UINT16,NULL,NULL ,PID },//³ö¿â×ª
+             -½Ç
+  192          { Out_garage_Mode_Len,(u8 *) "diff", &car.garage.out_garage_diff     ,MY_UINT16,NULL,NULL ,PID },//³ö¿â²î
+             -ËÙ 
+  193          { Out_garage_Mode_Len,(u8 *) "dir",  &car.garage.DIR                 ,MY_UINT16,NULL,NULL ,PID },//³ö¿â·½
+             -Ïò
+  194          };
+  195          /**********************³ö¿â************************/
+  196          
+  197          /**********************Èë¿â(²Ëµ¥)******************/
+  198          #define Enter_garage_Mode_Len 8
+  199          struct MenuItem Enter_garage_Mode[Enter_garage_Mode_Len] = {
+  200          { Enter_garage_Mode_Len,(u8 *) "left"   , NULL                          ,NULL_TYPE,NULL,NULL,PID },//×óÈë
+             -¿â
+  201          { Enter_garage_Mode_Len,(u8 *) "right"  , NULL                          ,NULL_TYPE,NULL,NULL,PID },//ÓÒÈë
+             -¿â
+  202          { Enter_garage_Mode_Len,(u8 *) "dis"    , &car.garage.distance_passed   ,MY_INT16 ,NULL,NULL,PID },//×îºó
+             -Ò»¸öÔªËØµ½¿âµÄ¾àÀë
+  203          { Enter_garage_Mode_Len,(u8 *) "zebra"  , &car.garage.distance_to_zebra ,MY_INT16 ,NULL,NULL,PID },//×îºó
+             -Ò»¸öÔªËØµ½¿âÊ¶±ð¾àÀë
+  204          { Enter_garage_Mode_Len,(u8 *) "ang"    , &car.garage.turn_point        ,MY_INT16 ,NULL,NULL,PID },//Õý¿â
+             -×ª½Ç
+  205          { Enter_garage_Mode_Len,(u8 *) "diff"   , &car.garage.forward_R         ,MY_INT16 ,NULL,NULL,PID },//Õý¿â
+             -×ª½Ç
+  206          { Enter_garage_Mode_Len,(u8 *) "speed"  , &car.garage.forward_speed     ,MY_INT16 ,NULL,NULL,PID },//Õý¿â
+             -×ª½Ç
+  207          { Enter_garage_Mode_Len,(u8 *) "dis_2"  , &car.garage.forward_distance  ,MY_INT16 ,NULL,NULL,PID },//Õý¿â
+             -×ª½Ç
+  208          };
+  209          /**********************Èë¿â(²Ëµ¥)*****************/
+  210          
+  211          /**********************Èë¿â(×ó)*******************/
+  212          #define Enter_garage_Left_Len 4
+  213          struct  MenuItem Enter_garage_Left[Enter_garage_Left_Len]={
+  214          { Enter_garage_Left_Len,(u8 *)"dis_1",&car.garage.enter_garage_distance_1_left,MY_INT16,NULL,NULL,Enter_g
+             -arage_Mode},
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 5   
+
+  215          { Enter_garage_Left_Len,(u8 *)"dis_2",&car.garage.enter_garage_distance_2_left,MY_INT16,NULL,NULL,Enter_g
+             -arage_Mode},
+  216          { Enter_garage_Left_Len,(u8 *)"angle",&car.garage.enter_garage_angle_left     ,MY_INT16,NULL,NULL,Enter_g
+             -arage_Mode},
+  217          { Enter_garage_Left_Len,(u8 *)"diff" ,&car.garage.enter_garage_diff           ,MY_INT16,NULL,NULL,Enter_g
+             -arage_Mode},
+  218          };
+  219          /**********************Èë¿â(×ó)*******************/
+  220          
+  221          /**********************Èë¿â(ÓÒ)*******************/
+  222          #define Enter_garage_Right_Len 4
+  223          struct MenuItem Enter_garage_Right[Enter_garage_Right_Len] = {
+  224          { Enter_garage_Left_Len,(u8 *)"dis_1",&car.garage.enter_garage_distance_1_right,MY_INT16,NULL,NULL,Enter_
+             -garage_Mode},
+  225          { Enter_garage_Left_Len,(u8 *)"dis_2",&car.garage.enter_garage_distance_2_right,MY_INT16,NULL,NULL,Enter_
+             -garage_Mode},
+  226          { Enter_garage_Left_Len,(u8 *)"angle",&car.garage.enter_garage_angle_right     ,MY_INT16,NULL,NULL,Enter_
+             -garage_Mode},
+  227          { Enter_garage_Left_Len,(u8 *)"diff ",&car.garage.enter_garage_diff            ,MY_INT16,NULL,NULL,Enter_
+             -garage_Mode},
+  228          };
+  229          /**********************Èë¿â(ÓÒ)*******************/
+  230          
+  231          /************************·çÉÈ********************/
+  232          #define fan_LEN 2
+  233          struct MenuItem fan_Mode[fan_LEN] = {
+  234          { fan_LEN,(u8*)"left" , &car.fan.left_duty  ,MY_UINT16,NULL,NULL,PID},//×ó·çÉÈ×ªËÙ
+  235          { fan_LEN,(u8*)"right", &car.fan.right_duty ,MY_UINT16,NULL,NULL,PID},//×ó·çÉÈ×ªËÙ
+  236          };
+  237          /************************·çÉÈ********************/
+  238          
+  239          
+  240          /**************************ÍÓÂÝÒÇÏà¹Ø*************************/
+  241          //ÍÓÂÝÒÇ
+  242          struct MenuItem Mpu6050[2] = {
+  243          {2,(u8 *)"Pitch",&icmdata.Pitch,     MY_FLOAT,NULL,NULL,MainMenu },
+  244          {2,(u8 *)"Yaw",  &icmdata.Yaw,       MY_FLOAT,NULL,NULL,MainMenu },
+  245          };
+  246          /****************************************************
+  247           * @name            MenuInit  
+  248           * @function    Ö÷²Ëµ¥½çÃæ
+  249           * @parameter   NULL
+  250           * @return          NULL
+  251           * @date                2023/7/9
+  252           ***************************************************/
+  253          void MenuInit(){
+  254   1              MenuPoint   =  MainMenu;
+  255   1              selectItem =1;
+  256   1      
+  257   1      /*****************Ö÷²Ëµ¥½çÃæÌø×ªµÚ¶þ¼¶²Ëµ¥***************/
+  258   1              MainMenu[1].ChildrenMenus = Ad_Menu;
+  259   1              MainMenu[2].ChildrenMenus = PID;
+  260   1              //MainMenu[3].ChildrenMenus = Servo_Test;
+  261   1              MainMenu[4].ChildrenMenus = Mpu6050;
+  262   1      /*****************Ö÷²Ëµ¥½çÃæÌø×ªµÚ¶þ¼¶²Ëµ¥***************/
+  263   1      
+  264   1      
+  265   1      /*****************µÚ¶þ¼¶½çÃæÌø×ªµÚÈý¼¶²Ëµ¥***************/
+  266   1              Ad_Menu[0].ChildrenMenus = Ad_Menu1;
+  267   1              Ad_Menu[1].ChildrenMenus = AD_MAX;
+  268   1              Ad_Menu[2].ChildrenMenus = Ad_Menu2;
+  269   1      /*****************µÚ¶þ¼¶½çÃæÌø×ªµÚÈý¼¶²Ëµ¥***************/
+  270   1      
+  271   1      
+  272   1      /*****************µÚÈý¼¶½çÃæÌø×ªµÚËÄ¼¶²Ëµ¥***************/
+  273   1              PID[0].ChildrenMenus = Straight_Pid;      //Ö±µÀ
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 6   
+
+  274   1              PID[1].ChildrenMenus = Circle_Para;       //Ô²»·
+  275   1              PID[2].ChildrenMenus = Ramp_element;      //ÆÂµÀ
+  276   1              PID[3].ChildrenMenus = HINDER_element;    //ÕÏ°­
+  277   1              PID[4].ChildrenMenus = Out_garage_Mode;   //³ö¿â
+  278   1              PID[5].ChildrenMenus = Enter_garage_Mode; //Èë¿â
+  279   1              PID[6].ChildrenMenus = fan_Mode;          //·çÉÈ
+  280   1              PID[7].ChildrenMenus = ELEMENT_EXCEL;     //ÔªËØ±í
+  281   1      /*****************µÚÈý¼¶½çÃæÌø×ªµÚËÄ¼¶²Ëµ¥***************/
+  282   1      
+  283   1      
+  284   1      
+  285   1      /**********************Èë¿âÒ»¼¶²Ëµ¥*********************/
+  286   1         Enter_garage_Mode[0].ChildrenMenus = Enter_garage_Left;  //×óÈë¿â
+  287   1         Enter_garage_Mode[1].ChildrenMenus = Enter_garage_Right; //ÓÒÈë¿â
+  288   1      /**********************Èë¿âÒ»¼¶²Ëµ¥*********************/
+  289   1      
+  290   1      /**********************»·µºÒ»¼¶²Ëµ¥*********************/
+  291   1              Circle_Para[0].ChildrenMenus =Circle_Para_1;
+  292   1              Circle_Para[1].ChildrenMenus =Circle_Para_2;
+  293   1              Circle_Para[2].ChildrenMenus =Circle_Para_3;
+  294   1      /**********************»·µºÒ»¼¶²Ëµ¥*********************/
+  295   1      
+  296   1      
+  297   1              
+  298   1              display_str(MenuPoint,selectItem);
+  299   1              
+  300   1      }
+  301          
+  302          
+  303          
+  304          void Store_Para(){
+  305   1      
+  306   1              //´æ´¢¿Õ¼äÈ«²¿Ð´0
+  307   1              //  uint8 i ;
+  308   1              //  for(i=0; i<511;i++)
+  309   1              //  {
+  310   1              //      extern_iap_write_bytes(i, (uint8)0);
+  311   1              //  }
+  312   1              iap_erase_page(0);
+  313   1      /**********************Ö±µÀ*************************/
+  314   1              //car.straight.kp 
+  315   1              store_float(0, 20); 
+  316   1      
+  317   1              //car.straight.kd
+  318   1              store_float(4, 0.7); 
+  319   1      
+  320   1              //car.straight.base_speed
+  321   1              store_float(8, 250); 
+  322   1      /**********************Ö±µÀ*************************/
+  323   1      
+  324   1      /**********************Ô²»·(R50)********************/
+  325   1      
+  326   1         //car.circle.speed[0]
+  327   1         store_int16(16,250);
+  328   1      
+  329   1         //car.circle.PRE_ENTER_H_STRENGTH[0]
+  330   1         store_int16(20,140);
+  331   1         
+  332   1         //car.circle.PRE_ENTER_MIDDLE[0]
+  333   1         store_int16(24,70);
+  334   1      
+  335   1         //car.circle.Enter_DIST[0]
+  336   1         store_int16(28,35);
+  337   1         
+  338   1         //car.circle.Enter_ANGLE[0]
+  339   1         store_int16(32,30);
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 7   
+
+  340   1      
+  341   1         //car.circle.angle_1[0]
+  342   1         store_int16(36,260);
+  343   1      
+  344   1         //car.circle.angle_2[0] 
+  345   1         store_int16(40,300);
+  346   1      
+  347   1         //car.circle.BIAS_ADJUST[0]
+  348   1         store_int16(44,-10);
+  349   1      
+  350   1         //car.circle.Enter_MID[0]
+  351   1         store_int16(216,90);
+  352   1      
+  353   1         //car.circle.enter_R_circle[0]
+  354   1         store_int16(244,35);
+  355   1      /**********************Ô²»·(R50)***********************/
+  356   1      
+  357   1      /**********************Ô²»·(R60)***********************/
+  358   1      
+  359   1         // car.circle.speed[1]
+  360   1         store_int16(52,250);
+  361   1      
+  362   1         //car.circle.PRE_ENTER_H_STRENGTH[1]
+  363   1         store_int16(56,140);
+  364   1         
+  365   1         //car.circle.PRE_ENTER_MIDDLE[1]
+  366   1         store_int16(60,80);
+  367   1      
+  368   1         //car.circle.Enter_DIST[1]
+  369   1         store_int16(64,44);
+  370   1         
+  371   1         //car.circle.Enter_ANGLE[1]
+  372   1         store_int16(68,30);
+  373   1      
+  374   1         //car.circle.angle_1[1]
+  375   1         store_int16(72,260);
+  376   1      
+  377   1         //car.circle.angle_2[1] 
+  378   1         store_int16(76,300);
+  379   1      
+  380   1         //car.circle.BIAS_ADJUST[1]
+  381   1         store_int16(80,-10);
+  382   1      
+  383   1              //car.circle.Enter_MID[1]
+  384   1         store_int16(220,90);
+  385   1      
+  386   1          //car.circle.enter_R_circle[1]
+  387   1          store_int16(246,45);
+  388   1      /**********************Ô²»·(R60)***********************/
+  389   1      
+  390   1      /**********************Ô²»·(R90)***********************/
+  391   1      
+  392   1          //car.circle.Enter_DIST[2]
+  393   1          store_int16(10,50);
+  394   1         
+  395   1          //car.circle.Enter_MID[2] 
+  396   1          store_int16(14,70);
+  397   1      
+  398   1              //car.circle.enter_R_circle[2]
+  399   1          store_int16(48,50);
+  400   1      /**********************Ô²»·(R90)***********************/
+  401   1      
+  402   1      /************************ÆÂµÀ**********************/
+  403   1      
+  404   1         //car.ramp.speed
+  405   1         store_float(84,100);
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 8   
+
+  406   1      
+  407   1         //car.ramp.speed2
+  408   1         store_float(88,200);
+  409   1      
+  410   1         //car.ramp.adc_middle
+  411   1         store_float(92,75);
+  412   1      
+  413   1         //car.ramp.adc_left
+  414   1         store_float(96,50);
+  415   1      
+  416   1         //car.ramp.adc_right
+  417   1         store_float(100,50);
+  418   1      
+  419   1      /************************ÆÂµÀ**********************/
+  420   1      
+  421   1      /************************ÕÏ°­**********************/
+  422   1      
+  423   1         //car.hinder.speed 
+  424   1         store_float(104,250);
+  425   1      
+  426   1         //car.hinder.diff
+  427   1         store_float(108,100);
+  428   1      
+  429   1         //car.hinder.judge_distance
+  430   1         store_float(112,935);
+  431   1      
+  432   1         //car.hinder.point_1.angle
+  433   1         store_float(116,50);
+  434   1      
+  435   1         //car.hinder.point_1.distance
+  436   1         store_float(120,10);
+  437   1      
+  438   1         //car.hinder.point_2.angle
+  439   1         store_float(124,100);
+  440   1      
+  441   1         //car.hinder.point_2.distance
+  442   1         store_float(128,40);
+  443   1      
+  444   1        
+  445   1      
+  446   1         //car.hinder.R_circle;
+  447   1         store_float(136,35);
+  448   1      
+  449   1         //car.hinder.R_circle_2
+  450   1              store_float(140,35); 
+  451   1      
+  452   1         //car.hinder.dir
+  453   1         store_int16(204,0);
+  454   1      
+  455   1      /************************ÕÏ°­**********************/
+  456   1      
+  457   1      
+  458   1      /**********************³ö¿â************************/
+  459   1      
+  460   1         //car.garage.out_garage_speed
+  461   1         store_int16(144,200);
+  462   1      
+  463   1         //car.garage.out_garage_distance
+  464   1         store_int16(148,15);
+  465   1         
+  466   1         //car.garage.out_garage_angle
+  467   1         store_int16(152,50);
+  468   1      
+  469   1         //car.garage.out_garage_diff
+  470   1         store_int16(156,150);
+  471   1      
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 9   
+
+  472   1      /**********************³ö¿â************************/
+  473   1      
+  474   1      
+  475   1      
+  476   1      /**********************Èë¿â***********************/
+  477   1      
+  478   1          /*********×óÈë¿â²ÎÊý********/
+  479   1              //car.garage.enter_garage_distance_1_left
+  480   1              store_int16(158,2);
+  481   1              
+  482   1              //car.garage.enter_garage_angle_left
+  483   1          store_int16(160,10);
+  484   1      
+  485   1              //car.garage.enter_garage_distance_2_left
+  486   1              store_int16(162,35);
+  487   1      
+  488   1              //car.garage.enter_garage_R_left
+  489   1              store_int16(164,30);
+  490   1              /*********×óÈë¿â²ÎÊý********/
+  491   1      
+  492   1              /*********ÓÒÈë¿â²ÎÊý********/
+  493   1              //car.garage.enter_garage_distance_1_right
+  494   1              store_int16(166,2);
+  495   1              
+  496   1              //car.garage.enter_garage_angle_right
+  497   1          store_int16(168,8);
+  498   1      
+  499   1              //car.garage.enter_garage_distance_2_right
+  500   1              store_int16(170,50);
+  501   1      
+  502   1              //car.garage.enter_garage_diff 
+  503   1              store_int16(172,100);
+  504   1              /*********ÓÒÈë¿â²ÎÊý********/
+  505   1      
+  506   1              //car.garage.distance_to_zebra
+  507   1              store_int16(248,5000);
+  508   1      
+  509   1              //car.garage.turn_point
+  510   1              store_int16(250,75);
+  511   1      
+  512   1              //car.garage.forward_R 
+  513   1              store_int16(252,250);
+  514   1      
+  515   1              //car.garage.forward_speed 
+  516   1              store_int16(254,0);
+  517   1      
+  518   1              //car.garage.forward_distance
+  519   1              store_int16(200,40);
+  520   1      
+  521   1      
+  522   1      /**********************Èë¿â**********************/
+  523   1      
+  524   1      /**********************µç¸Ð×î´óÖµ******************/
+  525   1      
+  526   1         //car.adc_parameter.adc_max[LEFT_H]
+  527   1         store_int16(180,4000);
+  528   1      
+  529   1         //car.adc_parameter.adc_max[LEFT_X]
+  530   1         store_int16(184,4000);
+  531   1         
+  532   1         //car.adc_parameter.adc_max[MIDDLE]
+  533   1         store_int16(188,4000);
+  534   1      
+  535   1         //car.adc_parameter.adc_max[RIGHT_X]
+  536   1         store_int16(192,4000);
+  537   1      
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 10  
+
+  538   1         //car.adc_parameter.adc_max[RIGHT_H]
+  539   1         store_int16(196,4000);
+  540   1      
+  541   1      /**********************µç¸Ð×î´óÖµ******************/
+  542   1      
+  543   1      /*************************·çÉÈ********************/
+  544   1      
+  545   1         //car.fan.left_duty
+  546   1              store_int16(224,850);
+  547   1      
+  548   1         //car.fan.right_duty
+  549   1          store_int16(228,850);
+  550   1      
+  551   1      /*************************·çÉÈ********************/
+  552   1      
+  553   1      /************************ÔªËØ±í*******************/
+  554   1      
+  555   1              //car.element.excel[0] 
+  556   1               store_int16(230,0);
+  557   1      
+  558   1              //car.element.excel[1]
+  559   1               store_int16(232,3);
+  560   1      
+  561   1              //car.element.excel[2]
+  562   1               store_int16(234,8);
+  563   1      
+  564   1              //car.element.excel[3]
+  565   1               store_int16(236,4);
+  566   1      
+  567   1              //car.element.excel[4]
+  568   1               store_int16(238,11);
+  569   1      
+  570   1              //car.element.excel[5]
+  571   1               store_int16(240,6);
+  572   1      
+  573   1              //car.element.excel[6]
+  574   1               store_int16(242,8);
+  575   1      
+  576   1              //car.element.excel[7]
+  577   1               store_int16(202,9);
+  578   1      /************************ÔªËØ±í*******************/
+  579   1              //car.circle_distance
+  580   1              store_int16(132,50);
+  581   1      
+  582   1              //car.ramp_distance
+  583   1              store_int16(134,50);
+  584   1      
+  585   1              //car.road.type
+  586   1              store_int16(222,0);
+  587   1              
+  588   1              //car.meter_distance         
+  589   1              store_int16(146,100);
+  590   1      }
+  591          void Store_280(){
+  592   1      
+  593   1              //´æ´¢¿Õ¼äÈ«²¿Ð´0
+  594   1              //  uint8 i ;
+  595   1              //  for(i=0; i<511;i++)
+  596   1              //  {
+  597   1              //      extern_iap_write_bytes(i, (uint8)0);
+  598   1              //  }
+  599   1              iap_erase_page(0);
+  600   1      /**********************Ö±µÀ*************************/
+  601   1              //car.straight.kp 
+  602   1              store_float(0, 35); 
+  603   1      
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 11  
+
+  604   1              //car.straight.kd
+  605   1              store_float(4, 0.85); 
+  606   1      
+  607   1              //car.straight.base_speed
+  608   1              store_float(8, 280); 
+  609   1      /**********************Ö±µÀ*************************/
+  610   1      
+  611   1      /**********************Ô²»·(Ð¡»·)*******************/
+  612   1        
+  613   1         //car.circle.speed[0]
+  614   1         store_int16(16,270);
+  615   1      
+  616   1         //car.circle.PRE_ENTER_H_STRENGTH[0]
+  617   1         store_int16(20,140);
+  618   1         
+  619   1         //car.circle.PRE_ENTER_MIDDLE[0]
+  620   1         store_int16(24,70);
+  621   1         //28
+  622   1         //car.circle.Enter_DIST[0]
+  623   1         store_int16(28,42);
+  624   1         
+  625   1         //car.circle.Enter_ANGLE[0]
+  626   1         store_int16(32,30);
+  627   1      
+  628   1         //car.circle.angle_1[0]
+  629   1         store_int16(36,260);
+  630   1      
+  631   1         //car.circle.angle_2[0] 
+  632   1         store_int16(40,300);
+  633   1      
+  634   1         //car.circle.BIAS_ADJUST[0]
+  635   1         store_int16(44,20);
+  636   1         //94
+  637   1         //car.circle.Enter_MID[0]
+  638   1         store_int16(216,94);
+  639   1      
+  640   1          //car.circle.enter_R_circle[0]
+  641   1         store_int16(244,35);
+  642   1      /**********************Ô²»·(Ð¡»·)*******************/
+  643   1      
+  644   1      /**********************Ô²»·(´ó»·)*******************/
+  645   1      
+  646   1         // car.circle.speed[1]
+  647   1         store_int16(52,260);
+  648   1      
+  649   1         //car.circle.PRE_ENTER_H_STRENGTH[1]
+  650   1         store_int16(56,140);
+  651   1         
+  652   1         //car.circle.PRE_ENTER_MIDDLE[1]
+  653   1         store_int16(60,70);
+  654   1      
+  655   1         //car.circle.Enter_DIST[1]
+  656   1         store_int16(64,45);
+  657   1         
+  658   1         //car.circle.Enter_ANGLE[1]
+  659   1         store_int16(68,30);
+  660   1      
+  661   1         //car.circle.angle_1[1]
+  662   1         store_int16(72,260);
+  663   1      
+  664   1         //car.circle.angle_2[1] 
+  665   1         store_int16(76,300);
+  666   1      
+  667   1         //car.circle.BIAS_ADJUST[1]
+  668   1         store_int16(80,0);
+  669   1      
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 12  
+
+  670   1         //car.circle.Enter_MID[1]
+  671   1         store_int16(220,82);
+  672   1      
+  673   1          //car.circle.enter_R_circle[1]
+  674   1          store_int16(246,45);
+  675   1      /**********************Ô²»·(´ó»·)*******************/
+  676   1      
+  677   1      /**********************Ô²»·(R90)***********************/
+  678   1          //55
+  679   1          //car.circle.Enter_DIST[2]
+  680   1          store_int16(10,50);
+  681   1          //78
+  682   1          //car.circle.Enter_MID[2] 
+  683   1          store_int16(14,70);
+  684   1          //55
+  685   1              //car.circle.enter_R_circle[2]
+  686   1          store_int16(48,50);
+  687   1      /**********************Ô²»·(R90)***********************/
+  688   1      
+  689   1      /************************ÆÂµÀ**********************/
+  690   1      
+  691   1         //car.ramp.speed
+  692   1         store_float(84,100);
+  693   1      
+  694   1         //car.ramp.speed2
+  695   1         store_float(88,200);
+  696   1      
+  697   1         //car.ramp.adc_middle
+  698   1         store_float(92,75);
+  699   1      
+  700   1         //car.ramp.adc_left
+  701   1         store_float(96,50);
+  702   1      
+  703   1         //car.ramp.adc_right
+  704   1         store_float(100,50);
+  705   1      
+  706   1      /************************ÆÂµÀ**********************/
+  707   1      
+  708   1      /************************ÕÏ°­**********************/
+  709   1      
+  710   1         //car.hinder.speed 
+  711   1         store_float(104,280);
+  712   1      
+  713   1         //car.hinder.diff
+  714   1         store_float(108,100);
+  715   1      
+  716   1         //car.hinder.judge_distance
+  717   1         store_float(112,950);
+  718   1      
+  719   1         //car.hinder.point_1.angle
+  720   1         store_float(116,50);
+  721   1      
+  722   1         //car.hinder.point_1.distance
+  723   1         store_float(120,10);
+  724   1      
+  725   1         //car.hinder.point_2.angle
+  726   1         store_float(124,100);
+  727   1      
+  728   1         //car.hinder.point_2.distance
+  729   1         store_float(128,40);
+  730   1      
+  731   1         //car.hinder.R_circle;
+  732   1         store_float(136,35);
+  733   1      
+  734   1         //car.hinder.R_circle_2
+  735   1              store_float(140,35); 
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 13  
+
+  736   1      
+  737   1         //car.hinder.dir
+  738   1         store_int16(204,0);
+  739   1      
+  740   1      /************************ÕÏ°­**********************/
+  741   1      
+  742   1      
+  743   1      /**********************³ö¿â************************/
+  744   1      
+  745   1         //car.garage.out_garage_speed
+  746   1         store_int16(144,200);
+  747   1      
+  748   1         //car.garage.out_garage_distance
+  749   1         store_int16(148,15);
+  750   1         
+  751   1         //car.garage.out_garage_angle
+  752   1         store_int16(152,50);
+  753   1      
+  754   1         //car.garage.out_garage_diff
+  755   1         store_int16(156,150);
+  756   1      
+  757   1      
+  758   1      /**********************³ö¿â************************/
+  759   1      
+  760   1      
+  761   1      
+  762   1      /**********************Èë¿â(µ¹³µ)******************/
+  763   1      
+  764   1      /**********************Èë¿â***********************/
+  765   1      
+  766   1          /*********×óÈë¿â²ÎÊý********/
+  767   1              //car.garage.enter_garage_distance_1_left
+  768   1              store_int16(158,2);
+  769   1              
+  770   1              //car.garage.enter_garage_angle_left
+  771   1          store_int16(160,8);
+  772   1      
+  773   1              //car.garage.enter_garage_distance_2_left
+  774   1              store_int16(162,35);
+  775   1      
+  776   1              //car.garage.enter_garage_diff
+  777   1              store_int16(164,100);
+  778   1              /*********×óÈë¿â²ÎÊý********/
+  779   1      
+  780   1              /*********ÓÒÈë¿â²ÎÊý********/
+  781   1              //car.garage.enter_garage_distance_1_right
+  782   1              store_int16(166,2);
+  783   1              
+  784   1              //car.garage.enter_garage_angle_right
+  785   1          store_int16(168,8);
+  786   1      
+  787   1              //car.garage.enter_garage_distance_2_right
+  788   1              store_int16(170,50);
+  789   1      
+  790   1              //car.garage.enter_garage_diff 
+  791   1              store_int16(172,100);
+  792   1              /*********ÓÒÈë¿â²ÎÊý********/
+  793   1      
+  794   1              //car.garage.distance_to_zebra
+  795   1              store_int16(248,5000);
+  796   1      
+  797   1              //car.garage.turn_point
+  798   1              store_int16(250,75);
+  799   1      
+  800   1              //car.garage.forward_R 
+  801   1              store_int16(252,250);
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 14  
+
+  802   1      
+  803   1              //car.garage.forward_speed 
+  804   1              store_int16(254,0);
+  805   1      
+  806   1              //car.garage.forward_distance
+  807   1              store_int16(200,40);
+  808   1      
+  809   1      
+  810   1      /**********************Èë¿â**********************/
+  811   1      
+  812   1              
+  813   1      
+  814   1      /**********************Èë¿â(µ¹³µ)******************/
+  815   1      
+  816   1      /**********************µç¸Ð×î´óÖµ******************/
+  817   1      
+  818   1         //car.adc_parameter.adc_max[LEFT_H]
+  819   1         store_int16(180,4000);
+  820   1      
+  821   1         //car.adc_parameter.adc_max[LEFT_X]
+  822   1         store_int16(184,4000);
+  823   1         
+  824   1         //car.adc_parameter.adc_max[MIDDLE]
+  825   1         store_int16(188,4000);
+  826   1      
+  827   1         //car.adc_parameter.adc_max[RIGHT_X]
+  828   1         store_int16(192,4000);
+  829   1      
+  830   1         //car.adc_parameter.adc_max[RIGHT_H]
+  831   1         store_int16(196,4000);
+  832   1      
+  833   1      /**********************µç¸Ð×î´óÖµ******************/
+  834   1      
+  835   1      /*************************·çÉÈ********************/
+  836   1      
+  837   1         //car.fan.left_duty
+  838   1              store_int16(224,920);
+  839   1      
+  840   1         //car.fan.right_duty
+  841   1          store_int16(228,920);
+  842   1      
+  843   1      /*************************·çÉÈ********************/
+  844   1      
+  845   1      /************************ÔªËØ±í*******************/
+  846   1      
+  847   1              //car.element.excel[0] 
+  848   1               store_int16(230,0);
+  849   1      
+  850   1              //car.element.excel[1]
+  851   1               store_int16(232,3);
+  852   1      
+  853   1              //car.element.excel[2]
+  854   1               store_int16(234,8);
+  855   1      
+  856   1              //car.element.excel[3]
+  857   1               store_int16(236,4);
+  858   1      
+  859   1              //car.element.excel[4]
+  860   1               store_int16(238,6);
+  861   1      
+  862   1              //car.element.excel[5]
+  863   1               store_int16(240,8);
+  864   1      
+  865   1              //car.element.excel[6]
+  866   1               store_int16(242,6);
+  867   1      
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 15  
+
+  868   1              //car.element.excel[7]
+  869   1               store_int16(202,9);
+  870   1      /************************ÔªËØ±í*******************/
+  871   1      
+  872   1              //car.circle_distance
+  873   1              store_int16(132,50);
+  874   1      
+  875   1              //car.ramp_distance
+  876   1              store_int16(134,50);
+  877   1      
+  878   1              //car.road.type
+  879   1              store_int16(222,0);
+  880   1      
+  881   1          //car.meter_distance         
+  882   1              store_int16(146,100);
+  883   1      
+  884   1      }
+  885          
+  886          void Read_Para(){
+  887   1              /********************Ö±µÀ****************************/
+  888   1              car.straight.kp                          = Get_Float(0);
+  889   1              car.straight.kd                      = Get_Float(4);
+  890   1          car.straight.base_speed              = Get_Float(8);
+  891   1              /********************Ö±µÀ****************************/
+  892   1      
+  893   1              /********************Ô²»·****************************/
+  894   1              car.circle.speed[0]                  = Get_Int16(16);
+  895   1              car.circle.PRE_ENTER_H_STRENGTH[0]   = Get_Int16(20);
+  896   1              car.circle.PRE_ENTER_MIDDLE[0]       = Get_Int16(24);
+  897   1              car.circle.Enter_DIST[0]             = Get_Int16(28);
+  898   1              car.circle.Enter_ANGLE[0]            = Get_Int16(32);
+  899   1              car.circle.angle_1[0]                = Get_Int16(36);
+  900   1          car.circle.angle_2[0]                = Get_Int16(40);
+  901   1              car.circle.BIAS_ADJUST[0]            = Get_Int16(44);
+  902   1      
+  903   1              car.circle.speed[1]                  = Get_Int16(52);
+  904   1              car.circle.PRE_ENTER_H_STRENGTH[1]   = Get_Int16(56);
+  905   1              car.circle.PRE_ENTER_MIDDLE[1]       = Get_Int16(60);
+  906   1              car.circle.Enter_DIST[1]             = Get_Int16(64);
+  907   1              car.circle.Enter_ANGLE[1]            = Get_Int16(68);
+  908   1              car.circle.angle_1[1]                = Get_Int16(72);
+  909   1          car.circle.angle_2[1]                = Get_Int16(76);
+  910   1              car.circle.BIAS_ADJUST[1]            = Get_Int16(80);
+  911   1      
+  912   1              car.circle.enter_R_circle[0]         = Get_Int16(244);
+  913   1              car.circle.enter_R_circle[1]         = Get_Int16(246);
+  914   1      
+  915   1              car.circle.Enter_DIST[2]             = Get_Int16(10);
+  916   1              car.circle.Enter_MID[2]              = Get_Int16(14);
+  917   1              car.circle.enter_R_circle[2]         = Get_Int16(48);
+  918   1      
+  919   1              /********************Ô²»·****************************/
+  920   1      
+  921   1              /********************ÆÂµÀ****************************/
+  922   1              car.ramp.speed                       = Get_Float(84);
+  923   1              car.ramp.speed2                      = Get_Float(88);
+  924   1              car.ramp.adc_middle                  = Get_Float(92);
+  925   1              car.ramp.adc_left                    = Get_Float(96);
+  926   1              car.ramp.adc_right                   = Get_Float(100);
+  927   1              /********************ÆÂµÀ****************************/
+  928   1      
+  929   1              /********************ÕÏ°­****************************/
+  930   1              car.hinder.speed                     = Get_Float(104);
+  931   1              car.hinder.diff                      = Get_Float(108);
+  932   1              car.hinder.judge_distance            = Get_Float(112);
+  933   1              car.hinder.point_1.angle             = Get_Float(116);
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 16  
+
+  934   1              car.hinder.point_1.distance          = Get_Float(120);
+  935   1              car.hinder.point_2.angle             = Get_Float(124);
+  936   1              car.hinder.point_2.distance          = Get_Float(128);
+  937   1              car.hinder.R_circle                  = Get_Float(136);
+  938   1              car.hinder.R_circle_2                = Get_Float(140);
+  939   1              /********************ÕÏ°­****************************/
+  940   1      
+  941   1              /********************³ö¿â****************************/
+  942   1              car.garage.out_garage_speed          = Get_Int16(144);
+  943   1              car.garage.out_garage_distance       = Get_Int16(148);
+  944   1              car.garage.out_garage_angle          = Get_Int16(152);
+  945   1              car.garage.out_garage_diff           = Get_Int16(156);
+  946   1              /********************³ö¿â****************************/
+  947   1              
+  948   1              /********************Èë¿â****************************/
+  949   1              car.garage.enter_garage_distance_1_left   = Get_Int16(158);
+  950   1              car.garage.enter_garage_angle_left        = Get_Int16(160);
+  951   1              car.garage.enter_garage_distance_2_left   = Get_Int16(162);
+  952   1              car.garage.enter_garage_R_left            = Get_Int16(164);
+  953   1      
+  954   1              car.garage.enter_garage_distance_1_right  = Get_Int16(166);
+  955   1              car.garage.enter_garage_angle_right       = Get_Int16(168);
+  956   1              car.garage.enter_garage_distance_2_right  = Get_Int16(170);     
+  957   1              car.garage.enter_garage_diff              = Get_Int16(172);
+  958   1      
+  959   1              car.garage.distance_to_zebra              = Get_Int16(248);
+  960   1              car.garage.turn_point                     = Get_Int16(250);
+  961   1      
+  962   1              car.garage.forward_R                      = Get_Int16(252);
+  963   1              car.garage.forward_speed                  = Get_Int16(254);
+  964   1      
+  965   1              car.garage.forward_distance               = Get_Int16(200);
+  966   1              /********************Èë¿â****************************/
+  967   1      
+  968   1              /********************µç¸Ð****************************/
+  969   1              car.adc_parameter.adc_max[LEFT_H]    = Get_Int16(180);
+  970   1              car.adc_parameter.adc_max[LEFT_X]    = Get_Int16(184);
+  971   1              car.adc_parameter.adc_max[MIDDLE]    = Get_Int16(188);
+  972   1              car.adc_parameter.adc_max[RIGHT_X]   = Get_Int16(192);
+  973   1          car.adc_parameter.adc_max[RIGHT_H]   = Get_Int16(196);
+  974   1              /********************µç¸Ð****************************/
+  975   1              //car.garage.DIR                       = Get_Int16(200);
+  976   1              car.hinder.dir                       = Get_Int16(204);
+  977   1              car.garage.MODE                      = Get_Int16(208);
+  978   1              car.garage.Distance_to_Garage        = Get_Int16(212);
+  979   1              car.circle.Enter_MID[0]              = Get_Int16(216);
+  980   1              car.circle.Enter_MID[1]              = Get_Int16(220);
+  981   1      
+  982   1              /********************·çÉÈ****************************/
+  983   1              car.fan.left_duty                    = Get_Int16(224);
+  984   1              car.fan.right_duty                   = Get_Int16(228);
+  985   1              /********************·çÉÈ****************************/
+  986   1      
+  987   1              /*********************ÔªËØ±í*************************/
+  988   1              car.element.excel[0]                 = Get_Int16(230);
+  989   1              car.element.excel[1]                 = Get_Int16(232);
+  990   1              car.element.excel[2]                 = Get_Int16(234);
+  991   1              car.element.excel[3]                 = Get_Int16(236);
+  992   1              car.element.excel[4]                 = Get_Int16(238);
+  993   1              car.element.excel[5]                 = Get_Int16(240);
+  994   1              car.element.excel[6]                 = Get_Int16(242);
+  995   1              car.element.excel[7]                 = Get_Int16(202);
+  996   1              /*********************ÔªËØ±í*************************/
+  997   1              car.circle_distance                  = Get_Int16(132);
+  998   1              car.ramp_distance                    = Get_Int16(134);
+  999   1      
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 17  
+
+ 1000   1              car.road_type                        =Get_Int16(222);
+ 1001   1      
+ 1002   1              car.meter_distance                   =Get_Int16(146);
+ 1003   1              
+ 1004   1      
+ 1005   1      }
+ 1006          void Save_Parameter(){
+ 1007   1              store_float(0  , car.straight.kp);
+ 1008   1              store_float(4  , car.straight.kd);
+ 1009   1              store_float(8  , car.straight.base_speed);
+ 1010   1      
+ 1011   1              store_int16(16 , car.circle.speed[0]);
+ 1012   1              store_int16(20 , car.circle.PRE_ENTER_H_STRENGTH[0]);
+ 1013   1              store_int16(24 , car.circle.PRE_ENTER_MIDDLE[0]);
+ 1014   1              store_int16(28 , car.circle.Enter_DIST[0]);
+ 1015   1              store_int16(32 , car.circle.Enter_ANGLE[0]);
+ 1016   1              store_int16(36 , car.circle.angle_1[0]);
+ 1017   1              store_int16(40 , car.circle.angle_2[0]);
+ 1018   1              store_int16(44 , car.circle.BIAS_ADJUST[0]);
+ 1019   1      
+ 1020   1              store_int16(52 , car.circle.speed[1]);
+ 1021   1              store_int16(56 , car.circle.PRE_ENTER_H_STRENGTH[1]);
+ 1022   1              store_int16(60 , car.circle.PRE_ENTER_MIDDLE[1]);
+ 1023   1              store_int16(64 , car.circle.Enter_DIST[1]);
+ 1024   1              store_int16(68 , car.circle.Enter_ANGLE[1]);
+ 1025   1              store_int16(72 , car.circle.angle_1[1]);
+ 1026   1              store_int16(76 , car.circle.angle_2[1]);
+ 1027   1              store_int16(80 , car.circle.BIAS_ADJUST[1]);
+ 1028   1              store_float(84 , car.ramp.speed);
+ 1029   1              store_float(88 , car.ramp.speed2);
+ 1030   1              store_float(92 , car.ramp.adc_middle);
+ 1031   1              store_float(96 , car.ramp.adc_left);
+ 1032   1              store_float(100, car.ramp.adc_right);
+ 1033   1      
+ 1034   1              store_float(104, car.hinder.speed);
+ 1035   1              store_float(108, car.hinder.diff);
+ 1036   1              store_float(112, car.hinder.judge_distance);
+ 1037   1              store_float(116, car.hinder.point_1.angle);
+ 1038   1              store_float(120, car.hinder.point_1.distance);
+ 1039   1              store_float(124, car.hinder.point_2.angle);
+ 1040   1              store_float(128, car.hinder.point_2.distance);
+ 1041   1              store_float(136, car.hinder.R_circle);
+ 1042   1              store_float(140, car.hinder.R_circle_2);
+ 1043   1      
+ 1044   1              store_int16(144, car.garage.out_garage_speed);
+ 1045   1              store_int16(148, car.garage.out_garage_distance);
+ 1046   1              store_int16(152, car.garage.out_garage_angle);
+ 1047   1              store_int16(156, car.garage.out_garage_diff);
+ 1048   1      
+ 1049   1              store_int16(158,car.garage.enter_garage_distance_1_left);
+ 1050   1              store_int16(160,car.garage.enter_garage_angle_left);
+ 1051   1              store_int16(162,car.garage.enter_garage_distance_2_left);
+ 1052   1              store_int16(164,car.garage.enter_garage_R_left);
+ 1053   1              store_int16(166,car.garage.enter_garage_distance_1_right);
+ 1054   1              store_int16(168,car.garage.enter_garage_angle_right);
+ 1055   1              store_int16(170,car.garage.enter_garage_distance_2_right );
+ 1056   1              store_int16(172,car.garage.enter_garage_diff);
+ 1057   1      
+ 1058   1              store_int16(180, car.adc_parameter.adc_max[LEFT_H]);
+ 1059   1              store_int16(184, car.adc_parameter.adc_max[LEFT_X]);
+ 1060   1              store_int16(188, car.adc_parameter.adc_max[MIDDLE]);
+ 1061   1              store_int16(192, car.adc_parameter.adc_max[RIGHT_X]);
+ 1062   1              store_int16(196, car.adc_parameter.adc_max[RIGHT_H]);
+ 1063   1              store_int16(200, car.garage.DIR);
+ 1064   1              store_int16(204, car.hinder.dir);
+ 1065   1              store_int16(208, car.garage.MODE);
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 18  
+
+ 1066   1              store_int16(212, car.garage.Distance_to_Garage);
+ 1067   1              store_int16(216, car.circle.Enter_MID[0]);
+ 1068   1              store_int16(220, car.circle.Enter_MID[1]);
+ 1069   1              store_int16(224, car.fan.left_duty);
+ 1070   1              store_int16(228, car.fan.right_duty);
+ 1071   1      
+ 1072   1              store_int16(230,car.element.excel[0]);
+ 1073   1              store_int16(232,car.element.excel[1]);
+ 1074   1              store_int16(234,car.element.excel[2]);
+ 1075   1              store_int16(236,car.element.excel[3]);
+ 1076   1              store_int16(238,car.element.excel[4]);
+ 1077   1              store_int16(240,car.element.excel[5]);
+ 1078   1              store_int16(242,car.element.excel[6]);
+ 1079   1              store_int16(202,car.element.excel[7]);
+ 1080   1      
+ 1081   1              store_int16(244,car.circle.enter_R_circle[0]);
+ 1082   1              store_int16(246,car.circle.enter_R_circle[1]);
+ 1083   1      
+ 1084   1              store_int16(248,car.garage.distance_to_zebra);
+ 1085   1              store_int16(250,car.garage.turn_point);
+ 1086   1              store_int16(252,car.garage.forward_R);
+ 1087   1              store_int16(254,car.garage.forward_speed);
+ 1088   1              store_int16(200,car.garage.forward_distance);
+ 1089   1      
+ 1090   1              store_int16(10,car.circle.Enter_DIST[2]);
+ 1091   1              store_int16(14,car.circle.Enter_MID[2]);
+ 1092   1              store_int16(48,car.circle.enter_R_circle[2]);
+ 1093   1      
+ 1094   1              store_int16(132,car.circle_distance);
+ 1095   1              store_int16(134,car.ramp_distance);
+ 1096   1      
+ 1097   1              store_int16(222,car.road_type);
+ 1098   1                   
+ 1099   1              store_int16(146,car.meter_distance);
+ 1100   1      }
+ 1101          
+ 1102          #define MAX_LINES 4  //ÆÁÄ»×î¶àÏÔÊ¾¶àÉÙÐÐÎÄ×Ö
+ 1103          #define LINE_STEP 2  //Ã¿Ò»ÐÐÎÄ×ÖÐèÒªÕ¼ÓÃµÄÆÁÄ»ÐÐÊý Ó¢ÎÄÎª1 ÖÐÎÄÎª2
+ 1104          
+ 1105          void display_str(struct MenuItem * MenuPoint,short selectItem)
+ 1106          {
+ 1107   1              u8 j;
+ 1108   1              u8 index;
+ 1109   1              
+ 1110   1              //·­Ò³ÇåÆÁ
+ 1111   1              
+ 1112   1              static int last_page = 0;
+ 1113   1              int curr_page = (selectItem-1)/MAX_LINES;
+ 1114   1        //ips114_clear(WHITE);
+ 1115   1              //·Ç±à¼­Ä£Ê½
+ 1116   1              if(edit_mode == 0){
+ 1117   2                      if(curr_page!=last_page){
+ 1118   3                              last_page = curr_page;
+ 1119   3                              //oled_fill_spi(BLACK);
+ 1120   3                              ips114_clear(WHITE);
+ 1121   3                      }
+ 1122   2      
+ 1123   2                      //Çå³ý¼ýÍ·
+ 1124   2                      for ( j = 0; j < MAX_LINES; j++)
+ 1125   2                      {
+ 1126   3                              index = (uint8)((selectItem-1)%MAX_LINES);
+ 1127   3                              if(j!=index){
+ 1128   4              ips114_showstr(0,(u8)(LINE_STEP*j),"  ");
+ 1129   4                              }
+ 1130   3                              else{
+ 1131   4              ips114_showstr(0,(u8)(LINE_STEP*j),">>");
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 19  
+
+ 1132   4                              }       
+ 1133   3                      }
+ 1134   2                      if(selectItem-1>=MAX_LINES*(MenuPoint->MenuCount/MAX_LINES)){
+ 1135   3                              for ( j = 0; j < (MenuPoint->MenuCount%MAX_LINES ) ; j++){
+ 1136   4              ips114_showstr(17,(u8)(LINE_STEP*j),MenuPoint[j+MAX_LINES*((selectItem-1)/MAX_LINES)].DisplayStri
+             -ng);
+ 1137   4                              }
+ 1138   3                      }
+ 1139   2                      else{
+ 1140   3                              for ( j = 0; j < (MenuPoint->MenuCount<MAX_LINES?MenuPoint->MenuCount:MAX_LINES ) ; j++){
+ 1141   4              ips114_showstr(17,(u8)(LINE_STEP*j),MenuPoint[j+MAX_LINES*((selectItem-1)/MAX_LINES)].DisplayStri
+             -ng);
+ 1142   4                              }
+ 1143   3                      }
+ 1144   2              }
+ 1145   1      
+ 1146   1              //±à¼­Ä£Ê½
+ 1147   1              else{
+ 1148   2                      //¼ýÍ·
+ 1149   2                      for ( j = 0; j < MAX_LINES; j++)
+ 1150   2                      {
+ 1151   3                      ips114_showstr(0,(u8)(LINE_STEP*j),"  ");
+ 1152   3                      }
+ 1153   2                      ips114_showstr(55,LINE_STEP,">>");
+ 1154   2                      //ÎÄ×Ö
+ 1155   2                      ips114_showstr(20,0,"STEP");
+ 1156   2                      ips114_showstr(20,LINE_STEP,MenuPoint[selectItem-1].DisplayString);
+ 1157   2              }
+ 1158   1      
+ 1159   1      }
+ 1160          
+ 1161          uint8 start_x = 100;
+ 1162          void display_data(struct MenuItem * MenuPoint,short selectItem)
+ 1163          {
+ 1164   1              uint8 j;
+ 1165   1              uint8 index;
+ 1166   1              if(edit_mode == 0){
+ 1167   2                      if(selectItem-1>=MAX_LINES*(MenuPoint->MenuCount/MAX_LINES)){
+ 1168   3                              for ( j = 0; j < (MenuPoint->MenuCount%MAX_LINES ) ; j++){
+ 1169   4                                      index = j+MAX_LINES*((selectItem-1)/MAX_LINES);
+ 1170   4                                      if(MenuPoint[index].DiplayData != NULL){
+ 1171   5      
+ 1172   5                                              switch(MenuPoint[index].num_type){
+ 1173   6                                                      case MY_FLOAT:
+ 1174   6                    ips114_showfloat(start_x,(u8)(LINE_STEP*j),*MenuPoint[index].DiplayData,5,2);  
+ 1175   6                                                              break;
+ 1176   6                                                      case MY_INT16:
+ 1177   6                    ips114_showint16(start_x,(u8)(LINE_STEP*j),*((int16*)MenuPoint[index].DiplayData));  
+ 1178   6                                                              break;
+ 1179   6                                                      case MY_UINT16:
+ 1180   6                    ips114_showuint16(start_x,(u8)(LINE_STEP*j),*((uint16*)MenuPoint[index].DiplayData)); 
+ 1181   6                                                              break;
+ 1182   6                                              }
+ 1183   5      
+ 1184   5                                                      
+ 1185   5                                      }
+ 1186   4                              }
+ 1187   3                      }
+ 1188   2                      else{
+ 1189   3                              for ( j = 0; j < (MenuPoint->MenuCount<MAX_LINES?MenuPoint->MenuCount:MAX_LINES ) ; j++){
+ 1190   4                                      index = j+MAX_LINES*((selectItem-1)/MAX_LINES);
+ 1191   4                                      if(MenuPoint[index].DiplayData != NULL){
+ 1192   5                                                      switch(MenuPoint[index].num_type){
+ 1193   6                                                      case MY_FLOAT:
+ 1194   6                      ips114_showfloat(start_x,(u8)(LINE_STEP*j),*MenuPoint[index].DiplayData,5,2); 
+ 1195   6                                                              break;
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 20  
+
+ 1196   6                                                      case MY_INT16:
+ 1197   6                      ips114_showint16(start_x,(u8)(LINE_STEP*j),*((int16*)MenuPoint[index].DiplayData));  
+ 1198   6                                                              break;
+ 1199   6                                                      case MY_UINT16:
+ 1200   6                     ips114_showuint16(start_x,(u8)(LINE_STEP*j),*((uint16*)MenuPoint[index].DiplayData));
+ 1201   6                                                              break;
+ 1202   6                                              }
+ 1203   5                                      }
+ 1204   4                              }
+ 1205   3                      }
+ 1206   2              }
+ 1207   1              else{
+ 1208   2                      index = selectItem - 1;
+ 1209   2                      if(MenuPoint[index].DiplayData != NULL){
+ 1210   3                              switch(MenuPoint[index].num_type){
+ 1211   4                              case MY_FLOAT:
+ 1212   4              ips114_showfloat(start_x,LINE_STEP,*MenuPoint[index].DiplayData,5,3); 
+ 1213   4                                      break;
+ 1214   4                              case MY_INT16:
+ 1215   4               ips114_showint16(start_x,LINE_STEP,*((int16*)MenuPoint[index].DiplayData)); 
+ 1216   4                                      break;
+ 1217   4                              case MY_UINT16:
+ 1218   4                ips114_showuint16(start_x,LINE_STEP,*((uint16*)MenuPoint[index].DiplayData));
+ 1219   4                                      break;
+ 1220   4                              }
+ 1221   3                              if(step_size == 0){
+ 1222   4             ips114_showfloat(start_x,0,0.01,5,2); 
+ 1223   4                              }
+ 1224   3                              else if(step_size == 1){
+ 1225   4             ips114_showfloat(start_x,0,0.1,5,2);
+ 1226   4                              }
+ 1227   3                              else if(step_size == 2){
+ 1228   4      
+ 1229   4             ips114_showfloat(start_x,0,1,5,2);
+ 1230   4                              }
+ 1231   3                              else if(step_size == 3){
+ 1232   4             ips114_showfloat(start_x,0,10,5,2);
+ 1233   4                              }
+ 1234   3                              else if(step_size == 4){
+ 1235   4             ips114_showfloat(start_x,0,100,5,2);
+ 1236   4                              }
+ 1237   3                              else if(step_size == 5){
+ 1238   4             ips114_showfloat(start_x,0,1000,5,2);
+ 1239   4                              }
+ 1240   3                              
+ 1241   3                      }
+ 1242   2              }
+ 1243   1              
+ 1244   1      }
+ 1245          
+ 1246          //ÆÁÄ»Ë¢ÐÂ
+ 1247          void Screen_update(KEYn_e key){
+ 1248   1              
+ 1249   1              if(key!=KEY_NULL){
+ 1250   2                      //·Ç±à¼­Ä£Ê½
+ 1251   2                      if(edit_mode==0){
+ 1252   3                              switch(key){
+ 1253   4                                      case KEY_1://ÉÏ
+ 1254   4                                              {
+ 1255   5                                                      //Èç¹ûµ±Ç°µÄÐÐÊýÎª1£¬µ±Ç°ÐÐÊýÎªµ±Ç°²Ëµ¥µÄ×ÜÐÐÊý
+ 1256   5                                                      if (selectItem == 1) selectItem = MenuPoint->MenuCount;
+ 1257   5                                                      //·ñÔòÐÐÊý¼õ1£¬ÏòÉÏÒÆ¶¯Ò»ÐÐ
+ 1258   5                                                      else selectItem--;
+ 1259   5                                              };
+ 1260   4                                              break;
+ 1261   4                                      case KEY_2://ÏÂ
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 21  
+
+ 1262   4                                              {                       
+ 1263   5                                                      //Èç¹ûµ±Ç°µÄÐÐÊýÎªµ±Ç°²Ëµ¥µÄ×ÜÐÐÊý£¬µ±Ç°ÐÐÊýÎª1
+ 1264   5                                                      if (selectItem == MenuPoint->MenuCount) selectItem = 1;
+ 1265   5                                                      //·ñÔòÐÐÊý¼Ó1£¬ÏòÏÂÒÆ¶¯Ò»ÐÐ
+ 1266   5                                                      else selectItem++;
+ 1267   5                                              };
+ 1268   4                                              break;
+ 1269   4                                      case KEY_4:
+ 1270   4                                              {//×ó ·µ»Ø
+ 1271   5                                                      if (MenuPoint[selectItem - 1].ParentMenus != NULL)
+ 1272   5                                                      {
+ 1273   6                                                              MenuPoint = MenuPoint[selectItem - 1].ParentMenus;
+ 1274   6                                                              selectItem = 1;
+ 1275   6                     ips114_clear(WHITE);
+ 1276   6                                                      }
+ 1277   5                                              };
+ 1278   4                                              break;
+ 1279   4                                      case KEY_3://ÓÒ È·ÈÏ½øÈë´ËÏîÄ¿
+ 1280   4                                              {
+ 1281   5                                                      //Èç¹û×Ó²Ëµ¥²»Îª¿Õ
+ 1282   5                                                      if (MenuPoint[selectItem - 1].ChildrenMenus != NULL)
+ 1283   5                                                      {
+ 1284   6                                                              MenuPoint = MenuPoint[selectItem - 1].ChildrenMenus;
+ 1285   6                                                              selectItem = 1;
+ 1286   6                                              ips114_clear(WHITE);
+ 1287   6                                                      }
+ 1288   5                                                      //Èç¹ûº¯ÊýÖ¸Õë²»¿Õ µ÷ÓÃ¸Ãº¯Êý
+ 1289   5                                                      if(MenuPoint[selectItem - 1].Subs != NULL){
+ 1290   6                                                              MenuPoint[selectItem - 1].Subs();
+ 1291   6                                                      }
+ 1292   5      
+ 1293   5      
+ 1294   5                                              };
+ 1295   4                                              break;
+ 1296   4                                      case KEY_5://ÐÞ¸Ä²ÎÊý
+ 1297   4                                              if (MenuPoint[selectItem - 1].DiplayData != NULL){
+ 1298   5                                                      //½øÈë±à¼­Ä£Ê½
+ 1299   5                                                      edit_mode = 1;
+ 1300   5                   ips114_clear(WHITE);
+ 1301   5                                              }
+ 1302   4                                              break;
+ 1303   4                              }
+ 1304   3                              
+ 1305   3                      }
+ 1306   2      
+ 1307   2                      else{
+ 1308   3                              switch(key){
+ 1309   4                                      case KEY_1://ÉÏ Ôö¼Ó
+ 1310   4                                              {
+ 1311   5                                                      if(MenuPoint[selectItem - 1].num_type == MY_FLOAT){
+ 1312   6                                                              if(step_size == 0){
+ 1313   7                                                                      *MenuPoint[selectItem - 1].DiplayData  +=0.01; 
+ 1314   7                                                              }
+ 1315   6                                                              else if(step_size == 1){
+ 1316   7                                                                      *MenuPoint[selectItem - 1].DiplayData  +=0.1; 
+ 1317   7                                                              }
+ 1318   6                                                              else if(step_size == 2){
+ 1319   7                                                                      *MenuPoint[selectItem - 1].DiplayData  +=1; 
+ 1320   7                                                              }
+ 1321   6                                                              else if(step_size == 3){
+ 1322   7                                                                      *MenuPoint[selectItem - 1].DiplayData  +=10; 
+ 1323   7                                                              }
+ 1324   6                                                              else if(step_size == 4){
+ 1325   7                                                                      *MenuPoint[selectItem - 1].DiplayData  +=100; 
+ 1326   7                                                              }
+ 1327   6                                                      }
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 22  
+
+ 1328   5                                                      else if(MenuPoint[selectItem - 1].num_type == MY_INT16 || MY_UINT16){
+ 1329   6                                                              if(step_size == 2){
+ 1330   7                                                                      *((int16*)MenuPoint[selectItem - 1].DiplayData ) +=1; 
+ 1331   7                                                              }
+ 1332   6                                                              else if(step_size == 3){
+ 1333   7                                                                      *((int16*)MenuPoint[selectItem - 1].DiplayData )   +=10; 
+ 1334   7                                                              }
+ 1335   6                                                              else if(step_size == 4){
+ 1336   7                                                                      *((int16*)MenuPoint[selectItem - 1].DiplayData )   +=100; 
+ 1337   7                                                              }
+ 1338   6                                                              else if(step_size == 5){
+ 1339   7                                                                      *((int16*)MenuPoint[selectItem - 1].DiplayData )   +=1000; 
+ 1340   7                                                              }
+ 1341   6      
+ 1342   6                                                      }
+ 1343   5                                              };
+ 1344   4                                              break;
+ 1345   4                                      case KEY_2://ÏÂ ¼õÐ¡
+ 1346   4                                              {               
+ 1347   5                                                      if(MenuPoint[selectItem - 1].num_type == MY_FLOAT){
+ 1348   6                                                              if(step_size == 0){
+ 1349   7                                                                      *MenuPoint[selectItem - 1].DiplayData  -=0.01; 
+ 1350   7                                                              }
+ 1351   6                                                              else if(step_size == 1){
+ 1352   7                                                                      *MenuPoint[selectItem - 1].DiplayData  -=0.1; 
+ 1353   7                                                              }
+ 1354   6                                                              else if(step_size == 2){
+ 1355   7                                                                      *MenuPoint[selectItem - 1].DiplayData  -=1; 
+ 1356   7                                                              }
+ 1357   6                                                              else if(step_size == 3){
+ 1358   7                                                                      *MenuPoint[selectItem - 1].DiplayData  -=10; 
+ 1359   7                                                              }
+ 1360   6                                                              else if(step_size == 4){
+ 1361   7                                                                      *MenuPoint[selectItem - 1].DiplayData  -=100; 
+ 1362   7                                                              }
+ 1363   6      
+ 1364   6                                                      }
+ 1365   5                                                      else if(MenuPoint[selectItem - 1].num_type == MY_INT16 || MY_UINT16){
+ 1366   6                                                              if(step_size == 2){
+ 1367   7                                                                      *((int16*)MenuPoint[selectItem - 1].DiplayData )   -=1; 
+ 1368   7                                                              }
+ 1369   6                                                              else if(step_size == 3){
+ 1370   7                                                                      *((int16*)MenuPoint[selectItem - 1].DiplayData )  -=10; 
+ 1371   7                                                              }
+ 1372   6                                                              else if(step_size == 4){
+ 1373   7                                                                      *((int16*)MenuPoint[selectItem - 1].DiplayData )  -=100; 
+ 1374   7                                                              }
+ 1375   6                                                              else if(step_size == 5){
+ 1376   7                                                                      *((int16*)MenuPoint[selectItem - 1].DiplayData )   -=1000; 
+ 1377   7                                                              }
+ 1378   6                                                      }
+ 1379   5                                              };
+ 1380   4                                              break;
+ 1381   4                                      case KEY_3://×ó Ôö´ó²½³¤
+ 1382   4                                      {               
+ 1383   5                                              step_size ++; 
+ 1384   5                                              if(step_size>=5)
+ 1385   5                                                      step_size = 5;
+ 1386   5                                      };
+ 1387   4                                              break;
+ 1388   4                                      case KEY_4://ÓÒ ¼õÐ¡²½³¤
+ 1389   4                                      {               
+ 1390   5                                              step_size --;   
+ 1391   5                                              if(step_size<=0)
+ 1392   5                                                      step_size = 0;
+ 1393   5                                      };
+C251 COMPILER V5.60.0,  UI                                                                 09/10/23  22:40:27  PAGE 23  
+
+ 1394   4                                              break;
+ 1395   4                                      case KEY_5://ÐÞ¸Ä²ÎÊý
+ 1396   4                                              if (MenuPoint[selectItem - 1].DiplayData != NULL){
+ 1397   5                                                      Save_Parameter();
+ 1398   5                                                      //ÍË³ö±à¼­Ä£Ê½
+ 1399   5                                                      edit_mode = 0;
+ 1400   5                  ips114_clear(WHITE);
+ 1401   5                                                      //±£´æ²ÎÊý
+ 1402   5                                                      printf("·¢ËÍ¿ªÊ¼");
+ 1403   5                                                      
+ 1404   5                                                      printf("·¢ËÍ½áÊø");
+ 1405   5                                              }
+ 1406   4                                              break;
+ 1407   4                              }
+ 1408   3                      }
+ 1409   2                      display_str(MenuPoint,selectItem);
+ 1410   2                      //ips114_showint32(0,6,(float)selectItem,2);
+ 1411   2              }
+ 1412   1              display_data(MenuPoint,selectItem);
+ 1413   1      }
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =      5807     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =      2523          8
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =      3102     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

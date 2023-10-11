@@ -1,0 +1,385 @@
+C251 COMPILER V5.60.0,  car                                                                11/10/23  18:02:27  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE car
+OBJECT MODULE PLACED IN .\Out_File\car.obj
+COMPILER INVOKED BY: D:\Software\Keil_v5\C251\BIN\C251.EXE ..\USER\src\car.c XSMALL UNSIGNED_CHAR WARNINGLEVEL(3) BROWSE
+                    - INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\USER
+                    -\inc;..\USER\src) DEBUG PRINT(.\Out_File\car.lst) OBJECT(.\Out_File\car.obj) 
+
+stmt  level    source
+
+    1          /* Includes ------------------------------------------------------------------*/
+    2          #include "zf_uart.h"
+    3          #include "car.h"
+    4          #include "circle.h"
+    5          #include "hinder.h"
+    6          #include "ramp.h"
+    7          #include "garage.h"
+    8          /* Includes ------------------------------------------------------------------*/
+    9          
+   10          CAR car;        
+   11          uint16 adc_max[INDUCTOR_NUM]={4000,4000,4000,4000,4000};
+   12          uint16 adc_min[INDUCTOR_NUM]={0,0,0,0,0};
+   13          
+   14          /***********************元素表**************************/
+   15          /*-----
+   16          左出库：       0
+   17          右出库：       1
+   18          
+   19          左小环(R50)：  2
+   20          右小环(R50):   3 
+   21          
+   22          左大环(R60)：  4
+   23          右大环(R60):   5
+   24          
+   25          障碍(左侧)：   6
+   26          障碍(右侧)：   7
+   27          
+   28          坡道：         8
+   29          
+   30          左入库：       9
+   31          右入库：       10
+   32          
+   33          左大环(R90):   11
+   34          右大环(R90)：  12
+   35          
+   36          ------*/
+   37          /***********************元素表**************************/
+   38          
+   39          /****************************************************
+   40           * @name              Circle_parameter_init
+   41           * @function      圆环参数初始化
+   42           * @parameter     NULL
+   43           * @return                NULL
+   44           * @date              2023/7/27
+   45           ***************************************************/
+   46           void element_parameter_init(){
+   47   1      
+   48   1              car.element.ELEMENT_NUM = 0;
+   49   1              
+   50   1              /******实验室328赛道(逆时针)**********/ 
+   51   1              //右出库——右小环——左大环——障碍——坡道——右入库
+   52   1              /******华北理工赛道******************/
+   53   1              //左出库——右小环——坡道——左大环——障碍(左)——大大坡道———左入库
+   54   1      
+   55   1              car.element.excel[0]       = 0;
+   56   1              car.element.excel[1]       = 3;
+   57   1              car.element.excel[2]       = 8;
+C251 COMPILER V5.60.0,  car                                                                11/10/23  18:02:27  PAGE 2   
+
+   58   1              car.element.excel[3]       = 4;
+   59   1              car.element.excel[4]       = 11;
+   60   1              car.element.excel[5]       = 6;
+   61   1              car.element.excel[6]       = 8;
+   62   1              car.element.excel[7]       = 9;
+   63   1          // car.element.excel[6]    = 7;
+   64   1          // car.element.excel[7]    = 5;
+   65   1          // car.element.excel[8]    = 2;
+   66   1              // car.element.excel[9]    = 8;
+   67   1              // car.element.excel[10]   = 6;
+   68   1              // car.element.excel[11]   = 5;
+   69   1              // car.element.excel[11]   = 2;
+   70   1              // car.element.excel[7]    = 6;
+   71   1              // car.element.excel[8]    = 7;
+   72   1              /******实验室328赛道(逆时针)**********/ 
+   73   1      
+   74   1       }
+   75          /***********************元素表**************************/
+   76          //*******************************参数初始化*************************************
+   77          void car_Parameter_Init()
+   78          {
+   79   1      
+   80   1              // car.steering.linear_error_kp                            = 300;   //一次项比例系数
+   81   1              // car.steering.quadratic_error_kp                     = 0.2;   //二次项比例系数
+   82   1              // car.steering.error_kd                                           = 5;     //误差微分系数
+   83   1              // car.steering.gyro_kp                                        = 25;    //陀螺仪系数
+   84   1              car.steering.linear_error_kp                           = 20;    //一次项比例系数
+   85   1              car.steering.quadratic_error_kp                        = 0;     //二次项比例系数
+   86   1              car.steering.error_kd                                          = 5;     //误差微分系数
+   87   1              car.steering.gyro_kp                                           = 0;   //陀螺仪系数
+   88   1              car.steering.error_now                                     = 0;     //当前偏差
+   89   1              car.steering.error_last                                    = 0;     //上次偏差
+   90   1              car.steering.duty                                                      = 0;     //输出
+   91   1              
+   92   1          car.pd_loop.circle_p                           = 5;
+   93   1      
+   94   1              //平均电机参数
+   95   1              car.motor_average.kp                     = 25;
+   96   1              car.motor_average.ki                     = 3;
+   97   1              car.motor_average.kd                     = 0;
+   98   1              car.motor_average.integral               = 0;
+   99   1              car.motor_average.speed_Expected         = 150;
+  100   1              car.motor_average.distance                           = 0;
+  101   1              car.motor_average.speed_Current          = 0;
+  102   1              car.motor_average.speed_Last             = 0;
+  103   1              car.motor_average.error_Now              = 0;
+  104   1              car.motor_average.error_Pre              = 0;
+  105   1              car.motor_average.error_PrePre           = 0;
+  106   1              car.motor_average.duty                   = 0;
+  107   1              car.motor_average.duty_Last              = 0;
+  108   1      
+  109   1              //左电机参数
+  110   1              car.motor_left.kp                        = 30;
+  111   1              car.motor_left.ki                        = 1;
+  112   1              car.motor_left.kd                        = 0;
+  113   1              car.motor_left.distance                              = 0;
+  114   1              car.motor_left.speed_Expected            = 0;
+  115   1              car.motor_left.speed_Current             = 0;
+  116   1              car.motor_left.speed_Last                = 0;
+  117   1              car.motor_left.error_Now                 = 0;
+  118   1              car.motor_left.error_Pre                 = 0;
+  119   1              car.motor_left.error_PrePre              = 0;
+  120   1              car.motor_left.duty                      = 0;
+  121   1              car.motor_left.duty_Last                 = 0;
+  122   1      
+  123   1              //右电机参数
+C251 COMPILER V5.60.0,  car                                                                11/10/23  18:02:27  PAGE 3   
+
+  124   1              car.motor_right.kp                       = 30;
+  125   1              car.motor_right.ki                       = 1;
+  126   1              car.motor_right.kd                       = 0;
+  127   1              car.motor_right.distance                             = 0;
+  128   1              car.motor_right.speed_Expected           = 0;
+  129   1              car.motor_right.speed_Current            = 0;
+  130   1              car.motor_right.speed_Last               = 0;
+  131   1              car.motor_right.error_Now                = 0;
+  132   1              car.motor_right.error_Pre                = 0;
+  133   1              car.motor_right.error_PrePre             = 0;
+  134   1              car.motor_right.duty                     = 0;
+  135   1              car.motor_right.duty_Last                = 0;
+  136   1      
+  137   1      
+  138   1      
+  139   1      
+  140   1              //车库
+  141   1              car.garage.count                         = 0;
+  142   1              car.garage.in_point                      = 0;
+  143   1              car.garage.base_angle                    = 0;
+  144   1              car.garage.enter_flag                    = 0;
+  145   1              car.garage.out_circle_point              = 0;
+  146   1              //car.garage.DIR                           = RIGHT;
+  147   1      
+  148   1              car.meter_distance                       = 100;
+  149   1              
+  150   1              //丢线标记位
+  151   1              car.lose_flag = 0;
+  152   1      
+  153   1              /************************元素表*********************/
+  154   1              element_parameter_init();
+  155   1              /************************元素表*********************/
+  156   1      
+  157   1              /**************************环岛*********************/
+  158   1              Circle_parameter_init();  
+  159   1              /**************************环岛*********************/
+  160   1              
+  161   1              /**************************坡道*********************/
+  162   1              Ramp_parameter_init();
+  163   1              /**************************坡道*********************/
+  164   1              
+  165   1              /**************************风扇*********************/
+  166   1              car.fan.left_duty                           = 200;
+  167   1              car.fan.right_duty                          = 200;
+  168   1              /**************************风扇*********************/
+  169   1      
+  170   1              /**************************障碍*********************/
+  171   1              hinder_parameter_init();
+  172   1              /**************************障碍*********************/
+  173   1      
+  174   1              /**************************出入库*******************/
+  175   1              garage_parameter_init();
+  176   1              /**************************出入库*******************/
+  177   1      
+  178   1              car.ramp_distance      = 50;
+  179   1              car.circle_distance    = 50;
+  180   1      
+  181   1      
+  182   1              /**************************电感*********************/
+  183   1              //电感归一化参数
+  184   1              //最大值
+  185   1              car.adc_parameter.adc_max[LEFT_H]        = 4000; 
+  186   1              car.adc_parameter.adc_max[LEFT_X]        = 4000; 
+  187   1              car.adc_parameter.adc_max[MIDDLE]        = 4000; 
+  188   1              car.adc_parameter.adc_max[RIGHT_X]       = 4000; 
+  189   1              car.adc_parameter.adc_max[RIGHT_H]       = 4000; 
+C251 COMPILER V5.60.0,  car                                                                11/10/23  18:02:27  PAGE 4   
+
+  190   1      
+  191   1              //最小值
+  192   1              car.adc_parameter.adc_min[LEFT_H]        = 400;
+  193   1              car.adc_parameter.adc_min[LEFT_X]        = 1;
+  194   1              car.adc_parameter.adc_min[MIDDLE]        = 400;
+  195   1              car.adc_parameter.adc_min[RIGHT_X]       = 1;
+  196   1              car.adc_parameter.adc_min[RIGHT_H]       = 400;
+  197   1              
+  198   1              //偏差计算
+  199   1              car.adc_parameter.error_caculate         = 1000;
+  200   1              /**************************电感*********************/
+  201   1      
+  202   1      
+  203   1          //可调参数
+  204   1      
+  205   1              //直道参数
+  206   1              car.straight.kp                                  = 1;   
+  207   1              car.straight.kd                              = 0.5;
+  208   1              car.straight.base_speed                      = 200;
+  209   1      
+  210   1      
+  211   1              /*************************角速度环*******************/
+  212   1              //角速度环 (位置式)
+  213   1              car.pd_loop.kp              = 1.5;          //比例
+  214   1              car.pd_loop.ki              = 0.1;          //积分
+  215   1              car.pd_loop.kd              = 0;            //微分
+  216   1              car.pd_loop.duty            = 0;
+  217   1              car.pd_loop.error_Now       = 0;
+  218   1              car.pd_loop.error_Last      = 0;
+  219   1              car.pd_loop.error_LastLast  = 0;
+  220   1              car.pd_loop.expected        = 0;
+  221   1              car.pd_loop.current         = 0;
+  222   1              /*************************角速度环*******************/
+  223   1      
+  224   1              
+  225   1              
+  226   1              //标志位
+  227   1              //发车
+  228   1              car.start_flag    = 0;
+  229   1              //开机工作模式
+  230   1              car.work_mode     = NORMAL;     //初始普通寻迹模式
+  231   1              //无线串口
+  232   1              car.upload_enable = 0;                  //无线传输使能
+  233   1              
+  234   1              //串口忙碌否
+  235   1              car.uart_busy     = 1;  
+  236   1              //开机后的循迹模式
+  237   1              car.road_type     = OUT_GARAGE;
+  238   1              //里程计初值
+  239   1              car.distance = 0;
+  240   1          
+  241   1      
+  242   1              //陀螺仪
+  243   1              icmdata.ACCEL_X =0;
+  244   1              icmdata.ACCEL_Y =0;
+  245   1              icmdata.ACCEL_Z =0;
+  246   1              icmdata.GYRO_X  =0;
+  247   1              icmdata.GYRO_Y  =0;
+  248   1              icmdata.GYRO_Z  =0;
+  249   1              //角度
+  250   1              icmdata.Pitch =0;
+  251   1              icmdata.Yaw =0;
+  252   1              icmdata.Roll =0;
+  253   1              //角速度
+  254   1              icmdata.PitchVelocity =0;
+  255   1              icmdata.RollVelocity =0;
+C251 COMPILER V5.60.0,  car                                                                11/10/23  18:02:27  PAGE 5   
+
+  256   1              icmdata.YawVelocity =0;
+  257   1              icmdata.YawVelocity_offset =0;//偏航角速度偏置
+  258   1              //屏幕参数
+  259   1              car.screen.fps = 20;
+  260   1              car.screen.ready = 0;
+  261   1              car.screen.count = 0;
+  262   1              
+  263   1              
+  264   1      }
+  265          //外设初始化
+  266          void car_System_Init(){
+  267   1              Beep_Init();
+  268   1              //蜂鸣器响
+  269   1              BEEP_ON;
+  270   1          delay_ms(2500);
+  271   1              //eeprom初始化
+  272   1              iap_init();
+  273   1              //屏幕初始化    
+  274   1              ips114_init();
+  275   1              //菜单初始化
+  276   1      //      MenuInit();
+  277   1              //串口4初始化
+  278   1          wireless_uart_init();
+  279   1              //编码器初始化
+  280   1              EncoderInit();  
+  281   1              //电机初始化
+  282   1              Motor_Init();
+  283   1              //adc初始化
+  284   1              adc_init(ADC_P00, ADC_SYSclk_DIV_2);
+  285   1              adc_init(ADC_P01, ADC_SYSclk_DIV_2);
+  286   1              adc_init(ADC_P05, ADC_SYSclk_DIV_2);
+  287   1              adc_init(ADC_P06, ADC_SYSclk_DIV_2);
+  288   1              adc_init(ADC_P13, ADC_SYSclk_DIV_2);
+  289   1              //陀螺仪初始化
+  290   1              //mpu6050_init();
+  291   1              icm20602_init();
+  292   1              //设置定时器4 控制周期5ms
+  293   1              pit_timer_ms(TIM_4, 5); 
+  294   1          //设置中断优先级
+  295   1              NVIC_SetPriority(TIM_4,2);
+  296   1              NVIC_SetPriority(UART4_IRQn,3);
+  297   1              //蜂鸣器关
+  298   1              BEEP_OFF;
+  299   1              //tof初始化
+  300   1              dl1a_init();
+  301   1              //负压初始化
+  302   1              pwm_init(PWMB_CH4_P77, 50, 0);                                          
+  303   1              pwm_init(PWMB_CH3_P33, 50, 0);  
+  304   1      }
+  305          //蜂鸣器初始化
+  306          void Beep_Init()
+  307          {
+  308   1              gpio_mode(BEEP_PIN,GPO_PP);
+  309   1      }
+  310          
+  311          void Force_Stop()      //强制停车并关闭风扇
+  312          {    
+  313   1              car.start_flag = STOP;
+  314   1              //car.distance  = 0;
+  315   1              car.steering.duty = 0;
+  316   1              car.motor_average.duty = 0;
+  317   1              car.motor_left.duty = 0;
+  318   1              car.motor_right.duty = 0;
+  319   1              pwm_duty(PWMB_CH4_P77,0);       
+  320   1              pwm_duty(PWMB_CH3_P33,0);       
+  321   1              MotorPWM_Out(0,0);
+C251 COMPILER V5.60.0,  car                                                                11/10/23  18:02:27  PAGE 6   
+
+  322   1      }
+  323          
+  324          void Start_Up()         //发车
+  325          {
+  326   1              BEEP_ON;
+  327   1          pwm_duty(PWMB_CH4_P77,car.fan.left_duty);   
+  328   1              pwm_duty(PWMB_CH3_P33,car.fan.right_duty);      
+  329   1              delay_ms(2500);
+  330   1          BEEP_OFF;
+  331   1              car.start_flag = START;
+  332   1      }
+  333          
+  334          Start_Flag IsStarted()//获取小车当前使能状态
+  335          {
+  336   1              return car.start_flag;
+  337   1      }
+  338          
+  339          
+  340          
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       845     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =      1166     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =        28     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

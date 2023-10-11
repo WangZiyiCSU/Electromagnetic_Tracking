@@ -1,0 +1,144 @@
+C251 COMPILER V5.60.0,  data_store                                                         11/10/23  16:55:28  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE data_store
+OBJECT MODULE PLACED IN .\Out_File\data_store.obj
+COMPILER INVOKED BY: D:\Software\Keil_v5\C251\BIN\C251.EXE ..\USER\src\data_store.c XSMALL UNSIGNED_CHAR WARNINGLEVEL(3)
+                    - BROWSE INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;
+                    -..\USER\inc;..\USER\src) DEBUG PRINT(.\Out_File\data_store.lst) OBJECT(.\Out_File\data_store.obj) 
+
+stmt  level    source
+
+    1          #include "data_store.h"
+    2          #include "SEEKFREE_AT24C02.h"
+    3          #include "headfile.h"
+    4          //uint8 类型
+    5          //void store_uint8(uint8 addr, uint8 my_data){
+    6          //      //低位在前，读取时注意
+    7          //      //at24c02_write_byte(addr, my_data);
+    8          ////    iap_write_bytes(addr,my_data,1);
+    9          //}
+   10          uint8 Get_uint8(uint8 addr){
+   11   1              //return at24c02_read_byte(addr);
+   12   1              uint8 temp;
+   13   1              uint8 buff[1];
+   14   1              //iap_read_bytes(addr,my_data,1);
+   15   1      
+   16   1              iap_read_bytes(addr,buff,1);
+   17   1              //at24c02_read_bytes(addr, buff, 2);
+   18   1              temp = buff[0];
+   19   1              return temp;
+   20   1      }
+   21          
+   22          //int16类型
+   23          void store_int16(uint8 addr, int16 my_data){
+   24   1              uint8 temp[2];
+   25   1              temp[0] = my_data;
+   26   1              temp[1] = my_data>>8;
+   27   1              //低位在前，读取时注意
+   28   1      //      at24c02_write_byte(addr, temp[0]);
+   29   1      //      at24c02_write_byte((uint8)(addr+1), temp[1]);
+   30   1              extern_iap_write_bytes(addr,temp,1);
+   31   1              extern_iap_write_bytes((uint8)addr+1,temp+1,1);
+   32   1      }
+   33          int16 Get_Int16(uint8 addr){
+   34   1              int16 temp ;
+   35   1              uint8 buff[2];
+   36   1              iap_read_bytes(addr,buff,2);
+   37   1              //at24c02_read_bytes(addr, buff, 2);
+   38   1              temp = buff[0] + (buff[1]<<8);
+   39   1              return temp;
+   40   1      }
+   41          
+   42          //uint16类型
+   43          void store_uint16(uint8 addr, uint16 my_data){
+   44   1              uint8 temp[2];
+   45   1              temp[0] = my_data;
+   46   1              temp[1] = my_data>>8;
+   47   1              //低位在前，读取时注意
+   48   1              extern_iap_write_bytes(addr,temp,1);
+   49   1              extern_iap_write_bytes((uint8)addr+1,temp+1,1);
+   50   1              //at24c02_write_byte(addr, temp[0]);
+   51   1              //at24c02_write_byte((uint8)(addr+1), temp[1]);
+   52   1      }
+   53          uint16 Get_uInt16(uint8 addr){
+   54   1              int16 temp ;
+   55   1              uint8 buff[2];
+   56   1              iap_read_bytes(addr,buff,2);
+   57   1              //at24c02_read_bytes(addr, buff, 2);
+C251 COMPILER V5.60.0,  data_store                                                         11/10/23  16:55:28  PAGE 2   
+
+   58   1              temp = buff[0] + (buff[1]<<8);
+   59   1              return temp;
+   60   1      }
+   61          
+   62          
+   63          //float类型
+   64          void store_float(uint8 addr, float my_data){
+   65   1              uint8 temp[4];
+   66   1              //强制取址
+   67   1              temp[0] = ((uint8*)&my_data)[0];
+   68   1              temp[1] = ((uint8*)&my_data)[1];
+   69   1              temp[2] = ((uint8*)&my_data)[2];
+   70   1              temp[3] = ((uint8*)&my_data)[3];
+   71   1              //at24c02_write_bytes(addr, temp, 4);
+   72   1              extern_iap_write_bytes(addr,temp,4);
+   73   1      }
+   74          
+   75          float Get_Float(uint8 addr){
+   76   1              uint8 i;
+   77   1              float temp ;
+   78   1              uint8 buff[4];
+   79   1              iap_read_bytes(addr,buff,4);
+   80   1              //at24c02_read_bytes(addr, buff, 4);
+   81   1              for(i = 0; i < 4;i++){
+   82   2                      ((uint8*)&temp)[i] = buff[i];
+   83   2              }
+   84   1              return temp;
+   85   1      }
+   86          
+   87          //uint32类型
+   88          void store_uint32(uint8 addr, uint32 my_data){
+   89   1              //多字节写入
+   90   1              uint8 temp[4];
+   91   1              temp[0] = my_data;
+   92   1              temp[1] = my_data >> 8;
+   93   1              temp[2] = my_data >> 16;
+   94   1              temp[3] = my_data >> 24;
+   95   1              extern_iap_write_bytes(addr,temp,4);
+   96   1              //at24c02_write_bytes(addr, temp, 4);
+   97   1      }
+   98          
+   99          
+  100          
+  101          
+  102          
+  103          
+  104          
+  105          
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =       320     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------         29
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+C251 COMPILER V5.60.0,  data_store                                                         11/10/23  16:55:28  PAGE 3   
+
+  hconst size          =    ------     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

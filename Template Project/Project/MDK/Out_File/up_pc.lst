@@ -1,0 +1,262 @@
+C251 COMPILER V5.60.0,  up_pc                                                              11/10/23  16:55:31  PAGE 1   
+
+
+C251 COMPILER V5.60.0, COMPILATION OF MODULE up_pc
+OBJECT MODULE PLACED IN .\Out_File\up_pc.obj
+COMPILER INVOKED BY: D:\Software\Keil_v5\C251\BIN\C251.EXE ..\USER\src\up_pc.c XSMALL UNSIGNED_CHAR WARNINGLEVEL(3) BROW
+                    -SE INCDIR(..\..\Libraries\libraries;..\..\Libraries\seekfree_libraries;..\..\Libraries\seekfree_peripheral;..\CODE;..\US
+                    -ER\inc;..\USER\src) DEBUG PRINT(.\Out_File\up_pc.lst) OBJECT(.\Out_File\up_pc.obj) 
+
+stmt  level    source
+
+    1          #include "zf_uart.h"
+    2          #include "up_pc.h"
+    3          #include "headfile.h"
+    4          //void Uart1_Process(){
+    5          //      static uint16 rlen;//接收到数据长度
+    6          //      static uint8 cmd[4];
+    7          //      static float d1;
+    8          //      static float d2;
+    9          //      static float d3;
+   10          //      
+   11          //      static int speed;
+   12          //  //串口1
+   13          //  if(USART_RX_STA&0X8000)//串口1接收到数据
+   14          //      {
+   15          //              //printf("接收内容：%s\r\n",uart1_rx_buff);
+   16          //              memset(uart1_rx_buff,0,sizeof(uart1_rx_buff));
+   17          //              USART_RX_STA=0; 
+   18          //      }
+   19          //}
+   20          //void Uart4_Process()
+   21          //{  //串口通信
+   22          //      static uint16 rlen;//接收到数据长度
+   23          //      static uint8 cmd[4];
+   24          //      static float d1;
+   25          //      static float d2;
+   26          //      static float d3;
+   27          //      static float d4;
+   28          //      static int index;
+   29          //      static int speed;
+   30          //      
+   31          //      if(USART4_RX_STA == RECEIVING_COMPLETED)//串口4接收到数据
+   32          //      {       
+   33          //      rlen=USART4_RX_LEN-2;   //得到本次接收到的数据长度 
+   34          //              printf("rec:%s\n",uart4_rx_buff);
+   35          //              if(strncmp(uart4_rx_buff,"START",5) == 0){ //发车和强制停车
+   36          //                      Start_Up();     //发车
+   37          //                      printf("armed car\n");
+   38          //              }
+   39          //              else if(strncmp(uart4_rx_buff,"STOP",4) == 0){ //发车和强制停车
+   40          //                      Force_Stop() ;     //强制停车
+   41          //                      printf("disarmed car\n");
+   42          //              }
+   43          //              else if(strncmp(uart4_rx_buff,"Motor_PID",9) == 0){
+   44          //                      if(sscanf(uart4_rx_buff,"%9s:%f,%f,%f",&cmd,&d1,&d2,&d3) == 4){
+   45          //                              car.motor_average.kp = d1;
+   46          //                              car.motor_average.ki = d2;
+   47          //                              car.motor_average.kd = d3;
+   48          //                              printf("Kp:%f,Ki:%f,Kd:%f\n",car.motor_average.kp,car.motor_average.ki,car.motor_average.kd);
+   49          //                      }
+   50          //              }
+   51          //              else if(strncmp(uart4_rx_buff,"Motor_L",7) == 0){
+   52          //                      if(sscanf(uart4_rx_buff,"%7s:%f,%f,%f",&cmd,&d1,&d2,&d3) == 4){
+   53          //                              car.motor_left.kp = d1;
+   54          //                              car.motor_left.ki = d2;
+   55          //                              car.motor_left.kd = d3;
+   56          //                              printf("Kp:%f,Ki:%f,Kd:%f\n",car.motor_left.kp,car.motor_left.ki,car.motor_left.kd);
+   57          //                      }
+C251 COMPILER V5.60.0,  up_pc                                                              11/10/23  16:55:31  PAGE 2   
+
+   58          //              }
+   59          //              else if(strncmp(uart4_rx_buff,"Motor_R",7) == 0){
+   60          //                      if(sscanf(uart4_rx_buff,"%7s:%f,%f,%f",&cmd,&d1,&d2,&d3) == 4){
+   61          //                              car.motor_right.kp = d1;
+   62          //                              car.motor_right.ki = d2;
+   63          //                              car.motor_right.kd = d3;
+   64          //                              printf("Kp:%f,Ki:%f,Kd:%f\n",car.motor_right.kp,car.motor_right.ki,car.motor_right.kd);
+   65          //                      }
+   66          //              }
+   67          //              //转向控制参数
+   68          //              else if(strncmp(uart4_rx_buff,"Steering",8) == 0)
+   69          //              {
+   70          //                      if(sscanf(uart4_rx_buff,"%8s:%f,%f",&cmd,&d1,&d2) == 3)
+   71          //                      {
+   72          //                              car.straight.kp = d1;
+   73          //                              car.straight.kd = d2;
+   74          //                              printf("kp:%f,kd:%f\n",car.straight.kp,car.straight.kd);
+   75          //                      }
+   76          //              }
+   77          
+   78          //              else if(strncmp(uart4_rx_buff,"DIFF_PID",8) == 0){
+   79          //                      if(sscanf(uart4_rx_buff,"%8s:%f,%f",&cmd,&d1,&d2) == 3){
+   80          //                              car.straight.kp  = d1;
+   81          //                              car.straight.kd  = d2;
+   82          //                              printf("Kp:%f,Kd:%f\n",car.straight.kp ,car.straight.kd);
+   83          //                      }
+   84          //              }
+   85          //              else if(strncmp(uart4_rx_buff,"PD_LOOP",7) == 0){
+   86          //                      if(sscanf(uart4_rx_buff,"%7s:%f,%f,%f",&cmd,&d1,&d2,&d3) == 4){
+   87          //                              car.pd_loop.kp  = d1;
+   88          //                              car.pd_loop.ki  = d2;
+   89          //                              car.pd_loop.kd  = d3;           
+   90          //                              printf("Kp:%f,Ki:%f,Kd:%f\n",car.pd_loop.kp ,car.pd_loop.ki,car.pd_loop.kd);
+   91          //                      }
+   92          //              }
+   93          ////            else if(strncmp(uart4_rx_buff,"DIFF",4) == 0){
+   94          ////                    if(sscanf(uart4_rx_buff,"%4s:%f,%f",&cmd,&d1,&d2) == 3){
+   95          ////                            car.differential.diff = d1;
+   96          ////                            printf("DIFF:%f\n",car.differential.diff);
+   97          ////                    }
+   98          ////            }
+   99          //              else if(strncmp(uart4_rx_buff,"UP_LOAD",7) == 0){ 
+  100          //                      if(sscanf(uart4_rx_buff,"%7s:%f",&cmd,&d1) == 2){
+  101          //                        if((int)d1)
+  102          //                  { 
+  103          //                                      car.upload_enable = 1 ;         
+  104          //                                      printf("start upload\n");
+  105          //                              }
+  106          //                              else{
+  107          //                                      car.upload_enable = 0 ;         
+  108          //                                      printf("stop upload\n");
+  109          //                              }
+  110          //                      }
+  111          //              }
+  112          //              else if(strncmp(uart4_rx_buff,"EXP_PD_LOOP",11) == 0){ 
+  113          //                      if(sscanf(uart4_rx_buff,"%11s:%f",&cmd,&d1) == 2){
+  114          //                              car.pd_loop.expected = d1;
+  115          //                              printf("EXP_PD_LOOP:%f\n",car.pd_loop.expected);
+  116          //                      }
+  117          //              }       
+  118          //              else if(strncmp(uart4_rx_buff,"SPD_AVE",7) == 0){
+  119          //                      if(sscanf(uart4_rx_buff,"%7s:%f",&cmd,&d1) == 2){
+  120          //                              car.straight.base_speed  = d1;
+  121          //                              printf("expected_spd:%f\n",car.straight.base_speed );
+  122          //                      }
+  123          //              }
+C251 COMPILER V5.60.0,  up_pc                                                              11/10/23  16:55:31  PAGE 3   
+
+  124          //              memset(uart4_rx_buff,0,sizeof(uart4_rx_buff));
+  125          //              USART4_RX_LEN  = 0;     
+  126          //              USART4_RX_STA  = EMPTY; 
+  127          //      }
+  128          //}
+  129          
+  130          //void Data_upload(int choice){ //数据上传
+  131          //      switch(choice){
+  132          //              
+  133          //      }
+  134          //}
+  135          
+  136          //void get_Road_type(){
+  137          //      static int type_temp=0;
+  138          //      if(type_temp!=car.road_type){
+  139          //              type_temp=car.road_type;
+  140          //              switch(car.road_type){
+  141          //                      case OUT_GARAGE:
+  142          //                              //printf("出库\n");
+  143          //                              break;  
+  144          //                      case STRAIGHT :                 
+  145          //                              //printf("直道\n");
+  146          //                              break;  
+  147          //                      case CIRCLE:
+  148          //                              //printf("环岛\n");
+  149          //                              break;  
+  150          ////                    case FORK :
+  151          ////                            //printf("cha路\n");
+  152          ////                            break;  
+  153          ////                    case STRAIGHT_FORK:
+  154          ////                            //printf("cha路内\n");
+  155          ////                            break;  
+  156          //                      case ENTER_GARAGE :
+  157          //                              //printf("入库");
+  158          //                              break;  
+  159          ////                    case CROSS :
+  160          ////                            //printf("十字\n");
+  161          ////                            break;  
+  162          //                      case RAMP:
+  163          //                              //printf("坡道\n");
+  164          //                              break;  
+  165          
+  166          //              }
+  167          //              
+  168          //      }       
+  169          //}
+  170          
+  171          
+  172          
+  173          ////printf("%f,%f,%f\n",car.adc_parameter.adc_error,car.adc_parameter.H_bias,car.adc_parameter.V_bias); 
+  174          ////printf("%d,%d,%d\n",mpu_acc_x,mpu_acc_y,mpu_acc_z);
+  175          ////printf("%d,%f\n",mpu_gyro_z,car.adc_parameter.adc_error);
+  176          ////printf("%f,%f\n",car.distance,car.garage.out_circle_point);
+  177          
+  178          ////printf("%f\n",car.distance);
+  179          //// printf("%f,%d,%f,%d\n",car.motor_left.speed_Current,car.motor_left.duty ,
+  180          ////                                            car.motor_right.speed_Current,car.motor_right.duty);
+  181          //// if(type_temp!=car.road_type){
+  182          ////    type_temp=car.road_type;
+  183          ////    printf("%d,%f,%d\n",car.road_type,car.speed_set,car.cross.count);
+  184          //// }  
+  185          ////printf("%d\n",car.cross.count);
+  186          ////printf("%d,%d ,%d, %d, %d, %d\n",mpu_gyro_x,mpu_gyro_y,mpu_gyro_z,mpu_acc_x,mpu_acc_y,mpu_acc_z);
+  187          //// if(car.road_type == CIRCLE) {
+  188          ////    printf("%f\n",icmdata.Yaw);
+  189          //// }
+C251 COMPILER V5.60.0,  up_pc                                                              11/10/23  16:55:31  PAGE 4   
+
+  190          ////printf("%f,%f,%f\n",car.speed_set,car.motor_left.speed_Current,car.motor_right.speed_Current);
+  191          ////printf("%f,%f,%f\n",car.motor_diff,car.motor_left.speed_Expected,car.motor_right.speed_Expected);
+  192          ////printf("%f\n",car.servo.history_error_ave);
+  193          ////printf("%d,%d\n",car.servo.left_count,car.servo.right_count);
+  194          ////printf("%f,%d,%d\n",car.servo.error_Now,car.servo.error_data[0],(int)car.servo.error_Now-car.servo.er
+             -ror_data[0]);
+  195          ////printf("%d\n",car.servo.history_error_ave);
+  196          ////printf("%f,%f\n",car.fork.in_angle,icmdata.Yaw);
+  197          ////printf("%d,%d,%f\n",icm_gyro_y,icm_acc_z,car.angle_z);
+  198          ////printf("%d,%d,%d,%d,%d,%d\n",icm_gyro_x,icm_gyro_y,icm_gyro_z,icm_acc_x,icm_acc_y,icm_acc_z);
+  199          ////printf("%f,%f\n",car.garage.in_point,car.distance);
+  200          ////printf("%d,%f,%f,%f\n",car.servo.duty,car.servo.error_Now,car.adc_parameter.H_bias,car.adc_parameter.
+             -V_bias);
+  201          ////printf("%f,%f,%f\n",car.adc_parameter.H_bias,car.adc_parameter.V_bias,car.servo.error_Now);
+  202          ////printf("%f,%f,%f\n",car.adc_parameter.H_bias,car.adc_parameter.V_bias,car.servo.error_Now);
+  203          ////printf("%f,%f\n",icmdata.Yaw,icmdata.Pitch);
+  204          ////printf("%f,%f,%f,%f,%f\n",car.motor_left.speed_Expected,car.motor_left.speed_Current,car.motor_right.
+             -speed_Expected,car.motor_right.speed_Current , car.motor_diff);
+  205          //// printf("%u,%u,%u,%u,%u\n",
+  206          ////    car.adc_parameter.adc_left_h[0],
+  207          ////    car.adc_parameter.adc_left_v[0],
+  208          ////    car.adc_parameter.adc_middle[0],
+  209          ////    car.adc_parameter.adc_right_v[0],
+  210          ////    car.adc_parameter.adc_right_h[0]);
+  211          //// printf("%f,%f,%f,%f,%f\n",
+  212          ////    car.adc_parameter.adc_normalized[LEFT_H],
+  213          ////    car.adc_parameter.adc_normalized[LEFT_V],
+  214          ////    car.adc_parameter.adc_normalized[MIDDLE],
+  215          ////    car.adc_parameter.adc_normalized[RIGHT_V],
+  216          ////    car.adc_parameter.adc_normalized[RIGHT_H]);
+  217          ////printf("%f,%f\n",icmdata.Yaw,car.garage.base_angle);
+  218          
+
+
+Module Information          Static   Overlayable
+------------------------------------------------
+  code size            =    ------     ------
+  ecode size           =    ------     ------
+  data size            =    ------     ------
+  idata size           =    ------     ------
+  pdata size           =    ------     ------
+  xdata size           =    ------     ------
+  xdata-const size     =    ------     ------
+  edata size           =    ------     ------
+  bit size             =    ------     ------
+  ebit size            =    ------     ------
+  bitaddressable size  =    ------     ------
+  ebitaddressable size =    ------     ------
+  far data size        =    ------     ------
+  huge data size       =    ------     ------
+  const size           =    ------     ------
+  hconst size          =    ------     ------
+End of Module Information.
+
+
+C251 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
