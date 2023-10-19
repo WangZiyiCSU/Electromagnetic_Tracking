@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  ramp                                                               11/10/23  16:55:31  PAGE 1   
+C251 COMPILER V5.60.0,  ramp                                                               16/10/23  23:33:45  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE ramp
@@ -66,7 +66,7 @@ stmt  level    source
    55          {
    56   1              
    57   1              static int step= 0;
-C251 COMPILER V5.60.0,  ramp                                                               11/10/23  16:55:31  PAGE 2   
+C251 COMPILER V5.60.0,  ramp                                                               16/10/23  23:33:45  PAGE 2   
 
    58   1              static int judge_count = 0;
    59   1              //下坡后一段距离再打开检测
@@ -134,7 +134,7 @@ stmt  level    source
   120   1              motor_control(car.ramp.speed-car.steering.duty,car.ramp.speed+car.steering.duty);
   121   1              // if(car.ramp.distance_passed>200)
   122   1              // {
-C251 COMPILER V5.60.0,  ramp                                                               11/10/23  16:55:31  PAGE 3   
+C251 COMPILER V5.60.0,  ramp                                                               16/10/23  23:33:45  PAGE 3   
 
   123   1              //      car.road_type = STRAIGHT;
   124   1              //      BEEP_OFF;

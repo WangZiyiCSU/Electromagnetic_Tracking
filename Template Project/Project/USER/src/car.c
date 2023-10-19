@@ -81,9 +81,9 @@ void car_Parameter_Init()
 	// car.steering.quadratic_error_kp 		       = 0.2; 	//二次项比例系数
 	// car.steering.error_kd 					   = 5;     //误差微分系数
 	// car.steering.gyro_kp 				       = 25;  	//陀螺仪系数
-	car.steering.linear_error_kp 			       = 20;    //一次项比例系数
+	car.steering.linear_error_kp 			       = 7.5;    //一次项比例系数
 	car.steering.quadratic_error_kp 		       = 0;     //二次项比例系数
-	car.steering.error_kd 					       = 5;     //误差微分系数
+	car.steering.error_kd 					       = 10;     //误差微分系数
 	car.steering.gyro_kp 					       = 0;   //陀螺仪系数
 	car.steering.error_now 				           = 0;     //当前偏差
 	car.steering.error_last 	         		   = 0;     //上次偏差
@@ -203,14 +203,14 @@ void car_Parameter_Init()
     //可调参数
 
 	//直道参数
-	car.straight.kp       	 	                 = 1;	
+	car.straight.kp       	 	                 = 1.0;	
 	car.straight.kd                              = 0.5;
 	car.straight.base_speed                      = 200;
 
 
 	/*************************角速度环*******************/
 	//角速度环 (位置式)
-	car.pd_loop.kp              = 1.5;          //比例
+	car.pd_loop.kp              = 2;          //比例
 	car.pd_loop.ki              = 0.1;          //积分
 	car.pd_loop.kd              = 0;            //微分
 	car.pd_loop.duty            = 0;

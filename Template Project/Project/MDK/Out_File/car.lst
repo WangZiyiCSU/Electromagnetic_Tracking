@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  car                                                                11/10/23  18:02:27  PAGE 1   
+C251 COMPILER V5.60.0,  car                                                                18/10/23  17:51:51  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE car
@@ -66,7 +66,7 @@ stmt  level    source
    55   1              car.element.excel[0]       = 0;
    56   1              car.element.excel[1]       = 3;
    57   1              car.element.excel[2]       = 8;
-C251 COMPILER V5.60.0,  car                                                                11/10/23  18:02:27  PAGE 2   
+C251 COMPILER V5.60.0,  car                                                                18/10/23  17:51:51  PAGE 2   
 
    58   1              car.element.excel[3]       = 4;
    59   1              car.element.excel[4]       = 11;
@@ -94,9 +94,9 @@ stmt  level    source
    81   1              // car.steering.quadratic_error_kp                     = 0.2;   //二次项比例系数
    82   1              // car.steering.error_kd                                           = 5;     //误差微分系数
    83   1              // car.steering.gyro_kp                                        = 25;    //陀螺仪系数
-   84   1              car.steering.linear_error_kp                           = 20;    //一次项比例系数
+   84   1              car.steering.linear_error_kp                           = 7.5;    //一次项比例系数
    85   1              car.steering.quadratic_error_kp                        = 0;     //二次项比例系数
-   86   1              car.steering.error_kd                                          = 5;     //误差微分系数
+   86   1              car.steering.error_kd                                          = 10;     //误差微分系数
    87   1              car.steering.gyro_kp                                           = 0;   //陀螺仪系数
    88   1              car.steering.error_now                                     = 0;     //当前偏差
    89   1              car.steering.error_last                                    = 0;     //上次偏差
@@ -134,7 +134,7 @@ stmt  level    source
   121   1              car.motor_left.duty_Last                 = 0;
   122   1      
   123   1              //右电机参数
-C251 COMPILER V5.60.0,  car                                                                11/10/23  18:02:27  PAGE 3   
+C251 COMPILER V5.60.0,  car                                                                18/10/23  17:51:51  PAGE 3   
 
   124   1              car.motor_right.kp                       = 30;
   125   1              car.motor_right.ki                       = 1;
@@ -202,7 +202,7 @@ stmt  level    source
   187   1              car.adc_parameter.adc_max[MIDDLE]        = 4000; 
   188   1              car.adc_parameter.adc_max[RIGHT_X]       = 4000; 
   189   1              car.adc_parameter.adc_max[RIGHT_H]       = 4000; 
-C251 COMPILER V5.60.0,  car                                                                11/10/23  18:02:27  PAGE 4   
+C251 COMPILER V5.60.0,  car                                                                18/10/23  17:51:51  PAGE 4   
 
   190   1      
   191   1              //最小值
@@ -220,14 +220,14 @@ stmt  level    source
   203   1          //可调参数
   204   1      
   205   1              //直道参数
-  206   1              car.straight.kp                                  = 1;   
+  206   1              car.straight.kp                                  = 1.0; 
   207   1              car.straight.kd                              = 0.5;
   208   1              car.straight.base_speed                      = 200;
   209   1      
   210   1      
   211   1              /*************************角速度环*******************/
   212   1              //角速度环 (位置式)
-  213   1              car.pd_loop.kp              = 1.5;          //比例
+  213   1              car.pd_loop.kp              = 2;          //比例
   214   1              car.pd_loop.ki              = 0.1;          //积分
   215   1              car.pd_loop.kd              = 0;            //微分
   216   1              car.pd_loop.duty            = 0;
@@ -270,7 +270,7 @@ stmt  level    source
   253   1              //角速度
   254   1              icmdata.PitchVelocity =0;
   255   1              icmdata.RollVelocity =0;
-C251 COMPILER V5.60.0,  car                                                                11/10/23  18:02:27  PAGE 5   
+C251 COMPILER V5.60.0,  car                                                                18/10/23  17:51:51  PAGE 5   
 
   256   1              icmdata.YawVelocity =0;
   257   1              icmdata.YawVelocity_offset =0;//偏航角速度偏置
@@ -338,7 +338,7 @@ stmt  level    source
   319   1              pwm_duty(PWMB_CH4_P77,0);       
   320   1              pwm_duty(PWMB_CH3_P33,0);       
   321   1              MotorPWM_Out(0,0);
-C251 COMPILER V5.60.0,  car                                                                11/10/23  18:02:27  PAGE 6   
+C251 COMPILER V5.60.0,  car                                                                18/10/23  17:51:51  PAGE 6   
 
   322   1      }
   323          
@@ -363,7 +363,7 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       845     ------
+  code size            =       849     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  main                                                               11/10/23  16:55:27  PAGE 1   
+C251 COMPILER V5.60.0,  main                                                               18/10/23  17:32:26  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE main
@@ -23,52 +23,56 @@ stmt  level    source
    10          
    11          #include "headfile.h"
    12          #include "key.h"
-   13          
-   14          #define HALL_PIN P26
-   15          
-   16           /*
-   17            * 系统频率，可查看board.h中的 FOSC 宏定义修改。
-   18            * board.h文件中FOSC的值设置为0,则程序自动设置系统频率为33.1776MHZ
-   19            * 在board_init中,已经将P54引脚设置为复位
-   20            * 如果需要使用P54引脚,可以在board.c文件中的board_init()函数中删除SET_P54_RESRT即可
-   21            */
-   22          
+   13          #include "menu.h"
+   14          
+   15          #define HALL_PIN P26
+   16          
+   17           /*
+   18            * 系统频率，可查看board.h中的 FOSC 宏定义修改。
+   19            * board.h文件中FOSC的值设置为0,则程序自动设置系统频率为33.1776MHZ
+   20            * 在board_init中,已经将P54引脚设置为复位
+   21            * 如果需要使用P54引脚,可以在board.c文件中的board_init()函数中删除SET_P54_RESRT即可
+   22            */
    23          
-   24          void main()
-   25          {
-   26   1          int key;    
-   27   1      
-   28   1          board_init();                       // 初始化寄存器,勿删除此句代码。
-   29   1      
-   30   1          // 此处编写用户代码(例如：外设初始化代码等)
-   31   1          car_System_Init();    //外设初始化
-   32   1          car_Parameter_Init(); //参数初始化
-   33   1          //Read_Para();
-   34   1      //        pit_timer_ms(TIM_4, 5);
-   35   1          while(1)
-   36   1              {
-   37   2              key = KEY_Scan();
-   38   2              if(key == KEY_3)
-   39   2              {       
-   40   3                  Start_Up();
-   41   3              }
-   42   2              if(key == KEY_1)
-   43   2              {
-   44   3                  Force_Stop();
-   45   3              }
-   46   2          }
-   47   1      }
-   48          
-   49          //void pit_handler(void)
-   50          //{
-   51          //}
+   24          
+   25          void main()
+   26          {
+   27   1          board_init();                       // 初始化寄存器,勿删除此句代码。
+   28   1      
+   29   1          // 此处编写用户代码(例如：外设初始化代码等)
+   30   1          car_System_Init();    //外设初始化
+   31   1          car_Parameter_Init(); //参数初始化
+   32   1      //    Read_Para();
+   33   1      //    pit_timer_ms(TIM_4, 5);
+   34   1          ips114_clear(WHITE);
+   35   1      
+   36   1          while(1)
+   37   1              {
+   38   2              if(KEY1_PIN == KEY_DOWN)
+   39   2                  Start_Up();
+   40   2      //        int next_menu = MainMenu(); 
+   41   2      //        if(next_menu == 1)
+   42   2      //        {
+   43   2      //            Start_Up();
+   44   2      //        }
+   45   2      //        else if(next_menu == 3)
+   46   2      //        {
+   47   2      //            
+   48   2      //            Menu_ADC_test();
+   49   2      //        }
+   50   2      //        else if(next_menu == 2)
+   51   2      //        {
+   52   2      //            //ParameterMenu();
+   53   2      //        }  
+   54   2          }
+   55   1      }
+C251 COMPILER V5.60.0,  main                                                               18/10/23  17:32:26  PAGE 2   
+
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =        34     ------
-C251 COMPILER V5.60.0,  main                                                               11/10/23  16:55:27  PAGE 2   
-
+  code size            =        27     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

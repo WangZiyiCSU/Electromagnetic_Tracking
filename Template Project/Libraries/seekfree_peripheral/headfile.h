@@ -64,5 +64,6 @@
 #include "pid.h"
 #include "ramp.h"
 #include "TF_mini.h"
+#include "menu.h"
 
 #endif

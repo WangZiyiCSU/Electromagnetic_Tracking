@@ -10,6 +10,7 @@
 
 #include "headfile.h"
 #include "key.h"
+#include "menu.h"
 
 #define HALL_PIN P26
 
@@ -23,29 +24,32 @@
 
 void main()
 {
-    int key;	
-
     board_init();			// 初始化寄存器,勿删除此句代码。
 
     // 此处编写用户代码(例如：外设初始化代码等)
     car_System_Init();    //外设初始化
     car_Parameter_Init(); //参数初始化
-    //Read_Para();
-//	  pit_timer_ms(TIM_4, 5);
+//    Read_Para();
+//    pit_timer_ms(TIM_4, 5);
+    ips114_clear(WHITE);
+
     while(1)
 	{
-        key = KEY_Scan();
-        if(key == KEY_3)
-        {	
+        if(KEY1_PIN == KEY_DOWN)
             Start_Up();
-        }
-        if(key == KEY_1)
-        {
-            Force_Stop();
-        }
+//        int next_menu = MainMenu(); 
+//        if(next_menu == 1)
+//        {
+//            Start_Up();
+//        }
+//        else if(next_menu == 3)
+//        {
+//            
+//            Menu_ADC_test();
+//        }
+//        else if(next_menu == 2)
+//        {
+//            //ParameterMenu();
+//        }  
     }
 }
-
-//void pit_handler(void)
-//{
-//}

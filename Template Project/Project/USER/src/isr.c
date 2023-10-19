@@ -111,16 +111,16 @@ void TM4_Isr() interrupt 20
 //            }
 //        }
 
-	//更新标志位 用于屏幕定时刷新
-	if(car.screen.ready==0)
-	{
-		car.screen.count++;
-		if(car.screen.count >= 200/car.screen.fps)
-		{
-			car.screen.count = 0;
-			car.screen.ready = 1;
-		}
-	}
+//	//更新标志位 用于屏幕定时刷新
+//	if(car.screen.ready==0)
+//	{
+//		car.screen.count++;
+//		if(car.screen.count >= 200/car.screen.fps)
+//		{
+//			car.screen.count = 0;
+//			car.screen.ready = 1;
+//		}
+//	}
 //	USART4_RX_STA = EMPTY;
 }
 

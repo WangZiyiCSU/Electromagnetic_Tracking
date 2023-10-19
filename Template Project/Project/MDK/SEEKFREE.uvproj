@@ -784,6 +784,11 @@
               <FileType>1</FileType>
               <FilePath>..\USER\src\adc.c</FilePath>
             </File>
+            <File>
+              <FileName>menu.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\menu.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -883,6 +888,11 @@
               <FileName>..\..\..\Study\智能车\Template Project\Project\USER\inc\car.h</FileName>
               <FileType>5</FileType>
               <FilePath>$TC_ROOT$\..\..\..\Study\智能车\Template Project\Project\USER\inc\car.h</FilePath>
+            </File>
+            <File>
+              <FileName>menu.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\menu.h</FilePath>
             </File>
           </Files>
         </Group>

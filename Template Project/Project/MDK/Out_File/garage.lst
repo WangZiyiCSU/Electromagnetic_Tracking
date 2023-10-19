@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  garage                                                             11/10/23  16:55:29  PAGE 1   
+C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE garage
@@ -66,7 +66,7 @@ stmt  level    source
    55   1              car.garage.state                          =  0;
    56   1      
    57   1              car.garage.element_flag                   =  0;
-C251 COMPILER V5.60.0,  garage                                                             11/10/23  16:55:29  PAGE 2   
+C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 2   
 
    58   1      
    59   1              car.garage.forward_state                  =  0;
@@ -134,7 +134,7 @@ stmt  level    source
   121   2                      car.garage.element_flag = 1;
   122   2              }
   123   1              car.garage.distance_passed = car.distance- car.garage.last_elemnent_point;
-C251 COMPILER V5.60.0,  garage                                                             11/10/23  16:55:29  PAGE 3   
+C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 3   
 
   124   1      
   125   1              if((car.adc_parameter.adc_error<40)&&(car.garage.distance_passed>car.garage.distance_to_zebra))
@@ -202,7 +202,7 @@ stmt  level    source
   184   2                              pwm_duty(PWMB_CH4_P77, 0);                                              
   185   2                      pwm_duty(PWMB_CH3_P33, 0); 
   186   2                              motor_control(0,0);
-C251 COMPILER V5.60.0,  garage                                                             11/10/23  16:55:29  PAGE 4   
+C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 4   
 
   187   2      
   188   2      
@@ -270,7 +270,7 @@ stmt  level    source
   248   2                      {
   249   3                              turn_angle(car.garage.out_garage_curve_angle,icmdata.Yaw-car.garage.base_angle,car.garage.out_garage_c
              -urve_speed,car.garage.out_garage_R_circle);
-C251 COMPILER V5.60.0,  garage                                                             11/10/23  16:55:29  PAGE 5   
+C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 5   
 
   250   3                              motor_control(car.garage.out_garage_curve_speed-car.steering.duty,car.garage.out_garage_curve_speed+ca
              -r.steering.duty);      
@@ -338,7 +338,7 @@ stmt  level    source
   310   4                                      count++;
   311   4                                      if (count > 2)
   312   4                                      {
-C251 COMPILER V5.60.0,  garage                                                             11/10/23  16:55:29  PAGE 6   
+C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 6   
 
   313   5                                              BEEP_OFF;
   314   5                                              car.garage.state = 1;
@@ -406,7 +406,7 @@ stmt  level    source
              -***/
   373   2                      break;
   374   2      
-C251 COMPILER V5.60.0,  garage                                                             11/10/23  16:55:29  PAGE 7   
+C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 7   
 
   375   2              case 3: //阶段2 倒车
   376   2                      //转向和速度控制 
@@ -474,7 +474,7 @@ stmt  level    source
   435   2              case 1:
   436   2          motor_control(car.garage.enter_garage_speed,car.garage.enter_garage_speed);
   437   2                      if (car.distance - car.garage.in_point > 10)
-C251 COMPILER V5.60.0,  garage                                                             11/10/23  16:55:29  PAGE 8   
+C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 8   
 
   438   2                      {
   439   3                              step = 2;

@@ -226,7 +226,8 @@ void error_calculate(float error_kp,float gyro_kp)
 										car.steering.quadratic_error_kp*car.steering.error_now*abs(car.steering.error_now) +    //二次偏差
 										car.steering.error_kd*(car.steering.error_now - car.steering.error_last) -  		    //偏差差分
 										car.steering.gyro_kp *icmdata.YawVelocity; 												                      //陀螺仪抑制
-		car.steering.error_last = car.steering.error_now;
+//		car.steering.duty = 8 * car.steering.error_now + 5 * (car.steering.error_now - car.steering.error_last);
+        car.steering.error_last = car.steering.error_now;
 	}
 	//转向PWM限幅
 	if(car.steering.duty>300)      car.steering.duty = 300;

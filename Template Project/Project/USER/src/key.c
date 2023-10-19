@@ -7,18 +7,16 @@ KEYn_e KEY_Scan()
 		BEEP_ON;
 		delay_ms(100);
 		BEEP_OFF;
-		if(KEY1_PIN == KEY_DOWN){
-			return KEY_1;
-		}
+		while(KEY1_PIN == KEY_DOWN);
+        return KEY_1;
+		
 		
 	}
-	else if(KEY2_PIN == KEY_DOWN){
+	else if(KEY2_PIN == KEY_DOWN)
+    {
 		BEEP_ON;
-		delay_ms(100);
-		BEEP_OFF;
-		if(KEY2_PIN == KEY_DOWN){
-			return KEY_2;
-		}
+		while(KEY2_PIN==KEY_DOWN);
+		return KEY_2;
 		
 	}
 	else if(KEY3_PIN == KEY_DOWN){
@@ -33,9 +31,11 @@ KEYn_e KEY_Scan()
 		BEEP_ON;
 		delay_ms(100);
 		BEEP_OFF;
-		if(KEY4_PIN == KEY_DOWN){
+        if(KEY4_PIN == KEY_DOWN)
+        {
 			return KEY_4;
 		}
+
 	}
 	else if(KEY5_PIN == KEY_DOWN){
 		BEEP_ON;

@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  isr                                                                11/10/23  16:55:26  PAGE 1   
+C251 COMPILER V5.60.0,  isr                                                                16/10/23  23:33:42  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE isr
@@ -66,7 +66,7 @@ stmt  level    source
              -þ´ÎÆ«²î
    54   3                              //                                  car.steering.error_kd*(car.steering.error_now - car.steering.error_last) -                      //Æ«²î²î·
              -Ö
-C251 COMPILER V5.60.0,  isr                                                                11/10/23  16:55:26  PAGE 2   
+C251 COMPILER V5.60.0,  isr                                                                16/10/23  23:33:42  PAGE 2   
 
    55   3                              //                                  car.steering.gyro_kp *icmdata.YawVelocity;                                                                                          //ÍÓÂÝÒÇÒÖÖÆ
    56   3                              // car.steering.error_last = car.steering.error_now;
@@ -127,18 +127,18 @@ stmt  level    source
   111   1      //            }
   112   1      //        }
   113   1      
-  114   1              //¸üÐÂ±êÖ¾Î» ÓÃÓÚÆÁÄ»¶¨Ê±Ë¢ÐÂ
-  115   1              if(car.screen.ready==0)
-  116   1              {
-  117   2                      car.screen.count++;
-  118   2                      if(car.screen.count >= 200/car.screen.fps)
-  119   2                      {
-  120   3                              car.screen.count = 0;
-C251 COMPILER V5.60.0,  isr                                                                11/10/23  16:55:26  PAGE 3   
+  114   1      //      //¸üÐÂ±êÖ¾Î» ÓÃÓÚÆÁÄ»¶¨Ê±Ë¢ÐÂ
+  115   1      //      if(car.screen.ready==0)
+  116   1      //      {
+  117   1      //              car.screen.count++;
+  118   1      //              if(car.screen.count >= 200/car.screen.fps)
+  119   1      //              {
+  120   1      //                      car.screen.count = 0;
+C251 COMPILER V5.60.0,  isr                                                                16/10/23  23:33:42  PAGE 3   
 
-  121   3                              car.screen.ready = 1;
-  122   3                      }
-  123   2              }
+  121   1      //                      car.screen.ready = 1;
+  122   1      //              }
+  123   1      //      }
   124   1      //      USART4_RX_STA = EMPTY;
   125   1      }
   126          
@@ -202,7 +202,7 @@ stmt  level    source
   184   2              }
   185   1      }
   186          
-C251 COMPILER V5.60.0,  isr                                                                11/10/23  16:55:26  PAGE 4   
+C251 COMPILER V5.60.0,  isr                                                                16/10/23  23:33:42  PAGE 4   
 
   187          
   188          //UART4ÖÐ¶Ï
@@ -270,7 +270,7 @@ stmt  level    source
   250   1              
   251   1      }
   252          
-C251 COMPILER V5.60.0,  isr                                                                11/10/23  16:55:26  PAGE 5   
+C251 COMPILER V5.60.0,  isr                                                                16/10/23  23:33:42  PAGE 5   
 
   253          ////UART4ÖÐ¶Ï
   254          //void UART4_Isr() interrupt 18
@@ -338,7 +338,7 @@ stmt  level    source
   316          //        // }
   317          //        // else
   318          //        // {
-C251 COMPILER V5.60.0,  isr                                                                11/10/23  16:55:26  PAGE 6   
+C251 COMPILER V5.60.0,  isr                                                                16/10/23  23:33:42  PAGE 6   
 
   319          //        //     dwon_count = 0;
   320          //        // }
@@ -406,7 +406,7 @@ stmt  level    source
   382          
   383          //void INT1_Isr() interrupt 2
   384          //{
-C251 COMPILER V5.60.0,  isr                                                                11/10/23  16:55:26  PAGE 7   
+C251 COMPILER V5.60.0,  isr                                                                16/10/23  23:33:42  PAGE 7   
 
   385          //      static int back = 0;
   386          //      INT1_CLEAR_FLAG;
@@ -474,7 +474,7 @@ stmt  level    source
   448          
   449          //void  INT0_Isr()  interrupt 0;
   450          //void  TM0_Isr()   interrupt 1;
-C251 COMPILER V5.60.0,  isr                                                                11/10/23  16:55:26  PAGE 8   
+C251 COMPILER V5.60.0,  isr                                                                16/10/23  23:33:42  PAGE 8   
 
   451          //void  INT1_Isr()  interrupt 2;
   452          //void  TM1_Isr()   interrupt 3;
@@ -501,7 +501,7 @@ stmt  level    source
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       406     ------
+  code size            =       357     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

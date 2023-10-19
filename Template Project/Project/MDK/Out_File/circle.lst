@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  circle                                                             11/10/23  16:55:27  PAGE 1   
+C251 COMPILER V5.60.0,  circle                                                             16/10/23  23:33:43  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE circle
@@ -66,7 +66,7 @@ stmt  level    source
    55   1              car.circle.Enter_ANGLE[1]                 =30;
    56   1              car.circle.Enter_ANGLE[2]                 =30;
    57   1      
-C251 COMPILER V5.60.0,  circle                                                             11/10/23  16:55:27  PAGE 2   
+C251 COMPILER V5.60.0,  circle                                                             16/10/23  23:33:43  PAGE 2   
 
    58   1              //入环转角(plan_B)
    59   1              car.circle.enter_angle_plan_B[0]          = 60;
@@ -134,7 +134,7 @@ stmt  level    source
   121   1                      if(car.element.excel[car.element.ELEMENT_NUM]==3)
   122   1                      {
   123   2                              car.circle.dir     = RIGHT;//方向：右
-C251 COMPILER V5.60.0,  circle                                                             11/10/23  16:55:27  PAGE 3   
+C251 COMPILER V5.60.0,  circle                                                             16/10/23  23:33:43  PAGE 3   
 
   124   2                              car.circle.cur_num = 0;    //小环
   125   2                      }
@@ -202,7 +202,7 @@ stmt  level    source
   185   1              car.circle.angle_turned =  icmdata.Yaw-car.circle.enter_angle;
   186   1              
   187   1              switch (car.circle.state)
-C251 COMPILER V5.60.0,  circle                                                             11/10/23  16:55:27  PAGE 4   
+C251 COMPILER V5.60.0,  circle                                                             16/10/23  23:33:43  PAGE 4   
 
   188   1              {
   189   2              /***********************状态0:预入环到入环点*************************/
@@ -270,7 +270,7 @@ stmt  level    source
              -.circle.enter_R_circle[car.circle.cur_num]);
   249   3                              motor_control(car.speed_set-car.steering.duty,car.speed_set+car.steering.duty); 
   250   3                      }
-C251 COMPILER V5.60.0,  circle                                                             11/10/23  16:55:27  PAGE 5   
+C251 COMPILER V5.60.0,  circle                                                             16/10/23  23:33:43  PAGE 5   
 
   251   2                      //右环岛
   252   2                       if (car.circle.dir == RIGHT)
@@ -338,7 +338,7 @@ stmt  level    source
   312   3                              //当前环岛个数加一
   313   3                              car.circle.cur_num ++ ;
   314   3                              //元素表个数加一
-C251 COMPILER V5.60.0,  circle                                                             11/10/23  16:55:27  PAGE 6   
+C251 COMPILER V5.60.0,  circle                                                             16/10/23  23:33:43  PAGE 6   
 
   315   3                              car.element.ELEMENT_NUM++;
   316   3                              car.road_type = STRAIGHT;                       
