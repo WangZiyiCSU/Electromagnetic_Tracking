@@ -20,7 +20,6 @@ void TM4_Isr() interrupt 20
 //	if(USART4_RX_LEN > 0 )return;
 //	USART4_RX_STA = REFUSE_TO_RECEIVE;
 	
-
 	switch(car.work_mode)
 	{
 		case NORMAL: 	//普通寻迹模式
@@ -35,16 +34,14 @@ void TM4_Isr() interrupt 20
 		}
 		case TEST:
 		{
-
 			//电感数据采集
-			 ADC_Process(&car.adc_parameter);	   //均值滤波
-			 ADC_Normalization(&car.adc_parameter); //归一化 0-100
+            //Menu_ADC_test();
 			// //陀螺仪数据采集
-			 ICM_OneOrderFilter();   
+//			 ICM_OneOrderFilter();   
 //	         pwm_duty(PWMB_CH4_P77, 600);						
 //	         pwm_duty(PWMB_CH3_P33, 600); 
 			 //hinder_judge(); 
-			 //CitTie_judge();     
+			 //Magnet_Judge();     
 			// //电感偏差计算
 			//get_error_normal(&car.adc_parameter); //计算偏差	
 			// car.steering.error_now = car.adc_parameter.adc_error ;
@@ -59,7 +56,7 @@ void TM4_Isr() interrupt 20
 			// else if(car.steering.duty<-MOTOR_DUTY_MAX)car.steering.duty=-MOTOR_DUTY_MAX;
 			// //电机控速
 			// //速度测量
-			 EncoderPulseGet(); 
+//			 EncoderPulseGet(); 
 			//motor_control(-250,-150);//闭环速度150
 			//Stop_after(2);
 			// MotorPWM_Out(car.motor_average.duty, car.motor_average.duty);

@@ -6,7 +6,7 @@
 
 /*----------------函数声明-------------------------*/
 void garage_parameter_init();
-void CitTie_judge();
+void Magnet_Judge();
 void Enter_Garage_Pre();
 void Out_garage(int dir);
 void Enter_garage_back(int dir);

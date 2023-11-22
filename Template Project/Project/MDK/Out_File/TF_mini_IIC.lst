@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  TF_mini_IIC                                                        09/10/23  22:20:58  PAGE 1   
+C251 COMPILER V5.60.0,  TF_mini_IIC                                                        01/11/23  17:00:47  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE TF_mini_IIC
@@ -66,7 +66,7 @@ stmt  level    source
    51          //-------------------------------------------------------------------------------------------------------
              -------------
    52          //  @brief      模拟IIC延时
-C251 COMPILER V5.60.0,  TF_mini_IIC                                                        09/10/23  22:20:58  PAGE 2   
+C251 COMPILER V5.60.0,  TF_mini_IIC                                                        01/11/23  17:00:47  PAGE 2   
 
    53          //  @return     void                                            
    54          //  @since      v1.0
@@ -134,7 +134,7 @@ stmt  level    source
   115   2              TF_SCL0();
   116   2              return 0;
   117   2          }
-C251 COMPILER V5.60.0,  TF_mini_IIC                                                        09/10/23  22:20:58  PAGE 3   
+C251 COMPILER V5.60.0,  TF_mini_IIC                                                        01/11/23  17:00:47  PAGE 3   
 
   118   1      
   119   1          TF_SCL0();
@@ -202,7 +202,7 @@ stmt  level    source
   180          //  @param      reg                             寄存器地址
   181          //  @param      dat                             写入的数据
   182          //  @return     void                                            
-C251 COMPILER V5.60.0,  TF_mini_IIC                                                        09/10/23  22:20:58  PAGE 4   
+C251 COMPILER V5.60.0,  TF_mini_IIC                                                        01/11/23  17:00:47  PAGE 4   
 
   183          //  @since      v1.0
   184          //  Sample usage:                               
@@ -270,7 +270,7 @@ stmt  level    source
   241   1          while(--num)
   242   1          {
   243   2              *dat_add = tf_read_ch(ack); //读取数据
-C251 COMPILER V5.60.0,  TF_mini_IIC                                                        09/10/23  22:20:58  PAGE 5   
+C251 COMPILER V5.60.0,  TF_mini_IIC                                                        01/11/23  17:00:47  PAGE 5   
 
   244   2              dat_add++;
   245   2          }

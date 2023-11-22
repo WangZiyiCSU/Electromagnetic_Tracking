@@ -22,13 +22,13 @@ void ADC_Process(ADC_Parameter* adc) //均值滤波
 	for(i = 1; i < SAMPLING_TIMES - 1; i++)
 	{
 		adc->adc_ave[LEFT_H]  += adc->adc_original[LEFT_H][i];
-		adc->adc_ave[LEFT_X]  += adc->adc_original[LEFT_X][i];
-		adc->adc_ave[MIDDLE]  = 0;
-		adc->adc_ave[RIGHT_X] += adc->adc_original[RIGHT_X][i];
+		adc->adc_ave[LEFT_X]  += 0;
+		adc->adc_ave[MIDDLE]  += adc->adc_original[MIDDLE][i];
+		adc->adc_ave[RIGHT_X] += 0;
 		adc->adc_ave[RIGHT_H] += adc->adc_original[RIGHT_H][i];
 	}
 	//求平均
-	for(i = 0; i<INDUCTOR_NUM; i++)
+	for(i = 0; i < INDUCTOR_NUM; i++)
 	{
 		adc->adc_ave[i] = adc->adc_ave[i]/(SAMPLING_TIMES-2);
 	}
@@ -82,9 +82,10 @@ void ADC_Normalization(ADC_Parameter* adc)
 //差比和
 void  get_error_normal(ADC_Parameter* adc)
 {
-	//横电感计算偏差
-	adc->adc_error = car.adc_parameter.error_caculate*(adc->adc_normalized[LEFT_H] - adc->adc_normalized[RIGHT_H])/
-					     ((adc->adc_normalized[LEFT_H] +adc->adc_normalized[MIDDLE]+adc->adc_normalized[RIGHT_H])*adc->adc_normalized[MIDDLE]);
+	//横电感计算偏差 = 调整系数 *（左平均 - 右平均）/ （（左平均 + 中平均 + 右平均）* 中归一）
+	adc->adc_error = car.adc_parameter.error_caculate
+                     * (adc->adc_normalized[LEFT_H] - adc->adc_normalized[RIGHT_H])
+					 / ((adc->adc_normalized[LEFT_H] +adc->adc_normalized[MIDDLE]+adc->adc_normalized[RIGHT_H])*adc->adc_normalized[MIDDLE]);
 
 	// if(adc->adc_normalized[LEFT_H]>5 && adc->adc_normalized[RIGHT_H]<5)adc->adc_error = ERROR_MAX;
 	// else if(adc->adc_normalized[LEFT_H]<5 && adc->adc_normalized[RIGHT_H]>5)adc->adc_error = -ERROR_MAX;
@@ -94,12 +95,15 @@ void  get_error_normal(ADC_Parameter* adc)
 }
 
 //去绝对值
-float my_abs(float error){
-	if(error<0)error = -error;
+float my_abs(float error)
+{
+	if(error < 0)
+        error = -error;
 	return error;
 }
 //范围判定
-int Limit_min_max(uint16 num,uint16 min,uint16 max){  //上下限幅
+int Limit_min_max(uint16 num,uint16 min,uint16 max)
+{  //上下限幅
 	if(num > max || num < min )return 0;
 	return   1;
 }

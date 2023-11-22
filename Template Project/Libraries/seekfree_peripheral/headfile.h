@@ -48,6 +48,8 @@
 //#include "speed.h"
 //#include "my_fuzzy.h" 
 
+#define HALL_PIN P26
+
 #include "adc.h"
 #include "car.h"
 #include "circle.h"

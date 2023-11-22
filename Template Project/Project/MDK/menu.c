@@ -3,7 +3,7 @@
 #include "SEEKFREE_IPS114_SPI.h"
 
 //#define ROW_SPACING 2;//行间距
-int menu_length   = 3;
+int menu_length = 3;
 int key = 0;
 
 /*
@@ -14,7 +14,7 @@ int key = 0;
 */
 int MainMenu()
 {
-    int position      = 1;//第n行
+    int position = 1;//第n行
     
     ips114_showstr(90, 0, "MAIN_MENU");
     ips114_showstr(10, 2, "Start");
@@ -39,6 +39,10 @@ int MainMenu()
             return position;
         }
         
+        if(key == KEY_NULL)
+        {
+            return 0;
+        }
         switch(position)
         {
             case 1:
@@ -71,8 +75,8 @@ void Menu_ADC_test()
     uint16 data1,data2,data3,data4;
 
     ips114_clear(WHITE);
-    while(1)
-    {
+//    while(1)
+//    {
         data1 = adc_once(ADC_P00,ADC_12BIT);  	//采集ADC_P00电压，精度12位
         data2 = adc_once(ADC_P01,ADC_12BIT);    //采集ADC_P01电压，精度12位
         data3 = adc_once(ADC_P05,ADC_12BIT);	//采集ADC_P05电压，精度12位
@@ -87,10 +91,10 @@ void Menu_ADC_test()
         ips114_showstr(0, 6, "C 4:  ");	
         ips114_showuint16(6 * 8, 6, data4);
         
-        key = KEY_Scan();
-        if(key == KEY_1)
-        {
-            break;
-        }
-    }
+//        key = KEY_Scan();
+//        if(key == KEY_1)
+//        {
+//            break;
+//        }
+//    }
 }

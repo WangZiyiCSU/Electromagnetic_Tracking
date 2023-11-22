@@ -11,12 +11,13 @@
  * @return		  NULL
  * @date	      2023/7/27
  ***************************************************/
- void Circle_parameter_init(){
+ void Circle_parameter_init()
+ {
  
 	//环岛数量(第几个环岛)
 	car.circle.cur_num = 0;		           
 
-  //圆环识别标志位：0为不识别，1为识别
+   //圆环识别标志位：0为不识别，1为识别
 
 	car.circle.enable[0]                       =1;
 	car.circle.enable[1]                       =1;
@@ -33,12 +34,12 @@
 	car.circle.PRE_ENTER_MIDDLE[2]            =70;
 	
 	//圆环内的运行速度
-	car.circle.speed[0]                       =280;
-	car.circle.speed[1]                       =280;
-	car.circle.speed[2]                       =280;
+	car.circle.speed[0]                       =120;
+	car.circle.speed[1]                       =120;
+	car.circle.speed[2]                       =120;
 
 	//预入环到入环点的距离
-	car.circle.Enter_DIST[0]                  =33;
+	car.circle.Enter_DIST[0]                  =7;
 	car.circle.Enter_DIST[1]                  =44;
 	car.circle.Enter_DIST[2]                  =50;
 	
@@ -66,13 +67,13 @@
 	car.circle.enter_R_circle[2]              = 50;
 	
 	//出环偏置
-	car.circle.BIAS_ADJUST[0]                 = -20;
+	car.circle.BIAS_ADJUST[0]                 = -10;
 	car.circle.BIAS_ADJUST[1]                 = -10;
 	car.circle.BIAS_ADJUST[2]                 = -10;
 
 	//第一个环内kp和kd
 	car.circle.kp[0]                          =20;
-	car.circle.kd[0]                          =0.75;
+	car.circle.kd[0]                          =1;
 
 	//第二个环内kp和kd
 	car.circle.kp[1]                          =15;
@@ -88,7 +89,7 @@
 	car.circle.angle_1[2]                     =330;
 
 	//均值打角
-	car.circle.angle_2[0]                     =330;
+	car.circle.angle_2[0]                     =310;
 	car.circle.angle_2[1]                     =330;
 	car.circle.angle_2[2]                     =350;
 
@@ -213,53 +214,53 @@ void Circle_control()
 		/***********************状态1:入环点到打角结束***********************/
 
 		/*******方案1：变速差速入环*********/
-	// case 1:
-	// 	if(car.circle.cur_num == 0)     car.speed_set =  car.circle.speed[car.circle.cur_num%2];
-	// 	else if(car.circle.cur_num == 1)car.speed_set =  car.circle.speed[car.circle.cur_num%2];
-	// 	ENTER_DIFF = 300-my_abs(car.circle.angle_turned)*6.6;
-	// 	//左环岛
-	// 	if (car.circle.dir == LEFT)
-	// 	{			
-	// 		motor_control(car.speed_set-ENTER_DIFF,car.speed_set+ENTER_DIFF);
-	// 	}
-	// 	//右环岛
-	// 	else if (car.circle.dir == RIGHT)
-	// 	{
-	// 		motor_control(car.speed_set+ENTER_DIFF,car.speed_set-ENTER_DIFF);
-	// 	}
-	// 	//打角满足设定值 切换回正常寻迹
-	// 	if( my_abs(car.circle.angle_turned) > car.circle.Enter_ANGLE[car.circle.cur_num%2])
-	// 	{
-	// 		car.circle.state =2;
-	// 	}
-	// 	break;
+	 case 1:
+	 	if(car.circle.cur_num == 0)     car.speed_set =  car.circle.speed[car.circle.cur_num%2];
+	 	else if(car.circle.cur_num == 1)car.speed_set =  car.circle.speed[car.circle.cur_num%2];
+	 	ENTER_DIFF = 300-my_abs(car.circle.angle_turned)*6.6;
+	 	//左环岛
+	 	if (car.circle.dir == LEFT)
+	 	{			
+	 		motor_control(car.speed_set-ENTER_DIFF,car.speed_set+ENTER_DIFF);
+	 	}
+	 	//右环岛
+	 	else if (car.circle.dir == RIGHT)
+	 	{
+	 		motor_control(car.speed_set+ENTER_DIFF,car.speed_set-ENTER_DIFF);
+	 	}
+	 	//打角满足设定值 切换回正常寻迹
+	 	if( my_abs(car.circle.angle_turned) > car.circle.Enter_ANGLE[car.circle.cur_num%2])
+	 	{
+	 		car.circle.state =2;
+	 	}
+	 	break;
 		/*******方案1：变速差速入环*********/
 
 
 		/*******方案2：惯导匀速入环*********/
-	case 1:
-		error_calculate(car.circle.kp[car.circle.cur_num],car.circle.kd[car.circle.cur_num]);
+//	case 1:
+//		error_calculate(car.circle.kp[car.circle.cur_num],car.circle.kd[car.circle.cur_num]);
 
-		if(car.circle.cur_num == 0)     car.speed_set =  car.circle.speed[car.circle.cur_num];
-		else if(car.circle.cur_num == 1)car.speed_set =  car.circle.speed[car.circle.cur_num];
-		//左环岛
-		if (car.circle.dir == LEFT)
-		{			
-			turn_angle(car.circle.enter_angle_plan_B[car.circle.cur_num],car.circle.angle_turned,car.speed_set,car.circle.enter_R_circle[car.circle.cur_num]);
-			motor_control(car.speed_set-car.steering.duty,car.speed_set+car.steering.duty);	
-		}
-		//右环岛
-		 if (car.circle.dir == RIGHT)
-		{
-			turn_angle(-car.circle.enter_angle_plan_B[car.circle.cur_num],car.circle.angle_turned,car.speed_set,car.circle.enter_R_circle[car.circle.cur_num]);
-			motor_control(car.speed_set-car.steering.duty,car.speed_set+car.steering.duty);
-		}
-		//打角满足设定值 切换回正常寻迹
-		if( my_abs(car.circle.angle_turned) > car.circle.Enter_ANGLE[car.circle.cur_num]*0.9)
-		{
-			car.circle.state =2;
-		}
-		break;
+//		if(car.circle.cur_num == 0)     car.speed_set =  car.circle.speed[car.circle.cur_num];
+//		else if(car.circle.cur_num == 1)car.speed_set =  car.circle.speed[car.circle.cur_num];
+//		//左环岛
+//		if (car.circle.dir == LEFT)
+//		{			
+//			turn_angle(car.circle.enter_angle_plan_B[car.circle.cur_num],car.circle.angle_turned,car.speed_set,car.circle.enter_R_circle[car.circle.cur_num]);
+//			motor_control(car.speed_set-car.steering.duty,car.speed_set+car.steering.duty);	
+//		}
+//		//右环岛
+//		 if (car.circle.dir == RIGHT)
+//		{
+//			turn_angle(-car.circle.enter_angle_plan_B[car.circle.cur_num],car.circle.angle_turned,car.speed_set,car.circle.enter_R_circle[car.circle.cur_num]);
+//			motor_control(car.speed_set-car.steering.duty,car.speed_set+car.steering.duty);
+//		}
+//		//打角满足设定值 切换回正常寻迹
+//		if( my_abs(car.circle.angle_turned) > car.circle.Enter_ANGLE[car.circle.cur_num]*0.9)
+//		{
+//			car.circle.state =2;
+//		}
+//		break;
 		/*******方案2：惯导匀速入环*********/
 
 		/***********************状态1:入环点到打角结束***********************/
@@ -280,7 +281,7 @@ void Circle_control()
 			error_count++;
 			error_ave = error_ave + (car.steering.duty - error_ave )/error_count;
 		}
-		else if (my_abs(car.circle.angle_turned) <car.circle.angle_2[car.circle.cur_num])  //310度-330之间 均值打角
+		else if (my_abs(car.circle.angle_turned) < car.circle.angle_2[car.circle.cur_num])  //310度-330之间 均值打角
 		{
 			BEEP_ON;
 			//car.speed_set = car.circle.speed[car.circle.cur_num] ;

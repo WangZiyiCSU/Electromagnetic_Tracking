@@ -43,23 +43,24 @@ uint16 adc_min[INDUCTOR_NUM]={0,0,0,0,0};
  * @return		  NULL
  * @date	      2023/7/27
  ***************************************************/
- void element_parameter_init(){
+void element_parameter_init()    
+{
 
  	car.element.ELEMENT_NUM = 0;
 	
-	/******实验室328赛道(逆时针)**********/	
-	//右出库——右小环——左大环——障碍——坡道——右入库
+	/******实验室328赛道(顺时针)**********/	
+	//左出库——左小环——左大环——障碍——坡道——右入库
 	/******华北理工赛道******************/
 	//左出库——右小环——坡道——左大环——障碍(左)——大大坡道———左入库
 
 	car.element.excel[0]       = 0;
-	car.element.excel[1]       = 3;
-	car.element.excel[2]       = 8;
-	car.element.excel[3]       = 4;
-	car.element.excel[4]       = 11;
-	car.element.excel[5]       = 6;
-	car.element.excel[6]       = 8;
-	car.element.excel[7]       = 9;
+	car.element.excel[1]       = 2;
+//	car.element.excel[2]       = 6;
+	car.element.excel[2]       = 9;  
+//	car.element.excel[4]       = 9;
+//	car.element.excel[5]       = 6;
+//	car.element.excel[6]       = 8;
+//	car.element.excel[7]       = 9;
     // car.element.excel[6]    = 7;
     // car.element.excel[7]    = 5;
     // car.element.excel[8]    = 2;
@@ -71,20 +72,19 @@ uint16 adc_min[INDUCTOR_NUM]={0,0,0,0,0};
 	// car.element.excel[8]    = 7;
 	/******实验室328赛道(逆时针)**********/	
 
- }
+}
 /***********************元素表**************************/
 //*******************************参数初始化*************************************
 void car_Parameter_Init()
 {
-
 	// car.steering.linear_error_kp 			   = 300;   //一次项比例系数
 	// car.steering.quadratic_error_kp 		       = 0.2; 	//二次项比例系数
 	// car.steering.error_kd 					   = 5;     //误差微分系数
 	// car.steering.gyro_kp 				       = 25;  	//陀螺仪系数
-	car.steering.linear_error_kp 			       = 7.5;    //一次项比例系数
+	car.steering.linear_error_kp 			       = 17;    //一次项比例系数
 	car.steering.quadratic_error_kp 		       = 0;     //二次项比例系数
 	car.steering.error_kd 					       = 10;     //误差微分系数
-	car.steering.gyro_kp 					       = 0;   //陀螺仪系数
+	car.steering.gyro_kp 					       = 0.6;   //陀螺仪系数
 	car.steering.error_now 				           = 0;     //当前偏差
 	car.steering.error_last 	         		   = 0;     //上次偏差
 	car.steering.duty 						       = 0;     //输出
@@ -133,9 +133,6 @@ void car_Parameter_Init()
 	car.motor_right.error_PrePre             = 0;
 	car.motor_right.duty                     = 0;
 	car.motor_right.duty_Last                = 0;
-
-
-
 
 	//车库
 	car.garage.count                         = 0;
@@ -203,9 +200,11 @@ void car_Parameter_Init()
     //可调参数
 
 	//直道参数
-	car.straight.kp       	 	                 = 1.0;	
-	car.straight.kd                              = 0.5;
-	car.straight.base_speed                      = 200;
+//	car.straight.kp       	 	                 = 8.75;	
+//	car.straight.kd                              = 1.5;
+	car.straight.kp       	 	                 = 22;	
+	car.straight.kd                              = 1.3;
+    car.straight.base_speed                      = 180;
 
 
 	/*************************角速度环*******************/
@@ -263,7 +262,8 @@ void car_Parameter_Init()
 	
 }
 //外设初始化
-void car_System_Init(){
+void car_System_Init()    
+{
 	Beep_Init();
 	//蜂鸣器响
 	BEEP_ON;
@@ -276,6 +276,8 @@ void car_System_Init(){
 //	MenuInit();
 	//串口4初始化
     wireless_uart_init();
+    //tof初始化
+	dl1a_init();
 	//编码器初始化
 	EncoderInit();	
 	//电机初始化
@@ -285,10 +287,9 @@ void car_System_Init(){
 	adc_init(ADC_P01, ADC_SYSclk_DIV_2);
 	adc_init(ADC_P05, ADC_SYSclk_DIV_2);
 	adc_init(ADC_P06, ADC_SYSclk_DIV_2);
-	adc_init(ADC_P13, ADC_SYSclk_DIV_2);
 	//陀螺仪初始化
 	//mpu6050_init();
-	icm20602_init();
+	imu660ra_init();
 	//设置定时器4 控制周期5ms
 	pit_timer_ms(TIM_4, 5);	
     //设置中断优先级
@@ -296,12 +297,8 @@ void car_System_Init(){
 	NVIC_SetPriority(UART4_IRQn,3);
 	//蜂鸣器关
 	BEEP_OFF;
-	//tof初始化
-	dl1a_init();
-	//负压初始化
-	pwm_init(PWMB_CH4_P77, 50, 0);						
-	pwm_init(PWMB_CH3_P33, 50, 0);  
 }
+
 //蜂鸣器初始化
 void Beep_Init()
 {
@@ -318,15 +315,15 @@ void Force_Stop()      //强制停车并关闭风扇
 	car.motor_right.duty = 0;
 	pwm_duty(PWMB_CH4_P77,0);	
 	pwm_duty(PWMB_CH3_P33,0);	
-	MotorPWM_Out(0,0);
+	MotorPWM_Out(0, 0);
 }
 
 void Start_Up()     	//发车
 {
 	BEEP_ON;
-    pwm_duty(PWMB_CH4_P77,car.fan.left_duty);	
-	pwm_duty(PWMB_CH3_P33,car.fan.right_duty);	
 	delay_ms(2500);
+    pwm_duty(PWMB_CH4_P77, 650);
+    pwm_duty(PWMB_CH3_P33, 650);
     BEEP_OFF;
 	car.start_flag = START;
 }

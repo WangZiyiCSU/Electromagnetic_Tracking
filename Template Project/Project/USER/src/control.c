@@ -24,13 +24,15 @@ void Out_Track_judge();	   //出界检测
  * @return		  NULL
  * @date		  2023/7/27
  ***************************************************/
-void block_judge(){
-
+void block_judge()
+{
 	static int count = 0;
-
-	if((my_abs(car.motor_left.speed_Current)+my_abs(car.motor_right.speed_Current))/2<50){
+    //左右电机速度绝对值均值小于50持续80个采样周期
+	if((my_abs(car.motor_left.speed_Current) + my_abs(car.motor_right.speed_Current)) / 2 < 50)
+    {
 		count++;
-		if(count>80){
+        if(count > 80)
+        {
 			Force_Stop();
 		}
 	}
@@ -61,6 +63,7 @@ void Out_Track_judge()
 {
 	static int out_count = 0;
 
+    //不在出入库或坡道时
 	if (car.road_type != OUT_GARAGE &&car.road_type != RAMP&& car.road_type != ENTER_GARAGE)
 	{
 		if (car.adc_parameter.adc_strength <= 10 )
@@ -99,16 +102,16 @@ void Straight_control()
 	{
 		if(car.element.excel[car.element.ELEMENT_NUM]==9)//左入库
 		{
-			car.garage.DIR=LEFT;
+			car.garage.DIR = LEFT;
 		}
 		if(car.element.excel[car.element.ELEMENT_NUM]==10)//右入库
 		{
-			car.garage.DIR=RIGHT;
+			car.garage.DIR = RIGHT;
 		}
 	  /******正向入库距离检测******/
 	  	Enter_Garage_Pre();
 	  /******正向入库距离检测******/
-		CitTie_judge();
+		Magnet_Judge();
 	}
 //		else if(car.garage.MODE==1)
 //		Enter_Garage_Pre();
@@ -129,7 +132,7 @@ void Straight_control()
 	 /*******坡道********/
 
 	 /*******堵转*********/
-	   block_judge();
+	  block_judge();
 	 /*******堵转*********/
 		 
 	 /*******出界保护******/
@@ -158,15 +161,14 @@ void Straight_control()
 
     Stop_after(car.meter_distance);
 
-
 	/***************************元素检测****************************/
 	car.adc_parameter.adc_min[LEFT_H]  = 400;
 	car.adc_parameter.adc_min[MIDDLE]  = 400;
 	car.adc_parameter.adc_min[RIGHT_H] = 400;
 	error_calculate(car.straight.kp,car.straight.kd);
+
 	/******转向控制******/
 	motor_control(car.straight.base_speed-car.steering.duty,car.straight.base_speed+car.steering.duty);
-	//motor_control(car.straight.base_speed,car.straight.base_speed);
 	/******转向控制******/
 }
 
@@ -184,7 +186,8 @@ void motor_control(float left_speed,float right_speed){
 	car.motor_left.speed_Expected  = left_speed;
 	car.motor_right.speed_Expected = right_speed;
 
-	if(car.start_flag){
+	if(car.start_flag)
+    {
 		MotorPID_Caculate(&car.motor_left);
 		MotorPID_Caculate(&car.motor_right);
 	}
@@ -222,16 +225,16 @@ void error_calculate(float error_kp,float gyro_kp)
 			car.lose_flag = 1;
 			//BEEP_ON;
 		}
-		car.steering.duty = car.steering.linear_error_kp*car.steering.error_now +                                               //一次偏差   
-										car.steering.quadratic_error_kp*car.steering.error_now*abs(car.steering.error_now) +    //二次偏差
-										car.steering.error_kd*(car.steering.error_now - car.steering.error_last) -  		    //偏差差分
-										car.steering.gyro_kp *icmdata.YawVelocity; 												                      //陀螺仪抑制
+		car.steering.duty = car.steering.linear_error_kp*car.steering.error_now                                               //一次偏差   
+							+ car.steering.quadratic_error_kp*car.steering.error_now*abs(car.steering.error_now)    //二次偏差
+							+ car.steering.error_kd*(car.steering.error_now - car.steering.error_last) 		        //偏差差分
+							- car.steering.gyro_kp *icmdata.YawVelocity; 												                      //陀螺仪抑制
 //		car.steering.duty = 8 * car.steering.error_now + 5 * (car.steering.error_now - car.steering.error_last);
         car.steering.error_last = car.steering.error_now;
 	}
 	//转向PWM限幅
-	if(car.steering.duty>300)      car.steering.duty = 300;
-	else if(car.steering.duty<-300)car.steering.duty =-300;
+	if(car.steering.duty > 250)      car.steering.duty = 250;
+	else if(car.steering.duty < -250)car.steering.duty =-250;
 }
 /****************************************************
  * @name	      Normal_Tracing
@@ -253,7 +256,7 @@ void Normal_Tracing()
 	//风扇
 
 	//状态机
-	switch (/*car.road_type*/STRAIGHT)
+	switch (car.road_type)
 	{
 		//直道
 		case STRAIGHT:
@@ -286,8 +289,8 @@ void Normal_Tracing()
 			break;
 		//坡道
 		case RAMP:
-			Ramp_control();
-			car.road_type_last = RAMP;
+//			Ramp_control();
+//			car.road_type_last = RAMP;
 		  break;
 		//障碍
 		case HINDER:
@@ -297,6 +300,5 @@ void Normal_Tracing()
 		case ENTER_GARAGE_forward:
 			Enter_Garage_control();
 			break;
-
 	}
 }

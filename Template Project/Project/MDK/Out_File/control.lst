@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  control                                                            18/10/23  15:56:57  PAGE 1   
+C251 COMPILER V5.60.0,  control                                                            01/11/23  20:23:49  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE control
@@ -35,300 +35,301 @@ stmt  level    source
    24           * @return                NULL
    25           * @date                  2023/7/27
    26           ***************************************************/
-   27          void block_judge(){
-   28   1      
+   27          void block_judge()
+   28          {
    29   1              static int count = 0;
-   30   1      
-   31   1              if((my_abs(car.motor_left.speed_Current)+my_abs(car.motor_right.speed_Current))/2<50){
-   32   2                      count++;
-   33   2                      if(count>80){
-   34   3                              Force_Stop();
-   35   3                      }
-   36   2              }
-   37   1      }
-   38          /****************************************************
-   39           * @name              ×ßÒ»¶Î¾àÀëÍ£Ö¹
-   40           * @function      Stop_after
-   41           * @parameter     NULL
-   42           * @return                NULL
-   43           * @date                  2023/7/27
-   44           ***************************************************/
-   45          void Stop_after(float distance)
-   46          {
-   47   1              if (car.distance > distance * 100)
-   48   1              {
-   49   2                      Force_Stop();
-   50   2                      car.distance = 0;
-   51   2              }
-   52   1      }
-   53          /****************************************************
-   54           * @name              Out_Track_judge
-   55           * @function      ³ö½ç±£»¤
-   56           * @parameter     NULL
-   57           * @return                NULL
-C251 COMPILER V5.60.0,  control                                                            18/10/23  15:56:57  PAGE 2   
+   30   1          //×óÓÒµç»úËÙ¶È¾ø¶ÔÖµ¾ùÖµÐ¡ÓÚ50³ÖÐø80¸ö²ÉÑùÖÜÆÚ
+   31   1              if((my_abs(car.motor_left.speed_Current) + my_abs(car.motor_right.speed_Current)) / 2 < 50)
+   32   1          {
+   33   2                      count++;
+   34   2              if(count > 80)
+   35   2              {
+   36   3                              Force_Stop();
+   37   3                      }
+   38   2              }
+   39   1      }
+   40          /****************************************************
+   41           * @name              ×ßÒ»¶Î¾àÀëÍ£Ö¹
+   42           * @function      Stop_after
+   43           * @parameter     NULL
+   44           * @return                NULL
+   45           * @date                  2023/7/27
+   46           ***************************************************/
+   47          void Stop_after(float distance)
+   48          {
+   49   1              if (car.distance > distance * 100)
+   50   1              {
+   51   2                      Force_Stop();
+   52   2                      car.distance = 0;
+   53   2              }
+   54   1      }
+   55          /****************************************************
+   56           * @name              Out_Track_judge
+   57           * @function      ³ö½ç±£»¤
+C251 COMPILER V5.60.0,  control                                                            01/11/23  20:23:49  PAGE 2   
 
-   58           * @date                  2023/7/12
-   59           ***************************************************/
-   60          void Out_Track_judge()
-   61          {
-   62   1              static int out_count = 0;
-   63   1      
-   64   1              if (car.road_type != OUT_GARAGE &&car.road_type != RAMP&& car.road_type != ENTER_GARAGE)
-   65   1              {
-   66   2                      if (car.adc_parameter.adc_strength <= 10 )
-   67   2                      {
-   68   3                              out_count++;
-   69   3                              if (out_count > 50)
-   70   3                              {
-   71   4                                      out_count = 0;
-   72   4                                      Force_Stop();
-   73   4                                      car.road_type = OUT_TRACK;
-   74   4                              }
-   75   3                      }
-   76   2                      else
-   77   2                      {
-   78   3                              out_count = 0;
-   79   3                      }
-   80   2              }
-   81   1      }
-   82          /****************************************************
-   83           * @name              Straight_control
-   84           * @function      Ö±µÀ×ªÏò¿ØÖÆ
-   85           * @parameter     NULL
-   86           * @return                NULL
-   87           * @date                  2023/7/4
-   88           ***************************************************/
-   89          void Straight_control()
-   90          {
-   91   1              static int count_10ms = 0;
-   92   1      
-   93   1              /***************************ÔªËØ¼ì²â****************************/
-   94   1          if(car.distance > 5)
-   95   1          {           
-   96   2                /*******Í£³µ********/
-   97   2      //              if(car.garage.MODE==0)
-   98   2              if((car.element.excel[car.element.ELEMENT_NUM]==9)||(car.element.excel[car.element.ELEMENT_NUM]==10))
-   99   2              {
-  100   3                      if(car.element.excel[car.element.ELEMENT_NUM]==9)//×óÈë¿â
-  101   3                      {
-  102   4                              car.garage.DIR=LEFT;
-  103   4                      }
-  104   3                      if(car.element.excel[car.element.ELEMENT_NUM]==10)//ÓÒÈë¿â
-  105   3                      {
-  106   4                              car.garage.DIR=RIGHT;
-  107   4                      }
-  108   3                /******ÕýÏòÈë¿â¾àÀë¼ì²â******/
-  109   3                      Enter_Garage_Pre();
-  110   3                /******ÕýÏòÈë¿â¾àÀë¼ì²â******/
-  111   3                      CitTie_judge();
-  112   3              }
-  113   2      //              else if(car.garage.MODE==1)
-  114   2      //              Enter_Garage_Pre();
-  115   2           /*******Í£³µ********/
-  116   2      
-  117   2               /*******Ô²»·********/
-  118   2               if((car.element.excel[car.element.ELEMENT_NUM]==2)||(car.element.excel[car.element.ELEMENT_NUM]==3)||(c
+   58           * @parameter     NULL
+   59           * @return                NULL
+   60           * @date                  2023/7/12
+   61           ***************************************************/
+   62          void Out_Track_judge()
+   63          {
+   64   1              static int out_count = 0;
+   65   1      
+   66   1          //²»ÔÚ³öÈë¿â»òÆÂµÀÊ±
+   67   1              if (car.road_type != OUT_GARAGE &&car.road_type != RAMP&& car.road_type != ENTER_GARAGE)
+   68   1              {
+   69   2                      if (car.adc_parameter.adc_strength <= 10 )
+   70   2                      {
+   71   3                              out_count++;
+   72   3                              if (out_count > 50)
+   73   3                              {
+   74   4                                      out_count = 0;
+   75   4                                      Force_Stop();
+   76   4                                      car.road_type = OUT_TRACK;
+   77   4                              }
+   78   3                      }
+   79   2                      else
+   80   2                      {
+   81   3                              out_count = 0;
+   82   3                      }
+   83   2              }
+   84   1      }
+   85          /****************************************************
+   86           * @name              Straight_control
+   87           * @function      Ö±µÀ×ªÏò¿ØÖÆ
+   88           * @parameter     NULL
+   89           * @return                NULL
+   90           * @date                  2023/7/4
+   91           ***************************************************/
+   92          void Straight_control()
+   93          {
+   94   1              static int count_10ms = 0;
+   95   1      
+   96   1              /***************************ÔªËØ¼ì²â****************************/
+   97   1          if(car.distance > 5)
+   98   1          {           
+   99   2                /*******Í£³µ********/
+  100   2      //              if(car.garage.MODE==0)
+  101   2              if((car.element.excel[car.element.ELEMENT_NUM]==9)||(car.element.excel[car.element.ELEMENT_NUM]==10))
+  102   2              {
+  103   3                      if(car.element.excel[car.element.ELEMENT_NUM]==9)//×óÈë¿â
+  104   3                      {
+  105   4                              car.garage.DIR = LEFT;
+  106   4                      }
+  107   3                      if(car.element.excel[car.element.ELEMENT_NUM]==10)//ÓÒÈë¿â
+  108   3                      {
+  109   4                              car.garage.DIR = RIGHT;
+  110   4                      }
+  111   3                /******ÕýÏòÈë¿â¾àÀë¼ì²â******/
+  112   3                      Enter_Garage_Pre();
+  113   3                /******ÕýÏòÈë¿â¾àÀë¼ì²â******/
+  114   3                      Magnet_Judge();
+  115   3              }
+  116   2      //              else if(car.garage.MODE==1)
+  117   2      //              Enter_Garage_Pre();
+  118   2           /*******Í£³µ********/
+  119   2      
+  120   2               /*******Ô²»·********/
+  121   2               if((car.element.excel[car.element.ELEMENT_NUM]==2)||(car.element.excel[car.element.ELEMENT_NUM]==3)||(c
              -ar.element.excel[car.element.ELEMENT_NUM]==4)||(car.element.excel[car.element.ELEMENT_NUM]==5)||(car.element.excel[car.e
              -lement.ELEMENT_NUM]==11)||(car.element.excel[car.element.ELEMENT_NUM]==12))
-  119   2              {
-  120   3                      Circle_judge_dir();
-  121   3              } 
-C251 COMPILER V5.60.0,  control                                                            18/10/23  15:56:57  PAGE 3   
+C251 COMPILER V5.60.0,  control                                                            01/11/23  20:23:49  PAGE 3   
 
-  122   2               /*******Ô²»·********/
-  123   2                      
-  124   2               /*******ÆÂµÀ********/
-  125   2               if(car.element.excel[car.element.ELEMENT_NUM]==8)
-  126   2               {
-  127   3                      Ramp_judge();
-  128   3               }
-  129   2               /*******ÆÂµÀ********/
-  130   2      
-  131   2               /*******¶Â×ª*********/
-  132   2                 block_judge();
-  133   2               /*******¶Â×ª*********/
-  134   2                       
-  135   2               /*******³ö½ç±£»¤******/
-  136   2                Out_Track_judge();
-  137   2               /*******³ö½ç±£»¤******/
-  138   2      /*4320&&(car.distance>4450)*/
-  139   2              /*******ÕÏ°­Îï*********/
-  140   2              if(((car.element.excel[car.element.ELEMENT_NUM]==6)||(car.element.excel[car.element.ELEMENT_NUM]==7))
-  141   2              &&((car.distance-car.circle.out_point)>car.circle_distance)
-  142   2              &&((car.distance-car.ramp.in_point)>car.ramp_distance))
-  143   2              {
-  144   3                      //×ó±ÜÕÏ
-  145   3                      if(car.element.excel[car.element.ELEMENT_NUM]==6)
-  146   3                      {
-  147   4                              car.hinder.dir=LEFT;
-  148   4                      }
-  149   3                      //ÓÒ±ÜÕÏ
-  150   3                      if(car.element.excel[car.element.ELEMENT_NUM]==7)
-  151   3                      {
-  152   4                              car.hinder.dir=RIGHT;
-  153   4                      }
-  154   3                      hinder_judge();
-  155   3              }
-  156   2               /*******ÕÏ°­Îï********/
-  157   2      }       
-  158   1      
-  159   1          Stop_after(car.meter_distance);
-  160   1      
+  122   2              {
+  123   3                      Circle_judge_dir();
+  124   3              } 
+  125   2               /*******Ô²»·********/
+  126   2                      
+  127   2               /*******ÆÂµÀ********/
+  128   2               if(car.element.excel[car.element.ELEMENT_NUM]==8)
+  129   2               {
+  130   3                      Ramp_judge();
+  131   3               }
+  132   2               /*******ÆÂµÀ********/
+  133   2      
+  134   2               /*******¶Â×ª*********/
+  135   2                block_judge();
+  136   2               /*******¶Â×ª*********/
+  137   2                       
+  138   2               /*******³ö½ç±£»¤******/
+  139   2                Out_Track_judge();
+  140   2               /*******³ö½ç±£»¤******/
+  141   2      /*4320&&(car.distance>4450)*/
+  142   2              /*******ÕÏ°­Îï*********/
+  143   2              if(((car.element.excel[car.element.ELEMENT_NUM]==6)||(car.element.excel[car.element.ELEMENT_NUM]==7))
+  144   2              &&((car.distance-car.circle.out_point)>car.circle_distance)
+  145   2              &&((car.distance-car.ramp.in_point)>car.ramp_distance))
+  146   2              {
+  147   3                      //×ó±ÜÕÏ
+  148   3                      if(car.element.excel[car.element.ELEMENT_NUM]==6)
+  149   3                      {
+  150   4                              car.hinder.dir=LEFT;
+  151   4                      }
+  152   3                      //ÓÒ±ÜÕÏ
+  153   3                      if(car.element.excel[car.element.ELEMENT_NUM]==7)
+  154   3                      {
+  155   4                              car.hinder.dir=RIGHT;
+  156   4                      }
+  157   3                      hinder_judge();
+  158   3              }
+  159   2               /*******ÕÏ°­Îï********/
+  160   2      }       
   161   1      
-  162   1              /***************************ÔªËØ¼ì²â****************************/
-  163   1              car.adc_parameter.adc_min[LEFT_H]  = 400;
-  164   1              car.adc_parameter.adc_min[MIDDLE]  = 400;
-  165   1              car.adc_parameter.adc_min[RIGHT_H] = 400;
-  166   1              error_calculate(car.straight.kp,car.straight.kd);
-  167   1              /******×ªÏò¿ØÖÆ******/
-  168   1              motor_control(car.straight.base_speed-car.steering.duty,car.straight.base_speed+car.steering.duty);
-  169   1              //motor_control(car.straight.base_speed,car.straight.base_speed);
+  162   1          Stop_after(car.meter_distance);
+  163   1      
+  164   1              /***************************ÔªËØ¼ì²â****************************/
+  165   1              car.adc_parameter.adc_min[LEFT_H]  = 400;
+  166   1              car.adc_parameter.adc_min[MIDDLE]  = 400;
+  167   1              car.adc_parameter.adc_min[RIGHT_H] = 400;
+  168   1              error_calculate(car.straight.kp,car.straight.kd);
+  169   1      
   170   1              /******×ªÏò¿ØÖÆ******/
-  171   1      }
-  172          
-  173          /****************************************************
-  174           * @name              motor_control
-  175           * @function      Ô²»·
-  176           * @parameter     left_speed  ×óÂÖËÙ¶È
-  177           *                right_speed ÓÒÂÖËÙ¶È
-  178           * @return                NULL
-  179           * @date                  2023/7/4
-  180           ***************************************************/
-  181          void motor_control(float left_speed,float right_speed){
-  182   1      
-  183   1              //¸ø×óÓÒµç»úÆÚÍû×ªËÙ
-  184   1              car.motor_left.speed_Expected  = left_speed;
-  185   1              car.motor_right.speed_Expected = right_speed;
-  186   1      
-  187   1              if(car.start_flag){
-C251 COMPILER V5.60.0,  control                                                            18/10/23  15:56:57  PAGE 4   
+  171   1              motor_control(car.straight.base_speed-car.steering.duty,car.straight.base_speed+car.steering.duty);
+  172   1              /******×ªÏò¿ØÖÆ******/
+  173   1      }
+  174          
+  175          /****************************************************
+  176           * @name              motor_control
+  177           * @function      Ô²»·
+  178           * @parameter     left_speed  ×óÂÖËÙ¶È
+  179           *                right_speed ÓÒÂÖËÙ¶È
+  180           * @return                NULL
+  181           * @date                  2023/7/4
+  182           ***************************************************/
+  183          void motor_control(float left_speed,float right_speed){
+  184   1      
+  185   1              //¸ø×óÓÒµç»úÆÚÍû×ªËÙ
+  186   1              car.motor_left.speed_Expected  = left_speed;
+  187   1              car.motor_right.speed_Expected = right_speed;
+C251 COMPILER V5.60.0,  control                                                            01/11/23  20:23:49  PAGE 4   
 
-  188   2                      MotorPID_Caculate(&car.motor_left);
-  189   2                      MotorPID_Caculate(&car.motor_right);
-  190   2              }
-  191   1              MotorPWM_Out(car.motor_left.duty, car.motor_right.duty);
-  192   1      }
-  193          /****************************************************
-  194           * @name              error_calculate
-  195           * @function      Æ«²î¼ÆËã
-  196           * @parameter     error_kp  Ò»´ÎÏîÏµÊý
-  197           *                gyro_kp   ÍÓÂÝÒÇÒÖÖÆ
-  198           * @return                NULL
-  199           * @date                  2023/7/4
-  200           ***************************************************/
-  201          void error_calculate(float error_kp,float gyro_kp)
-  202          {
-  203   1      
-  204   1              car.steering.linear_error_kp = error_kp;
-  205   1              car.steering.gyro_kp         = gyro_kp;
+  188   1      
+  189   1              if(car.start_flag)
+  190   1          {
+  191   2                      MotorPID_Caculate(&car.motor_left);
+  192   2                      MotorPID_Caculate(&car.motor_right);
+  193   2              }
+  194   1              MotorPWM_Out(car.motor_left.duty, car.motor_right.duty);
+  195   1      }
+  196          /****************************************************
+  197           * @name              error_calculate
+  198           * @function      Æ«²î¼ÆËã
+  199           * @parameter     error_kp  Ò»´ÎÏîÏµÊý
+  200           *                gyro_kp   ÍÓÂÝÒÇÒÖÖÆ
+  201           * @return                NULL
+  202           * @date                  2023/7/4
+  203           ***************************************************/
+  204          void error_calculate(float error_kp,float gyro_kp)
+  205          {
   206   1      
-  207   1              get_error_normal(&car.adc_parameter); //¼ÆËãÆ«²î        
-  208   1              car.steering.error_now = car.adc_parameter.adc_error ;  
-  209   1              //·½Ïò»·¼ÆËã
-  210   1              if(car.lose_flag)       //¶ªÏß×´Ì¬
-  211   1              {       
-  212   2                      if(car.adc_parameter.adc_normalized[LEFT_H]>3&&car.adc_parameter.adc_normalized[RIGHT_H]>3)
-  213   2                      {
-  214   3                              car.lose_flag = 0;
-  215   3                              //BEEP_OFF;
-  216   3                      }
-  217   2              }
-  218   1              else
-  219   1              {
-  220   2                      if(car.adc_parameter.adc_normalized[LEFT_H]<1&&car.adc_parameter.adc_normalized[RIGHT_H]<1)
-  221   2                      {
-  222   3                              car.lose_flag = 1;
-  223   3                              //BEEP_ON;
-  224   3                      }
-  225   2                      car.steering.duty = car.steering.linear_error_kp*car.steering.error_now +                              
-             -                 //Ò»´ÎÆ«²î   
-  226   2                                                                                      car.steering.quadratic_error_kp*car.steering.error_now*abs(car.steering.error_now) +    //¶þ´ÎÆ
-             -«²î
-  227   2                                                                                      car.steering.error_kd*(car.steering.error_now - car.steering.error_last) -                  //Æ«²î²î·Ö
-  228   2                                                                                      car.steering.gyro_kp *icmdata.YawVelocity;                                                                                                                    //ÍÓÂÝÒÇÒÖÖÆ
-  229   2      //              car.steering.duty = 8 * car.steering.error_now + 5 * (car.steering.error_now - car.steering.error_las
+  207   1              car.steering.linear_error_kp = error_kp;
+  208   1              car.steering.gyro_kp         = gyro_kp;
+  209   1      
+  210   1              get_error_normal(&car.adc_parameter); //¼ÆËãÆ«²î        
+  211   1              car.steering.error_now = car.adc_parameter.adc_error ;  
+  212   1              //·½Ïò»·¼ÆËã
+  213   1              if(car.lose_flag)       //¶ªÏß×´Ì¬
+  214   1              {       
+  215   2                      if(car.adc_parameter.adc_normalized[LEFT_H]>3&&car.adc_parameter.adc_normalized[RIGHT_H]>3)
+  216   2                      {
+  217   3                              car.lose_flag = 0;
+  218   3                              //BEEP_OFF;
+  219   3                      }
+  220   2              }
+  221   1              else
+  222   1              {
+  223   2                      if(car.adc_parameter.adc_normalized[LEFT_H]<1&&car.adc_parameter.adc_normalized[RIGHT_H]<1)
+  224   2                      {
+  225   3                              car.lose_flag = 1;
+  226   3                              //BEEP_ON;
+  227   3                      }
+  228   2                      car.steering.duty = car.steering.linear_error_kp*car.steering.error_now                                
+             -               //Ò»´ÎÆ«²î   
+  229   2                                                              + car.steering.quadratic_error_kp*car.steering.error_now*abs(car.steering.error_now)    //¶þ´ÎÆ«²î
+  230   2                                                              + car.steering.error_kd*(car.steering.error_now - car.steering.error_last)                      //Æ«²î²î·Ö
+  231   2                                                              - car.steering.gyro_kp *icmdata.YawVelocity;                                                                                                                  //ÍÓÂÝÒÇÒÖÖÆ
+  232   2      //              car.steering.duty = 8 * car.steering.error_now + 5 * (car.steering.error_now - car.steering.error_las
              -t);
-  230   2              car.steering.error_last = car.steering.error_now;
-  231   2              }
-  232   1              //×ªÏòPWMÏÞ·ù
-  233   1              if(car.steering.duty>300)      car.steering.duty = 300;
-  234   1              else if(car.steering.duty<-300)car.steering.duty =-300;
-  235   1      }
-  236          /****************************************************
-  237           * @name              Normal_Tracing
-  238           * @function      Ñ°¼£Ä£Ê½
-  239           * @parameter     NULL
-  240           * @return                NULL
-  241           * @date                  2023/7/4
-  242           ***************************************************/
-  243          void Normal_Tracing()
-  244          {
-  245   1      
-  246   1              //µç¸ÐÊý¾Ý²É¼¯
-  247   1              ADC_Process(&car.adc_parameter);           //¾ùÖµÂË²¨
-  248   1              ADC_Normalization(&car.adc_parameter); //¹éÒ»»¯ 0-100
-  249   1              //ÍÓÂÝÒÇÊý¾Ý²É¼¯
-  250   1              ICM_OneOrderFilter();   
-C251 COMPILER V5.60.0,  control                                                            18/10/23  15:56:57  PAGE 5   
+  233   2              car.steering.error_last = car.steering.error_now;
+  234   2              }
+  235   1              //×ªÏòPWMÏÞ·ù
+  236   1              if(car.steering.duty > 250)      car.steering.duty = 250;
+  237   1              else if(car.steering.duty < -250)car.steering.duty =-250;
+  238   1      }
+  239          /****************************************************
+  240           * @name              Normal_Tracing
+  241           * @function      Ñ°¼£Ä£Ê½
+  242           * @parameter     NULL
+  243           * @return                NULL
+  244           * @date                  2023/7/4
+  245           ***************************************************/
+  246          void Normal_Tracing()
+  247          {
+  248   1      
+  249   1              //µç¸ÐÊý¾Ý²É¼¯
+  250   1              ADC_Process(&car.adc_parameter);           //¾ùÖµÂË²¨
+  251   1              ADC_Normalization(&car.adc_parameter); //¹éÒ»»¯ 0-100
+C251 COMPILER V5.60.0,  control                                                            01/11/23  20:23:49  PAGE 5   
 
-  251   1              //ËÙ¶È²âÁ¿
-  252   1              EncoderPulseGet();
-  253   1              //·çÉÈ
-  254   1      
-  255   1              //×´Ì¬»ú
-  256   1              switch (/*car.road_type*/STRAIGHT)
-  257   1              {
-  258   2                      //Ö±µÀ
-  259   2                      case STRAIGHT:
-  260   2                              Straight_control(); //Ö±µÀ·½Ïò¿ØÖÆ
-  261   2                              break;
-  262   2                      //Èë¿â
-  263   2                      case ENTER_GARAGE:
-  264   2                              Enter_garage_back(car.garage.DIR); //1 ÓÒ¿â 0 ×ó¿â
-  265   2                              break;
-  266   2                      //³ö¿â
-  267   2                      case OUT_GARAGE:
-  268   2                              
-  269   2                      /*****³öÈë¿â·½Ïò¸ù¾ÝÔªËØ±íÅÐ¶Ï*******/
-  270   2                      if(car.element.excel[car.element.ELEMENT_NUM]==0)
-  271   2                      {
-  272   3                              car.garage.DIR= 0;   //£¨×ó0ÓÒ1£©
-  273   3                      }
-  274   2                      if(car.element.excel[car.element.ELEMENT_NUM]==1)
-  275   2                      {
-  276   3                              car.garage.DIR= 1;   //£¨×ó0ÓÒ1£©
-  277   3                      }
-  278   2                      /*****³öÈë¿â·½Ïò¸ù¾ÝÔªËØ±íÅÐ¶Ï*******/
-  279   2      
-  280   2                              Out_garage(car.garage.DIR);
-  281   2                              break;
-  282   2                      //Ô²»·
-  283   2                      case CIRCLE:
-  284   2                              Circle_control();
-  285   2                              car.road_type_last = CIRCLE;
-  286   2                              break;
-  287   2                      //ÆÂµÀ
-  288   2                      case RAMP:
-  289   2                              Ramp_control();
-  290   2                              car.road_type_last = RAMP;
-  291   2                        break;
-  292   2                      //ÕÏ°­
-  293   2                      case HINDER:
-  294   2                              hinder_control();
-  295   2                              break;
-  296   2                      //ÕýÏòÈë¿â
-  297   2                      case ENTER_GARAGE_forward:
-  298   2                              Enter_Garage_control();
-  299   2                              break;
-  300   2      
-  301   2              }
-  302   1      }
+  252   1              //ÍÓÂÝÒÇÊý¾Ý²É¼¯
+  253   1              ICM_OneOrderFilter();   
+  254   1              //ËÙ¶È²âÁ¿
+  255   1              EncoderPulseGet();
+  256   1              //·çÉÈ
+  257   1      
+  258   1              //×´Ì¬»ú
+  259   1              switch (car.road_type)
+  260   1              {
+  261   2                      //Ö±µÀ
+  262   2                      case STRAIGHT:
+  263   2                              Straight_control(); //Ö±µÀ·½Ïò¿ØÖÆ
+  264   2                              break;
+  265   2                      //Èë¿â
+  266   2                      case ENTER_GARAGE:
+  267   2                              Enter_garage_back(car.garage.DIR); //1 ÓÒ¿â 0 ×ó¿â
+  268   2                              break;
+  269   2                      //³ö¿â
+  270   2                      case OUT_GARAGE:
+  271   2                              
+  272   2                      /*****³öÈë¿â·½Ïò¸ù¾ÝÔªËØ±íÅÐ¶Ï*******/
+  273   2                      if(car.element.excel[car.element.ELEMENT_NUM]==0)
+  274   2                      {
+  275   3                              car.garage.DIR= 0;   //£¨×ó0ÓÒ1£©
+  276   3                      }
+  277   2                      if(car.element.excel[car.element.ELEMENT_NUM]==1)
+  278   2                      {
+  279   3                              car.garage.DIR= 1;   //£¨×ó0ÓÒ1£©
+  280   3                      }
+  281   2                      /*****³öÈë¿â·½Ïò¸ù¾ÝÔªËØ±íÅÐ¶Ï*******/
+  282   2      
+  283   2                              Out_garage(car.garage.DIR);
+  284   2                              break;
+  285   2                      //Ô²»·
+  286   2                      case CIRCLE:
+  287   2                              Circle_control();
+  288   2                              car.road_type_last = CIRCLE;
+  289   2                              break;
+  290   2                      //ÆÂµÀ
+  291   2                      case RAMP:
+  292   2      //                      Ramp_control();
+  293   2      //                      car.road_type_last = RAMP;
+  294   2                        break;
+  295   2                      //ÕÏ°­
+  296   2                      case HINDER:
+  297   2                              hinder_control();
+  298   2                              break;
+  299   2                      //ÕýÏòÈë¿â
+  300   2                      case ENTER_GARAGE_forward:
+  301   2                              Enter_Garage_control();
+  302   2                              break;
+  303   2              }
+  304   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       959     ------
+  code size            =       946     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
@@ -338,9 +339,9 @@ Module Information          Static   Overlayable
   edata size           =         6     ------
   bit size             =    ------     ------
   ebit size            =    ------     ------
-  bitaddressable size  =    ------     ------
-C251 COMPILER V5.60.0,  control                                                            18/10/23  15:56:57  PAGE 6   
+C251 COMPILER V5.60.0,  control                                                            01/11/23  20:23:49  PAGE 6   
 
+  bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
   far data size        =    ------     ------
   huge data size       =    ------     ------

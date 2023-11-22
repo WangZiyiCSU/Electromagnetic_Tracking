@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  menu                                                               18/10/23  17:17:14  PAGE 1   
+C251 COMPILER V5.60.0,  menu                                                               01/11/23  17:00:48  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE menu
@@ -14,7 +14,7 @@ stmt  level    source
     3          #include "SEEKFREE_IPS114_SPI.h"
     4          
     5          //#define ROW_SPACING 2;//行间距
-    6          int menu_length   = 3;
+    6          int menu_length = 3;
     7          int key = 0;
     8          
     9          /*
@@ -25,7 +25,7 @@ stmt  level    source
    14          */
    15          int MainMenu()
    16          {
-   17   1          int position      = 1;//第n行
+   17   1          int position = 1;//第n行
    18   1          
    19   1          ips114_showstr(90, 0, "MAIN_MENU");
    20   1          ips114_showstr(10, 2, "Start");
@@ -50,68 +50,72 @@ stmt  level    source
    39   3                  return position;
    40   3              }
    41   2              
-   42   2              switch(position)
+   42   2              if(key == KEY_NULL)
    43   2              {
-   44   3                  case 1:
-   45   3                  {
-   46   4                      ips114_showstr(0, 2, "*");
-   47   4                      ips114_showstr(0, 4, " ");
-   48   4                      ips114_showstr(0, 6, " ");
-   49   4                  }
-   50   3                  break;
-   51   3                  case 2:
-   52   3                  {
-   53   4                      ips114_showstr(0, 2, " ");
-   54   4                      ips114_showstr(0, 4, "*");
-   55   4                      ips114_showstr(0, 6, " ");
-   56   4                  }
-   57   3                  break;
-C251 COMPILER V5.60.0,  menu                                                               18/10/23  17:17:14  PAGE 2   
+   44   3                  return 0;
+   45   3              }
+   46   2              switch(position)
+   47   2              {
+   48   3                  case 1:
+   49   3                  {
+   50   4                      ips114_showstr(0, 2, "*");
+   51   4                      ips114_showstr(0, 4, " ");
+   52   4                      ips114_showstr(0, 6, " ");
+   53   4                  }
+   54   3                  break;
+   55   3                  case 2:
+   56   3                  {
+   57   4                      ips114_showstr(0, 2, " ");
+C251 COMPILER V5.60.0,  menu                                                               01/11/23  17:00:48  PAGE 2   
 
-   58   3                  case 3:
-   59   3                  {
-   60   4                      ips114_showstr(0, 2, " ");
-   61   4                      ips114_showstr(0, 4, " ");
-   62   4                      ips114_showstr(0, 6, "*");
-   63   4                  }
-   64   3                  break;
-   65   3              }
-   66   2          }
-   67   1      }
-   68          
-   69          void Menu_ADC_test()
-   70          {
-   71   1          uint16 data1,data2,data3,data4;
-   72   1      
-   73   1          ips114_clear(WHITE);
-   74   1          while(1)
-   75   1          {
-   76   2              data1 = adc_once(ADC_P00,ADC_12BIT);    //采集ADC_P00电压，精度12位
-   77   2              data2 = adc_once(ADC_P01,ADC_12BIT);    //采集ADC_P01电压，精度12位
-   78   2              data3 = adc_once(ADC_P05,ADC_12BIT);    //采集ADC_P05电压，精度12位
-   79   2              data4 = adc_once(ADC_P06,ADC_12BIT);    //采集ADC_P06电压，精度12位
-   80   2          
-   81   2              ips114_showstr(0, 0, "C 1:  "); 
-   82   2              ips114_showuint16(6 * 8, 0, data1);
-   83   2              ips114_showstr(0, 2, "C 2:  "); 
-   84   2              ips114_showuint16(6 * 8, 2, data2);
-   85   2              ips114_showstr(0, 4, "C 3:  "); 
-   86   2              ips114_showuint16(6 * 8, 4, data3);
-   87   2              ips114_showstr(0, 6, "C 4:  "); 
-   88   2              ips114_showuint16(6 * 8, 6, data4);
-   89   2              
-   90   2              key = KEY_Scan();
-   91   2              if(key == KEY_1)
-   92   2              {
-   93   3                  break;
-   94   3              }
-   95   2          }
-   96   1      }
+   58   4                      ips114_showstr(0, 4, "*");
+   59   4                      ips114_showstr(0, 6, " ");
+   60   4                  }
+   61   3                  break;
+   62   3                  case 3:
+   63   3                  {
+   64   4                      ips114_showstr(0, 2, " ");
+   65   4                      ips114_showstr(0, 4, " ");
+   66   4                      ips114_showstr(0, 6, "*");
+   67   4                  }
+   68   3                  break;
+   69   3              }
+   70   2          }
+   71   1      }
+   72          
+   73          void Menu_ADC_test()
+   74          {
+   75   1          uint16 data1,data2,data3,data4;
+   76   1      
+   77   1          ips114_clear(WHITE);
+   78   1      //    while(1)
+   79   1      //    {
+   80   1              data1 = adc_once(ADC_P00,ADC_12BIT);    //采集ADC_P00电压，精度12位
+   81   1              data2 = adc_once(ADC_P01,ADC_12BIT);    //采集ADC_P01电压，精度12位
+   82   1              data3 = adc_once(ADC_P05,ADC_12BIT);    //采集ADC_P05电压，精度12位
+   83   1              data4 = adc_once(ADC_P06,ADC_12BIT);    //采集ADC_P06电压，精度12位
+   84   1          
+   85   1              ips114_showstr(0, 0, "C 1:  "); 
+   86   1              ips114_showuint16(6 * 8, 0, data1);
+   87   1              ips114_showstr(0, 2, "C 2:  "); 
+   88   1              ips114_showuint16(6 * 8, 2, data2);
+   89   1              ips114_showstr(0, 4, "C 3:  "); 
+   90   1              ips114_showuint16(6 * 8, 4, data3);
+   91   1              ips114_showstr(0, 6, "C 4:  "); 
+   92   1              ips114_showuint16(6 * 8, 6, data4);
+   93   1              
+   94   1      //        key = KEY_Scan();
+   95   1      //        if(key == KEY_1)
+   96   1      //        {
+   97   1      //            break;
+   98   1      //        }
+   99   1      //    }
+  100   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =       496     ------
+  code size            =       493     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

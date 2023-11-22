@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  pid                                                                09/10/23  22:20:57  PAGE 1   
+C251 COMPILER V5.60.0,  pid                                                                01/11/23  17:00:46  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE pid
@@ -66,7 +66,7 @@ stmt  level    source
    54   1        // else
    55   1        // {
    56   1        //   pid->integral = 0;//偏差较大 不使用积分
-C251 COMPILER V5.60.0,  pid                                                                09/10/23  22:20:57  PAGE 2   
+C251 COMPILER V5.60.0,  pid                                                                01/11/23  17:00:46  PAGE 2   
 
    57   1        // }   
    58   1      
@@ -134,7 +134,7 @@ stmt  level    source
   119   1        servo->error_Now      = 0;
   120   1        servo->error_Last     = 0;
   121   1        servo->kp             = 1;
-C251 COMPILER V5.60.0,  pid                                                                09/10/23  22:20:57  PAGE 3   
+C251 COMPILER V5.60.0,  pid                                                                01/11/23  17:00:46  PAGE 3   
 
   122   1        servo->ki             = 0;
   123   1        servo->kd             = 0;

@@ -22,17 +22,17 @@
 	car.hinder.distance                        = 100000;
 
 	//识别障碍物距离
-	car.hinder.judge_distance                  = 950;
+	car.hinder.judge_distance                  = 500;
 
 	//识别障碍物速度
-	car.hinder.speed                           = 250;
+	car.hinder.speed                           = 120;
 
 	//识别障碍物陀螺仪角度
 	car.hinder.gyro_kp                         = 0;  
 	
 	//状态1拐点转角和前进距离
 	car.hinder.point_1.angle                   = 50;  
-	car.hinder.point_1.distance                = 10; 
+	car.hinder.point_1.distance                = 30; 
 
 	//状态2拐点转角和前进距离
 	car.hinder.point_2.angle                   = 100;  
@@ -66,12 +66,14 @@
 void hinder_judge()
 {
 	static int count_hinder =0;
+
 	dl1a_get_distance();//读取距离
 	if(dl1a_finsh_flag == 1)//判断数据是否有效
 	{
 		car.hinder.distance = dl1a_distance_mm;
 	}
-	if(car.hinder.distance<car.hinder.judge_distance){//距离条件
+	if(car.hinder.distance < car.hinder.judge_distance && car.distance > 5000)
+    {       //距离条件
             BEEP_ON;
 			count_hinder++;
 			car.road_type = HINDER;
@@ -88,7 +90,11 @@ void hinder_judge()
 				current_angle:实际角度
 				speed：       速度
 				R_circle:     转弯半径
- * @parameter   NULL
+ * @parameter   float expect_angle 目标角度
+ * @parameter   float current_angle 当前角度
+ * @parameter   float speed 速度
+ * @parameter   float R_circle 半径
+
  * @return		NULL
  * @date		2023/7/10
  ***************************************************/
@@ -98,24 +104,26 @@ void hinder_judge()
 	 static float w = 0 ;
 	 static float diff_angle;
 
-		if(count>=3){
-			diff_angle=expect_angle-current_angle;
+		if(count >= 3)
+        {
+			diff_angle = expect_angle - current_angle;
 			count= 0 ;
 		}
 	
 		count++;
-		car.pd_loop.expected = car.pd_loop.circle_p*diff_angle;
+		car.pd_loop.expected = car.pd_loop.circle_p * diff_angle;
 
-		w = my_abs(speed/R_circle)*57.3;
+        //角速度 = v / R * 57.3 （°/ s）
+		w = my_abs(speed / R_circle) * 57.3;
 		if(car.pd_loop.expected > w )      car.pd_loop.expected = w;
 		else if(car.pd_loop.expected < -w )car.pd_loop.expected = -w;
-		// //内环
-		car.pd_loop.current  = icmdata.YawVelocity;
+		//内环
+		car.pd_loop.current = icmdata.YawVelocity;
 		if(car.start_flag==START)
 		{	
-		Incremental_PID_Caculate(&car.pd_loop);//增量式pid
-		 car.steering.duty    = car.pd_loop.duty;
-		 }	
+            Incremental_PID_Caculate(&car.pd_loop);//增量式pid
+            car.steering.duty = car.pd_loop.duty;
+		}	
 	//转向PWM限幅
 	if(car.steering.duty>300)      car.steering.duty = 300;
 	else if(car.steering.duty<-300)car.steering.duty =-300;
@@ -134,12 +142,12 @@ void hinder_control()
 	//左避障
 	if(car.hinder.dir==LEFT)
 	{
-		DIR=1;
+		DIR = 1;
 	} 
 	//右避障
 		if(car.hinder.dir==RIGHT)
 	{
-		DIR=-1;
+		DIR = -1;
 	}
 
 	switch (car.hinder.state)
@@ -199,7 +207,7 @@ void hinder_control()
 			{
 				  car.hinder.state = 5;
 				  car.hinder.point = car.distance;
-			    car.hinder.enter_angle = icmdata.Yaw;
+                  car.hinder.enter_angle = icmdata.Yaw;
 		 	}
 			break;
 		/***********************状态4：转弯打角*******************************/
@@ -208,7 +216,7 @@ void hinder_control()
 			case 5:
 	    	error_calculate(5+0.7*(car.distance-car.hinder.point),0.3+0.015*(car.distance-car.hinder.point));
 			motor_control(car.straight.base_speed-car.steering.duty,car.straight.base_speed+car.steering.duty);
-			if(car.distance-car.hinder.point>30)
+			if(car.distance - car.hinder.point>30)
 			{
 			car.hinder.state = 6;
 			}
@@ -216,7 +224,7 @@ void hinder_control()
 		/***********************状态5：转弯***********************************/
 
 
-		/***********************状态4：切换直道*******************************/
+		/***********************状态6：切换直道*******************************/
 			case 6:
 			car.hinder.state = 0;
 			car.road_type = STRAIGHT;
@@ -224,6 +232,6 @@ void hinder_control()
 			car.element.ELEMENT_NUM++;      //元素表个数加1
 			BEEP_OFF;
 			break;
-		/***********************状态4：切换直道*******************************/
+		/***********************状态6：切换直道*******************************/
 	}
 }

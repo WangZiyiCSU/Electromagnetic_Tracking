@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  hinder                                                             16/10/23  23:33:44  PAGE 1   
+C251 COMPILER V5.60.0,  hinder                                                             12/11/23  16:07:50  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE hinder
@@ -33,17 +33,17 @@ stmt  level    source
    22   1              car.hinder.distance                        = 100000;
    23   1      
    24   1              //识别障碍物距离
-   25   1              car.hinder.judge_distance                  = 950;
+   25   1              car.hinder.judge_distance                  = 500;
    26   1      
    27   1              //识别障碍物速度
-   28   1              car.hinder.speed                           = 250;
+   28   1              car.hinder.speed                           = 120;
    29   1      
    30   1              //识别障碍物陀螺仪角度
    31   1              car.hinder.gyro_kp                         = 0;  
    32   1              
    33   1              //状态1拐点转角和前进距离
    34   1              car.hinder.point_1.angle                   = 50;  
-   35   1              car.hinder.point_1.distance                = 10; 
+   35   1              car.hinder.point_1.distance                = 30; 
    36   1      
    37   1              //状态2拐点转角和前进距离
    38   1              car.hinder.point_2.angle                   = 100;  
@@ -66,7 +66,7 @@ stmt  level    source
    55   1              
    56   1              //避障次数
    57   1              car.hinder.count                           = RIGHT;
-C251 COMPILER V5.60.0,  hinder                                                             16/10/23  23:33:44  PAGE 2   
+C251 COMPILER V5.60.0,  hinder                                                             12/11/23  16:07:50  PAGE 2   
 
    58   1       }
    59          /****************************************************
@@ -79,179 +79,187 @@ stmt  level    source
    66          void hinder_judge()
    67          {
    68   1              static int count_hinder =0;
-   69   1              dl1a_get_distance();//读取距离
-   70   1              if(dl1a_finsh_flag == 1)//判断数据是否有效
-   71   1              {
-   72   2                      car.hinder.distance = dl1a_distance_mm;
-   73   2              }
-   74   1              if(car.hinder.distance<car.hinder.judge_distance){//距离条件
-   75   2                  BEEP_ON;
-   76   2                              count_hinder++;
-   77   2                              car.road_type = HINDER;
-   78   2                              car.hinder.enter_angle = icmdata.Yaw;
-   79   2                              car.hinder.initial_angle = icmdata.Yaw;
-   80   2                              //car.hinder.enable_flag = 1;
-   81   2                              car.hinder.count++;
-   82   2                              
-   83   2              }
-   84   1      }
-   85          /****************************************************
-   86           * @name            turn_angle
-   87           * @function    expect_angle: 期望角度
-   88                                          current_angle:实际角度
-   89                                          speed：       速度
-   90                                          R_circle:     转弯半径
-   91           * @parameter   NULL
-   92           * @return              NULL
-   93           * @date                2023/7/10
-   94           ***************************************************/
-   95           void turn_angle(float expect_angle,float current_angle,float speed,float R_circle)
-   96           {
-   97   1               static int count = 0;
-   98   1               static float w = 0 ;
-   99   1               static float diff_angle;
-  100   1      
-  101   1                      if(count>=3){
-  102   2                              diff_angle=expect_angle-current_angle;
-  103   2                              count= 0 ;
-  104   2                      }
-  105   1              
-  106   1                      count++;
-  107   1                      car.pd_loop.expected = car.pd_loop.circle_p*diff_angle;
-  108   1      
-  109   1                      w = my_abs(speed/R_circle)*57.3;
-  110   1                      if(car.pd_loop.expected > w )      car.pd_loop.expected = w;
-  111   1                      else if(car.pd_loop.expected < -w )car.pd_loop.expected = -w;
-  112   1                      // //内环
-  113   1                      car.pd_loop.current  = icmdata.YawVelocity;
-  114   1                      if(car.start_flag==START)
-  115   1                      {       
-  116   2                      Incremental_PID_Caculate(&car.pd_loop);//增量式pid
-  117   2                       car.steering.duty    = car.pd_loop.duty;
-  118   2                       }      
-  119   1              //转向PWM限幅
-  120   1              if(car.steering.duty>300)      car.steering.duty = 300;
-  121   1              else if(car.steering.duty<-300)car.steering.duty =-300;
-  122   1       }
-  123           
-C251 COMPILER V5.60.0,  hinder                                                             16/10/23  23:33:44  PAGE 3   
+   69   1      
+   70   1              dl1a_get_distance();//读取距离
+   71   1              if(dl1a_finsh_flag == 1)//判断数据是否有效
+   72   1              {
+   73   2                      car.hinder.distance = dl1a_distance_mm;
+   74   2              }
+   75   1              if(car.hinder.distance < car.hinder.judge_distance && car.distance > 5000)
+   76   1          {       //距离条件
+   77   2                  BEEP_ON;
+   78   2                              count_hinder++;
+   79   2                              car.road_type = HINDER;
+   80   2                              car.hinder.enter_angle = icmdata.Yaw;
+   81   2                              car.hinder.initial_angle = icmdata.Yaw;
+   82   2                              //car.hinder.enable_flag = 1;
+   83   2                              car.hinder.count++;
+   84   2                              
+   85   2              }
+   86   1      }
+   87          /****************************************************
+   88           * @name            turn_angle
+   89           * @function    expect_angle: 期望角度
+   90                                          current_angle:实际角度
+   91                                          speed：       速度
+   92                                          R_circle:     转弯半径
+   93           * @parameter   float expect_angle 目标角度
+   94           * @parameter   float current_angle 当前角度
+   95           * @parameter   float speed 速度
+   96           * @parameter   float R_circle 半径
+   97          
+   98           * @return              NULL
+   99           * @date                2023/7/10
+  100           ***************************************************/
+  101           void turn_angle(float expect_angle,float current_angle,float speed,float R_circle)
+  102           {
+  103   1               static int count = 0;
+  104   1               static float w = 0 ;
+  105   1               static float diff_angle;
+  106   1      
+  107   1                      if(count >= 3)
+  108   1              {
+  109   2                              diff_angle = expect_angle - current_angle;
+  110   2                              count= 0 ;
+  111   2                      }
+  112   1              
+  113   1                      count++;
+  114   1                      car.pd_loop.expected = car.pd_loop.circle_p * diff_angle;
+  115   1      
+  116   1              //角速度 = v / R * 57.3 （°/ s）
+  117   1                      w = my_abs(speed / R_circle) * 57.3;
+  118   1                      if(car.pd_loop.expected > w )      car.pd_loop.expected = w;
+  119   1                      else if(car.pd_loop.expected < -w )car.pd_loop.expected = -w;
+  120   1                      //内环
+  121   1                      car.pd_loop.current = icmdata.YawVelocity;
+  122   1                      if(car.start_flag==START)
+  123   1                      {       
+C251 COMPILER V5.60.0,  hinder                                                             12/11/23  16:07:50  PAGE 3   
 
-  124          /****************************************************
-  125           * @name              hinder_control
-  126           * @function      障碍物状态机  
-  127           * @parameter     NULL
-  128           * @return                NULL
-  129           * @date                  2023/7/6
-  130           ***************************************************/
-  131          void hinder_control()
-  132          {
-  133   1              static int DIR;
-  134   1              //左避障
-  135   1              if(car.hinder.dir==LEFT)
-  136   1              {
-  137   2                      DIR=1;
-  138   2              } 
-  139   1              //右避障
-  140   1                      if(car.hinder.dir==RIGHT)
-  141   1              {
-  142   2                      DIR=-1;
-  143   2              }
-  144   1      
-  145   1              switch (car.hinder.state)
-  146   1                      {
-  147   2                       /***********************状态0：左转打角圆弧*************************/
-  148   2                              case 0:/***逆时针：正数*******/
-  149   2                              turn_angle(DIR*car.hinder.point_1.angle,icmdata.Yaw-car.hinder.enter_angle,car.hinder.speed,car.hinder
+  124   2                  Incremental_PID_Caculate(&car.pd_loop);//增量式pid
+  125   2                  car.steering.duty = car.pd_loop.duty;
+  126   2                      }       
+  127   1              //转向PWM限幅
+  128   1              if(car.steering.duty>300)      car.steering.duty = 300;
+  129   1              else if(car.steering.duty<-300)car.steering.duty =-300;
+  130   1       }
+  131           
+  132          /****************************************************
+  133           * @name              hinder_control
+  134           * @function      障碍物状态机  
+  135           * @parameter     NULL
+  136           * @return                NULL
+  137           * @date                  2023/7/6
+  138           ***************************************************/
+  139          void hinder_control()
+  140          {
+  141   1              static int DIR;
+  142   1              //左避障
+  143   1              if(car.hinder.dir==LEFT)
+  144   1              {
+  145   2                      DIR = 1;
+  146   2              } 
+  147   1              //右避障
+  148   1                      if(car.hinder.dir==RIGHT)
+  149   1              {
+  150   2                      DIR = -1;
+  151   2              }
+  152   1      
+  153   1              switch (car.hinder.state)
+  154   1                      {
+  155   2                       /***********************状态0：左转打角圆弧*************************/
+  156   2                              case 0:/***逆时针：正数*******/
+  157   2                              turn_angle(DIR*car.hinder.point_1.angle,icmdata.Yaw-car.hinder.enter_angle,car.hinder.speed,car.hinder
              -.R_circle);
-  150   2                              motor_control(car.hinder.speed-car.steering.duty,car.hinder.speed+car.steering.duty);           
-  151   2                              if(my_abs(icmdata.Yaw-car.hinder.enter_angle)>car.hinder.point_1.angle*0.9){
-  152   3                                      car.hinder.state = 1;
-  153   3                                      car.hinder.point = car.distance;
-  154   3                                  car.hinder.enter_angle = icmdata.Yaw;
-  155   3                              }
-  156   2                              break;
-  157   2                       /***********************状态0：左转打角圆弧*************************/
-  158   2      
-  159   2      
-  160   2                      /************************状态1：前进一段距离*************************/
-  161   2                              case 1:
-  162   2                              motor_control(car.hinder.speed,car.hinder.speed);
-  163   2                              if(my_abs(car.distance-car.hinder.point)>car.hinder.point_1.distance){
-  164   3                                      car.hinder.state = 2;
-  165   3                                      car.hinder.enter_angle = icmdata.Yaw;
-  166   3                              }
-  167   2                              break;
+  158   2                              motor_control(car.hinder.speed-car.steering.duty,car.hinder.speed+car.steering.duty);           
+  159   2                              if(my_abs(icmdata.Yaw-car.hinder.enter_angle)>car.hinder.point_1.angle*0.9){
+  160   3                                      car.hinder.state = 1;
+  161   3                                      car.hinder.point = car.distance;
+  162   3                                  car.hinder.enter_angle = icmdata.Yaw;
+  163   3                              }
+  164   2                              break;
+  165   2                       /***********************状态0：左转打角圆弧*************************/
+  166   2      
+  167   2      
   168   2                      /************************状态1：前进一段距离*************************/
-  169   2      
-  170   2      
-  171   2                      /************************状态2：右转打角圆弧*************************/
-  172   2                              case 2:
-  173   2                         turn_angle((-DIR)*car.hinder.point_2.angle,icmdata.Yaw-car.hinder.enter_angle,150,car.hinder.R_circl
+  169   2                              case 1:
+  170   2                              motor_control(car.hinder.speed,car.hinder.speed);
+  171   2                              if(my_abs(car.distance-car.hinder.point)>car.hinder.point_1.distance){
+  172   3                                      car.hinder.state = 2;
+  173   3                                      car.hinder.enter_angle = icmdata.Yaw;
+  174   3                              }
+  175   2                              break;
+  176   2                      /************************状态1：前进一段距离*************************/
+  177   2      
+  178   2      
+  179   2                      /************************状态2：右转打角圆弧*************************/
+  180   2                              case 2:
+  181   2                         turn_angle((-DIR)*car.hinder.point_2.angle,icmdata.Yaw-car.hinder.enter_angle,150,car.hinder.R_circl
              -e_2);
-  174   2                              motor_control(car.hinder.speed-car.steering.duty,car.hinder.speed+car.steering.duty);   
-  175   2                              if(my_abs(icmdata.Yaw-car.hinder.enter_angle)>car.hinder.point_2.angle*0.7){
-  176   3                                      car.hinder.state= 3;
-  177   3                                      car.hinder.enter_angle = icmdata.Yaw;
-  178   3                                      car.hinder.point = car.distance;
-  179   3                              }
-  180   2                              break;
-  181   2                      /***********************状态2：右转打角圆弧***************************/
-  182   2                              
-  183   2      
-  184   2                      /***********************状态3：前进一段距离****************************/
-  185   2                              case 3:
-  186   2                              motor_control(car.hinder.speed,car.hinder.speed);
-  187   2                               if(my_abs(car.distance-car.hinder.point)>car.hinder.point_2.distance)
-C251 COMPILER V5.60.0,  hinder                                                             16/10/23  23:33:44  PAGE 4   
+  182   2                              motor_control(car.hinder.speed-car.steering.duty,car.hinder.speed+car.steering.duty);   
+  183   2                              if(my_abs(icmdata.Yaw-car.hinder.enter_angle)>car.hinder.point_2.angle*0.7){
+  184   3                                      car.hinder.state= 3;
+  185   3                                      car.hinder.enter_angle = icmdata.Yaw;
+  186   3                                      car.hinder.point = car.distance;
+  187   3                              }
+C251 COMPILER V5.60.0,  hinder                                                             12/11/23  16:07:50  PAGE 4   
 
-  188   2                               {      
-  189   3                                      car.hinder.state = 4;                   
-  190   3                               }      
-  191   2                              break;
+  188   2                              break;
+  189   2                      /***********************状态2：右转打角圆弧***************************/
+  190   2                              
+  191   2      
   192   2                      /***********************状态3：前进一段距离****************************/
-  193   2      
-  194   2                      /***********************状态4：转弯打角*******************************/
-  195   2                              case 4:
-  196   2                              turn_angle(DIR*car.hinder.point_1.angle,icmdata.Yaw-car.hinder.enter_angle,car.hinder.speed,30);
-  197   2                              motor_control(car.hinder.speed-car.steering.duty,car.hinder.speed+car.steering.duty);   
-  198   2                              if((my_abs(icmdata.Yaw-car.hinder.enter_angle)>car.hinder.point_1.angle*0.9)||(my_abs(icmdata.Yaw-car.
+  193   2                              case 3:
+  194   2                              motor_control(car.hinder.speed,car.hinder.speed);
+  195   2                               if(my_abs(car.distance-car.hinder.point)>car.hinder.point_2.distance)
+  196   2                               {      
+  197   3                                      car.hinder.state = 4;                   
+  198   3                               }      
+  199   2                              break;
+  200   2                      /***********************状态3：前进一段距离****************************/
+  201   2      
+  202   2                      /***********************状态4：转弯打角*******************************/
+  203   2                              case 4:
+  204   2                              turn_angle(DIR*car.hinder.point_1.angle,icmdata.Yaw-car.hinder.enter_angle,car.hinder.speed,30);
+  205   2                              motor_control(car.hinder.speed-car.steering.duty,car.hinder.speed+car.steering.duty);   
+  206   2                              if((my_abs(icmdata.Yaw-car.hinder.enter_angle)>car.hinder.point_1.angle*0.9)||(my_abs(icmdata.Yaw-car.
              -hinder.initial_angle)<10))
-  199   2                              {
-  200   3                                        car.hinder.state = 5;
-  201   3                                        car.hinder.point = car.distance;
-  202   3                                  car.hinder.enter_angle = icmdata.Yaw;
-  203   3                              }
-  204   2                              break;
-  205   2                      /***********************状态4：转弯打角*******************************/
-  206   2      
-  207   2                      /***********************状态5：转弯***********************************/
-  208   2                              case 5:
-  209   2                      error_calculate(5+0.7*(car.distance-car.hinder.point),0.3+0.015*(car.distance-car.hinder.point));
-  210   2                              motor_control(car.straight.base_speed-car.steering.duty,car.straight.base_speed+car.steering.duty);
-  211   2                              if(car.distance-car.hinder.point>30)
-  212   2                              {
-  213   3                              car.hinder.state = 6;
-  214   3                              }
-  215   2                              break;
-  216   2                      /***********************状态5：转弯***********************************/
-  217   2      
-  218   2      
-  219   2                      /***********************状态4：切换直道*******************************/
-  220   2                              case 6:
-  221   2                              car.hinder.state = 0;
-  222   2                              car.road_type = STRAIGHT;
-  223   2                              car.hinder.distance = 100000;
-  224   2                              car.element.ELEMENT_NUM++;      //元素表个数加1
-  225   2                              BEEP_OFF;
-  226   2                              break;
-  227   2                      /***********************状态4：切换直道*******************************/
-  228   2              }
-  229   1      }
+  207   2                              {
+  208   3                                        car.hinder.state = 5;
+  209   3                                        car.hinder.point = car.distance;
+  210   3                        car.hinder.enter_angle = icmdata.Yaw;
+  211   3                              }
+  212   2                              break;
+  213   2                      /***********************状态4：转弯打角*******************************/
+  214   2      
+  215   2                      /***********************状态5：转弯***********************************/
+  216   2                              case 5:
+  217   2                      error_calculate(5+0.7*(car.distance-car.hinder.point),0.3+0.015*(car.distance-car.hinder.point));
+  218   2                              motor_control(car.straight.base_speed-car.steering.duty,car.straight.base_speed+car.steering.duty);
+  219   2                              if(car.distance - car.hinder.point>30)
+  220   2                              {
+  221   3                              car.hinder.state = 6;
+  222   3                              }
+  223   2                              break;
+  224   2                      /***********************状态5：转弯***********************************/
+  225   2      
+  226   2      
+  227   2                      /***********************状态6：切换直道*******************************/
+  228   2                              case 6:
+  229   2                              car.hinder.state = 0;
+  230   2                              car.road_type = STRAIGHT;
+  231   2                              car.hinder.distance = 100000;
+  232   2                              car.element.ELEMENT_NUM++;      //元素表个数加1
+  233   2                              BEEP_OFF;
+  234   2                              break;
+  235   2                      /***********************状态6：切换直道*******************************/
+  236   2              }
+  237   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =      1244     ------
+  code size            =      1257     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------
@@ -263,6 +271,8 @@ Module Information          Static   Overlayable
   ebit size            =    ------     ------
   bitaddressable size  =    ------     ------
   ebitaddressable size =    ------     ------
+C251 COMPILER V5.60.0,  hinder                                                             12/11/23  16:07:50  PAGE 5   
+
   far data size        =    ------     ------
   huge data size       =    ------     ------
   const size           =    ------     ------

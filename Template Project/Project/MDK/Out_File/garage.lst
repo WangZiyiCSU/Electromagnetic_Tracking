@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 1   
+C251 COMPILER V5.60.0,  garage                                                             15/11/23  18:43:03  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE garage
@@ -28,25 +28,25 @@ stmt  level    source
    17   1      
    18   1              /****方案1参数******/
    19   1              car.garage.out_garage_angle               = 50;
-   20   1              car.garage.out_garage_diff                = 100;
+   20   1              car.garage.out_garage_diff                = 50;
    21   1              car.garage.out_garage_distance            = 15;
-   22   1              car.garage.out_garage_speed               = 150;
+   22   1              car.garage.out_garage_speed               = 100;
    23   1              /****方案1参数******/
    24   1      
    25   1      
    26   1              /****方案2参数******/
    27   1              car.garage.out_garage_R_circle            = 35;
    28   1              car.garage.out_garage_curve_angle         = 85;
-   29   1              car.garage.out_garage_curve_speed         = 250;
+   29   1              car.garage.out_garage_curve_speed         = 100;
    30   1              /****方案2参数******/
    31   1      
    32   1              /**************************出库*********************/
    33   1      
    34   1              /**************************入库*********************/
    35   1              /*****左入库参数*****/
-   36   1              car.garage.enter_garage_distance_1_left   = 2;
-   37   1              car.garage.enter_garage_angle_left        = 8;
-   38   1              car.garage.enter_garage_distance_2_left   = 35;
+   36   1              car.garage.enter_garage_distance_1_left   = -10;
+   37   1              car.garage.enter_garage_angle_left        = 40;
+   38   1              car.garage.enter_garage_distance_2_left   = 80;
    39   1              /*****左入库参数*****/
    40   1      
    41   1              /*****右·入库参数*****/
@@ -66,34 +66,34 @@ stmt  level    source
    55   1              car.garage.state                          =  0;
    56   1      
    57   1              car.garage.element_flag                   =  0;
-C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 2   
+C251 COMPILER V5.60.0,  garage                                                             15/11/23  18:43:03  PAGE 2   
 
    58   1      
    59   1              car.garage.forward_state                  =  0;
    60   1              car.garage.zebra_flag                     =  0;
    61   1              car.garage.zebra_distance                 =  0;
-   62   1              car.garage.distance_to_zebra              =  4000;
-   63   1              car.garage.turn_point                     =  80;
+   62   1              car.garage.distance_to_zebra              =  8000;
+   63   1              car.garage.turn_point                     =  100;
    64   1              
-   65   1              car.garage.forward_speed                  =  150;
+   65   1              car.garage.forward_speed                  =  100;
    66   1              car.garage.forward_R                      =  15;
-   67   1              car.garage.forward_distance               =  10;
+   67   1              car.garage.forward_distance               =  0;
    68   1              /**************************入库*********************/
    69   1      }
    70          /****************************************************
-   71           * @name               CitTie_judge
+   71           * @name               Magnet_Judge
    72           * @function       磁铁检测
    73           * @parameter      NULL
    74           * @return                 NULL
    75           * @date                   2023/7/4
    76           ***************************************************/
-   77          void CitTie_judge()
+   77          void Magnet_Judge()
    78          {
    79   1              static int garage_flag = 0;
    80   1      
    81   1              if(garage_flag == 0)
    82   1              {
-   83   2                       if((P26==0)&&(car.garage.zebra_flag == 0))
+   83   2                       if((HALL_PIN == 0)&&(car.garage.zebra_flag == 0))
    84   2                       {
    85   3                              //暂时关闭磁铁检测
    86   3                              garage_flag = 1;
@@ -110,7 +110,7 @@ stmt  level    source
    97   3                      }
    98   2              }
    99   1              //延时一段距离再检测磁铁
-  100   1              else if(garage_flag==1)
+  100   1              else if(garage_flag == 1)
   101   1              {
   102   2                      if (my_abs(car.distance - car.garage.in_point) > 100)
   103   2                      {
@@ -133,14 +133,14 @@ stmt  level    source
   120   2                      car.garage.last_elemnent_point = car.distance;
   121   2                      car.garage.element_flag = 1;
   122   2              }
-  123   1              car.garage.distance_passed = car.distance- car.garage.last_elemnent_point;
-C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 3   
+  123   1              car.garage.distance_passed = car.distance - car.garage.last_elemnent_point;
+C251 COMPILER V5.60.0,  garage                                                             15/11/23  18:43:03  PAGE 3   
 
   124   1      
-  125   1              if((car.adc_parameter.adc_error<40)&&(car.garage.distance_passed>car.garage.distance_to_zebra))
+  125   1              if((car.adc_parameter.adc_error < 40)&&(car.garage.distance_passed > car.garage.distance_to_zebra))
   126   1              {
-  127   2                      car.straight.base_speed = 250;
-  128   2                      if((P50==0)||(P51==0))
+  127   2                      car.straight.base_speed = 120;
+  128   2                      if(/*(P50 == 0)||(P51 == 0)*/ HALL_PIN == 0)
   129   2                      {                               
   130   3                              car.garage.zebra_flag = 1;
   131   3                              car.road_type = ENTER_GARAGE_forward;
@@ -149,8 +149,8 @@ stmt  level    source
   134   2              }
   135   1      }
   136           /****************************************************
-  137           * @name            Enter_Garage_Pre
-  138           * @function    正向入库距离检测
+  137           * @name            Enter_Garage_control
+  138           * @function    正向入库控制
   139           * @parameter   NULL
   140           * @return              NULL
   141           * @date                2023/8/12
@@ -177,19 +177,19 @@ stmt  level    source
              -age_speed+car.garage.enter_garage_diff);
   161   2                      car.motor_left.ki                         = 10;
   162   2                      car.motor_right.ki                        = 10;
-  163   2                      motor_control(car.garage.forward_speed-DIR*car.garage.forward_R,car.garage.forward_speed+DIR*car.garage
-             -.forward_R);
+  163   2                      motor_control(car.garage.forward_speed - DIR*car.garage.forward_R,car.garage.forward_speed+DIR*car.gara
+             -ge.forward_R);
   164   2      
-  165   2                      if(my_abs(icmdata.Yaw-car.garage.angle_forward)>car.garage.turn_point*0.9)
+  165   2                      if(my_abs(icmdata.Yaw-car.garage.angle_forward) > car.garage.turn_point*0.9)
   166   2                      {
-  167   3                                      car.garage.forward_state = 1;
-  168   3                                      temp_distance = car.distance;
+  167   3                              car.garage.forward_state = 1;
+  168   3                              temp_distance = car.distance;
   169   3                      }
   170   2                      break;
   171   2      
   172   2                      case 1:
   173   2      
-  174   2                              motor_control(car.garage.forward_speed+50,car.garage.forward_speed+50);
+  174   2                              motor_control(car.garage.forward_speed + 50,car.garage.forward_speed + 50);
   175   2                              if((car.distance-temp_distance)>car.garage.forward_distance)
   176   2                              {
   177   3                                      car.garage.forward_state = 2;
@@ -202,295 +202,292 @@ stmt  level    source
   184   2                              pwm_duty(PWMB_CH4_P77, 0);                                              
   185   2                      pwm_duty(PWMB_CH3_P33, 0); 
   186   2                              motor_control(0,0);
-C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 4   
+C251 COMPILER V5.60.0,  garage                                                             15/11/23  18:43:03  PAGE 4   
 
-  187   2      
-  188   2      
-  189   2      
-  190   2              }
-  191   1      }
-  192          /****************************************************
-  193           * @name              Out_garage(int dir)
-  194           * @function      出库
-  195           * @parameter     方向dir
-  196           * @return                NULL
-  197           * @date                  2023/7/4
-  198           ***************************************************/
-  199          void Out_garage(int dir)
-  200          {
-  201   1      
-  202   1              static int step = 0;
-  203   1              static int count = 0;
-  204   1              static int a;
-  205   1              switch (step)
-  206   1              {
-  207   2              case 0: //没发车
-  208   2                      if (IsStarted())
-  209   2                      {
-  210   3                              car.garage.in_point   = car.distance;
-  211   3                              step = 1;
-  212   3                      }
-  213   2                      break;
-  214   2              case 1: //发车 先往前冲
-  215   2                      motor_control(car.garage.out_garage_speed,car.garage.out_garage_speed);
-  216   2      
-  217   2      
-  218   2                      if(car.distance - car.garage.in_point>car.garage.out_garage_distance)
-  219   2                      {
-  220   3                              car.garage.base_angle = icmdata.Yaw;
-  221   3                              step = 2;
-  222   3                       car.element.ELEMENT_NUM++;     //元素表个数加1
-  223   3                      }
-  224   2                      break;
-  225   2              case 2: //转弯
-  226   2      /*************方案1：固定差速转弯，转角达到期望值切到直道********************/
-  227   2              //      if(dir == LEFT)
-  228   2              //      {
-  229   2              //              motor_control(car.garage.out_garage_speed-car.garage.out_garage_diff,car.garage.out_garage_speed+ca
-             -r.garage.out_garage_diff);
-  230   2              //      }
-  231   2              //      else if(dir == RIGHT)
-  232   2              //      {
-  233   2              //              motor_control(car.garage.out_garage_speed+car.garage.out_garage_diff,car.garage.out_garage_speed-ca
-             -r.garage.out_garage_diff);
-  234   2              //      }
-  235   2              //      if (my_abs(icmdata.Yaw - car.garage.base_angle) >car.garage.out_garage_angle)
-  236   2              //      {
-  237   2          //   car.road_type = STRAIGHT;
-  238   2              //              step = 0;
-  239   2              //      }
-  240   2      /*************方案1：固定差速转弯，转角达到期望值切到直道********************/
-  241   2      
-  242   2      
-  243   2      /*************方案2：固定转角，达到期望值切到直道****************************/
-  244   2                      
-  245   2                      error_calculate(car.straight.kp,car.straight.kd);
-  246   2                      //左正右负
-  247   2                      if(dir==LEFT)
-  248   2                      {
-  249   3                              turn_angle(car.garage.out_garage_curve_angle,icmdata.Yaw-car.garage.base_angle,car.garage.out_garage_c
-             -urve_speed,car.garage.out_garage_R_circle);
-C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 5   
+  187   2              }
+  188   1      }
+  189          /****************************************************
+  190           * @name              Out_garage(int dir)
+  191           * @function      出库
+  192           * @parameter     方向dir
+  193           * @return                NULL
+  194           * @date                  2023/7/4
+  195           ***************************************************/
+  196          void Out_garage(int dir)
+  197          {
+  198   1      
+  199   1              static int step = 0;
+  200   1              static int count = 0;
+  201   1              static int a;
+  202   1              switch (step)
+  203   1              {
+  204   2              case 0: //没发车
+  205   2                      if (IsStarted())
+  206   2                      {
+  207   3                              car.garage.in_point = car.distance;
+  208   3                              step = 1;
+  209   3                      }
+  210   2                      break;
+  211   2              case 1: //发车 先往前冲
+  212   2                      motor_control(car.garage.out_garage_speed,car.garage.out_garage_speed);
+  213   2      
+  214   2                      if(car.distance - car.garage.in_point > car.garage.out_garage_distance)
+  215   2                      {
+  216   3                              car.garage.base_angle = icmdata.Yaw;
+  217   3                              step = 2;
+  218   3                  car.element.ELEMENT_NUM++;     //元素表个数加1
+  219   3                      }
+  220   2                      break;
+  221   2              case 2: //转弯
+  222   2      /*************方案1：固定差速转弯，转角达到期望值切到直道********************/
+  223   2              if(dir == LEFT)
+  224   2              {
+  225   3                      motor_control(car.garage.out_garage_speed-car.garage.out_garage_diff,car.garage.out_garage_speed+car.ga
+             -rage.out_garage_diff);
+  226   3              }
+  227   2              else if(dir == RIGHT)
+  228   2              {
+  229   3                      motor_control(car.garage.out_garage_speed+car.garage.out_garage_diff,car.garage.out_garage_speed-car.g
+             -arage.out_garage_diff);
+  230   3              }
+  231   2              if (my_abs(icmdata.Yaw - car.garage.base_angle) >car.garage.out_garage_angle)
+  232   2              {
+  233   3              car.road_type = STRAIGHT;
+  234   3                      step = 0;
+  235   3              }
+  236   2      /*************方案1：固定差速转弯，转角达到期望值切到直道********************/
+  237   2      
+  238   2      
+  239   2      /*************方案2：固定转角，达到期望值切到直道****************************/
+  240   2                      
+  241   2      //              error_calculate(car.straight.kp,car.straight.kd);
+  242   2      //              //左正右负
+  243   2      //              if(dir == LEFT)
+  244   2      //              {
+  245   2      //                      turn_angle(car.garage.out_garage_curve_angle,icmdata.Yaw-car.garage.base_angle,car.garage.out_garage
+             -_curve_speed,car.garage.out_garage_R_circle);
+  246   2      //                      motor_control(car.garage.out_garage_curve_speed-car.steering.duty,car.garage.out_garage_curve_speed+
+             -car.steering.duty);    
+  247   2      //              }
+  248   2      //              else if(dir == RIGHT)
+C251 COMPILER V5.60.0,  garage                                                             15/11/23  18:43:03  PAGE 5   
 
-  250   3                              motor_control(car.garage.out_garage_curve_speed-car.steering.duty,car.garage.out_garage_curve_speed+ca
-             -r.steering.duty);      
-  251   3                      }
-  252   2                      else if(dir == RIGHT)
-  253   2                      {
-  254   3                              turn_angle(-car.garage.out_garage_curve_angle,icmdata.Yaw-car.garage.base_angle,car.garage.out_garage_
-             -curve_speed,car.garage.out_garage_R_circle);
-  255   3                              motor_control(car.garage.out_garage_curve_speed-car.steering.duty,car.garage.out_garage_curve_speed+ca
-             -r.steering.duty);      
-  256   3                      }
-  257   2      
-  258   2                      if(my_abs(icmdata.Yaw-car.garage.base_angle)>car.garage.out_garage_curve_angle*0.9){
-  259   3                      
-  260   3                              car.road_type = STRAIGHT;
-  261   3                              step = 0;
-  262   3                      }
-  263   2      /*************方案2：固定转角，达到期望值切到直道****************************/
-  264   2                      break;
-  265   2              }
-  266   1      }
-  267          /****************************************************
-  268           * @name              Enter_garage_back
-  269           * @function      倒车入库
-  270           * @parameter     方向dir
-  271           * @return                NULL
-  272           * @date                  2023/7/4
-  273           ***************************************************/
-  274          void Enter_garage_back(int dir)
-  275          {
-  276   1          static int count = 0;
-  277   1              static int dis_2 = 0;
-  278   1              
-  279   1              switch (car.garage.state)
-  280   1              {
-  281   2              case 0: //阶段0 刹车
-  282   2                      BEEP_ON;
-  283   2                      if(car.garage.DIR == RIGHT)
-  284   2                      {
-  285   3                      //速度控制 缓慢刹车
-  286   3                              motor_control(0,0);     
-  287   3                              //判断是否刹停
-  288   3                              if (my_abs(car.speed_ave)< 10)
-  289   3                              {
-  290   4                                      count++;
-  291   4                                      if (count > 2)
-  292   4                                      {
-  293   5                                              BEEP_OFF;
-  294   5                                              car.garage.state = 1;
-  295   5                                              count = 0;
-  296   5                                              car.garage.in_point   = car.distance;
-  297   5                                              car.garage.base_angle = icmdata.Yaw;
-  298   5                                              break;
-  299   5                                      }
-  300   4                              }
-  301   3                      }
-  302   2      
-  303   2                      if(car.garage.DIR == LEFT)
-  304   2                      {
-  305   3                                                      //速度控制 缓慢刹车
-  306   3                              motor_control(0,0);     
-  307   3                              //判断是否刹停
-  308   3                              if (my_abs(car.speed_ave)< 10)
-  309   3                              {
-  310   4                                      count++;
-  311   4                                      if (count > 2)
-  312   4                                      {
-C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 6   
+  249   2      //              {
+  250   2      //                      turn_angle(-car.garage.out_garage_curve_angle,icmdata.Yaw-car.garage.base_angle,car.garage.out_garag
+             -e_curve_speed,car.garage.out_garage_R_circle);
+  251   2      //                      motor_control(car.garage.out_garage_curve_speed-car.steering.duty,car.garage.out_garage_curve_speed+
+             -car.steering.duty);    
+  252   2      //              }
+  253   2      
+  254   2      //              if(my_abs(icmdata.Yaw-car.garage.base_angle)>car.garage.out_garage_curve_angle*0.9)
+  255   2      //        {
+  256   2      //                      
+  257   2      //                      car.road_type = STRAIGHT;
+  258   2      //                      step = 0;
+  259   2      //              }
+  260   2      /*************方案2：固定转角，达到期望值切到直道****************************/
+  261   2                      break;
+  262   2              }
+  263   1      }
+  264          /****************************************************
+  265           * @name              Enter_garage_back
+  266           * @function      倒车入库
+  267           * @parameter     方向dir
+  268           * @return                NULL
+  269           * @date                  2023/7/4
+  270           ***************************************************/
+  271          void Enter_garage_back(int dir)
+  272          {
+  273   1          static int count = 0;
+  274   1              static int dis_2 = 0;
+  275   1              
+  276   1              switch (car.garage.state)
+  277   1              {
+  278   2              case 0: //阶段0 刹车
+  279   2                      BEEP_ON;
+  280   2                      if(car.garage.DIR == RIGHT)
+  281   2                      {
+  282   3                      //速度控制 缓慢刹车
+  283   3                              motor_control(0, 0);    
+  284   3                              //判断是否刹停
+  285   3                              if (my_abs(car.speed_ave) < 10)
+  286   3                              {
+  287   4                                      count++;
+  288   4                                      if (count > 2)
+  289   4                                      {
+  290   5                                              BEEP_OFF;
+  291   5                                              car.garage.state = 1;
+  292   5                                              count = 0;
+  293   5                                              car.garage.in_point   = car.distance;
+  294   5                                              car.garage.base_angle = icmdata.Yaw;
+  295   5                                              break;
+  296   5                                      }
+  297   4                              }
+  298   3                      }
+  299   2      
+  300   2                      if(car.garage.DIR == LEFT)
+  301   2                      {
+  302   3                                                      //速度控制 缓慢刹车
+  303   3                              motor_control(0,0);     
+  304   3                              //判断是否刹停
+  305   3                              if (my_abs(car.speed_ave)< 10)
+  306   3                              {
+  307   4                                      count++;
+  308   4                                      if (count > 2)
+  309   4                                      {
+  310   5                                              BEEP_OFF;
+  311   5                                              car.garage.state = 1;
+  312   5                                              count = 0;
+C251 COMPILER V5.60.0,  garage                                                             15/11/23  18:43:03  PAGE 6   
 
-  313   5                                              BEEP_OFF;
-  314   5                                              car.garage.state = 1;
-  315   5                                              count = 0;
-  316   5                                              car.garage.in_point   = car.distance;
-  317   5                                              car.garage.base_angle = icmdata.Yaw;
-  318   5                                              break;
-  319   5                                      }
-  320   4                              }
-  321   3                      }
-  322   2                      break;
-  323   2              
-  324   2              case 1: //阶段1 倒车
-  325   2                      BEEP_ON;
-  326   2                      //速度控制 缓慢刹车
-  327   2                      motor_control(-car.garage.enter_garage_speed,-car.garage.enter_garage_speed);
-  328   2                      //判断是否刹停
-  329   2                      //倒车距离达到
-  330   2                      if(car.garage.DIR == LEFT)
-  331   2                      {
-  332   3                              if(my_abs(car.garage.in_point - car.distance) > car.garage.enter_garage_distance_1_left)
-  333   3                              {
-  334   4                                      car.garage.in_point = car.distance;
-  335   4                                      car.garage.base_angle = icmdata.Yaw;
-  336   4                                      car.garage.state = 2;
-  337   4                              }
-  338   3                      }
-  339   2                      if(car.garage.DIR == RIGHT)
-  340   2                      {
-  341   3                              if(my_abs(car.garage.in_point - car.distance) > car.garage.enter_garage_distance_1_right)
-  342   3                              {
-  343   4                                      car.garage.in_point = car.distance;
-  344   4                                      car.garage.base_angle = icmdata.Yaw;
-  345   4                                      car.garage.state = 2;
-  346   4                              }
-  347   3                      }
-  348   2                      break;
-  349   2              case 2: //阶段2 转向速度控制
-  350   2              /***********************************方案1：固定转角入库****************************************
+  313   5                                              car.garage.in_point   = car.distance;
+  314   5                                              car.garage.base_angle = icmdata.Yaw;
+  315   5                                              break;
+  316   5                                      }
+  317   4                              }
+  318   3                      }
+  319   2                      break;
+  320   2              
+  321   2              case 1: //阶段1 倒车
+  322   2                      BEEP_ON;
+  323   2                      //速度控制 缓慢刹车
+  324   2                      motor_control(-car.garage.enter_garage_speed,-car.garage.enter_garage_speed);
+  325   2                      //判断是否刹停
+  326   2                      //倒车距离达到
+  327   2                      if(car.garage.DIR == LEFT)
+  328   2                      {
+  329   3                              if(my_abs(car.garage.in_point - car.distance) > car.garage.enter_garage_distance_1_left)
+  330   3                              {
+  331   4                                      car.garage.in_point = car.distance;
+  332   4                                      car.garage.base_angle = icmdata.Yaw;
+  333   4                                      car.garage.state = 2;
+  334   4                              }
+  335   3                      }
+  336   2                      if(car.garage.DIR == RIGHT)
+  337   2                      {
+  338   3                              if(my_abs(car.garage.in_point - car.distance) > car.garage.enter_garage_distance_1_right)
+  339   3                              {
+  340   4                                      car.garage.in_point = car.distance;
+  341   4                                      car.garage.base_angle = icmdata.Yaw;
+  342   4                                      car.garage.state = 2;
+  343   4                              }
+  344   3                      }
+  345   2                      break;
+  346   2              case 2: //阶段2 转向速度控制
+  347   2              /***********************************方案1：固定转角入库****************************************
              -*/
-  351   2                 if(car.garage.DIR == RIGHT)
-  352   2                      {
-  353   3                              motor_control(-car.garage.enter_garage_speed-car.garage.enter_garage_diff,-car.garage.enter_garage_spe
+  348   2                 if(car.garage.DIR == RIGHT)
+  349   2                      {
+  350   3                              motor_control(-car.garage.enter_garage_speed-car.garage.enter_garage_diff,-car.garage.enter_garage_spe
              -ed+car.garage.enter_garage_diff);
-  354   3                              
-  355   3                                      if (my_abs(icmdata.Yaw - car.garage.base_angle) > car.garage.enter_garage_angle_right*0.9) 
-  356   3                              {       
-  357   4                                      car.garage.in_point = car.distance;
-  358   4                                      car.garage.state = 3;
-  359   4                              }
-  360   3                      }       
-  361   2                      // //转向和速度控制
-  362   2                      if(car.garage.DIR==LEFT)
-  363   2                      {       motor_control(-car.garage.enter_garage_speed+car.garage.enter_garage_diff,-car.garage.enter_garage_sp
+  351   3                              
+  352   3                                      if (my_abs(icmdata.Yaw - car.garage.base_angle) > car.garage.enter_garage_angle_right*0.9) 
+  353   3                              {       
+  354   4                                      car.garage.in_point = car.distance;
+  355   4                                      car.garage.state = 3;
+  356   4                              }
+  357   3                      }       
+  358   2                      // //转向和速度控制
+  359   2                      if(car.garage.DIR==LEFT)
+  360   2                      {       motor_control(-car.garage.enter_garage_speed+car.garage.enter_garage_diff,-car.garage.enter_garage_sp
              -eed-car.garage.enter_garage_diff);
-  364   3                              
-  365   3                                      if (my_abs(icmdata.Yaw - car.garage.base_angle) > car.garage.enter_garage_angle_left*0.9) 
-  366   3                              {       
-  367   4                              car.garage.in_point = car.distance;
-  368   4                              car.garage.state = 3;
-  369   4                              }
-  370   3                      }
-  371   2      
-  372   2              /***********************************方案2：固定转角入库****************************************
+  361   3                              
+  362   3                                      if (my_abs(icmdata.Yaw - car.garage.base_angle) > car.garage.enter_garage_angle_left*0.9) 
+  363   3                              {       
+  364   4                              car.garage.in_point = car.distance;
+  365   4                              car.garage.state = 3;
+  366   4                              }
+  367   3                      }
+  368   2      
+  369   2              /***********************************方案2：固定转角入库****************************************
              -***/
-  373   2                      break;
-  374   2      
-C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 7   
+  370   2                      break;
+  371   2      
+  372   2              case 3: //阶段2 倒车
+  373   2                      //转向和速度控制 
+  374   2                      if(car.garage.DIR==LEFT)
+C251 COMPILER V5.60.0,  garage                                                             15/11/23  18:43:03  PAGE 7   
 
-  375   2              case 3: //阶段2 倒车
-  376   2                      //转向和速度控制 
-  377   2                      if(car.garage.DIR==LEFT)
-  378   2                      {
-  379   3                              dis_2 = car.garage.enter_garage_distance_2_left;
-  380   3                      }
-  381   2                      if(car.garage.DIR==RIGHT)
-  382   2                      {
-  383   3                              dis_2 = car.garage.enter_garage_distance_2_right;
-  384   3                      }
-  385   2      
-  386   2      
-  387   2                      motor_control(-car.garage.enter_garage_speed,-car.garage.enter_garage_speed);
-  388   2                      //倒车距离达到
-  389   2                      if (my_abs(car.garage.in_point - car.distance) > dis_2)
-  390   2                      {
-  391   3                              car.garage.state = 4;
-  392   3                      }
-  393   2                      break;
-  394   2              case 4://阶段3 倒车并关闭风扇
-  395   2                      motor_control(0,0);
-  396   2      
-  397   2                      pwm_duty(PWMB_CH4_P77, 0);                                              
-  398   2                      pwm_duty(PWMB_CH3_P33, 0); 
-  399   2                      break;
-  400   2              }
-  401   1       }
-*** WARNING C47 IN LINE 274 OF ..\USER\src\garage.c: 'dir': unreferenced parameter
-  402          
-  403          /****************************************************
-  404           * @name              Enter_garage_front
-  405           * @function      正向入库
-  406           * @parameter     方向dir
-  407           * @return                NULL
-  408           * @date                  2023/7/10
-  409           ***************************************************/
-  410          void Enter_garage_front(int dir)
-  411          {
-  412   1              static int step =0;
-  413   1              switch (step)
-  414   1              {
-  415   2              case 0: 
-  416   2                      if (dir == LEFT)
-  417   2                      {
-  418   3                              motor_control(car.garage.enter_garage_speed-car.garage.enter_garage_diff,car.garage.enter_garage_speed
+  375   2                      {
+  376   3                              dis_2 = car.garage.enter_garage_distance_2_left;
+  377   3                      }
+  378   2                      if(car.garage.DIR==RIGHT)
+  379   2                      {
+  380   3                              dis_2 = car.garage.enter_garage_distance_2_right;
+  381   3                      }
+  382   2      
+  383   2      
+  384   2                      motor_control(-car.garage.enter_garage_speed,-car.garage.enter_garage_speed);
+  385   2                      //倒车距离达到
+  386   2                      if (my_abs(car.garage.in_point - car.distance) > dis_2)
+  387   2                      {
+  388   3                              car.garage.state = 4;
+  389   3                      }
+  390   2                      break;
+  391   2              case 4://阶段3 倒车并关闭风扇
+  392   2                      motor_control(0,0);
+  393   2      
+  394   2                      pwm_duty(PWMB_CH4_P77, 0);                                              
+  395   2                      pwm_duty(PWMB_CH3_P33, 0); 
+  396   2                      break;
+  397   2              }
+  398   1       }
+*** WARNING C47 IN LINE 271 OF ..\USER\src\garage.c: 'dir': unreferenced parameter
+  399          
+  400          /****************************************************
+  401           * @name              Enter_garage_front
+  402           * @function      正向入库
+  403           * @parameter     方向dir
+  404           * @return                NULL
+  405           * @date                  2023/7/10
+  406           ***************************************************/
+  407          void Enter_garage_front(int dir)
+  408          {
+  409   1              static int step =0;
+  410   1              switch (step)
+  411   1              {
+  412   2              case 0: 
+  413   2                      if (dir == LEFT)
+  414   2                      {
+  415   3                              motor_control(car.garage.enter_garage_speed-car.garage.enter_garage_diff,car.garage.enter_garage_speed
              -+car.garage.enter_garage_diff);
-  419   3                              if (icmdata.Yaw - car.garage.base_angle > 40)
-  420   3                              {
-  421   4                                      step = 1;
-  422   4                                      car.garage.in_point = car.distance;
-  423   4                              }
-  424   3                      }
-  425   2                      else if (dir == RIGHT)
-  426   2                      {
-  427   3                              motor_control(car.garage.enter_garage_speed+car.garage.enter_garage_diff,car.garage.enter_garage_speed
+  416   3                              if (icmdata.Yaw - car.garage.base_angle > 40)
+  417   3                              {
+  418   4                                      step = 1;
+  419   4                                      car.garage.in_point = car.distance;
+  420   4                              }
+  421   3                      }
+  422   2                      else if (dir == RIGHT)
+  423   2                      {
+  424   3                              motor_control(car.garage.enter_garage_speed+car.garage.enter_garage_diff,car.garage.enter_garage_speed
              --car.garage.enter_garage_diff);
-  428   3                              if (icmdata.Yaw - car.garage.base_angle < -40)
-  429   3                              {
-  430   4                                      step = 1;
-  431   4                                      car.garage.in_point = car.distance;
-  432   4                              }
-  433   3                      }
-  434   2                      break;
-  435   2              case 1:
-  436   2          motor_control(car.garage.enter_garage_speed,car.garage.enter_garage_speed);
-  437   2                      if (car.distance - car.garage.in_point > 10)
-C251 COMPILER V5.60.0,  garage                                                             16/10/23  23:33:44  PAGE 8   
+  425   3                              if (icmdata.Yaw - car.garage.base_angle < -40)
+  426   3                              {
+  427   4                                      step = 1;
+  428   4                                      car.garage.in_point = car.distance;
+  429   4                              }
+  430   3                      }
+  431   2                      break;
+  432   2              case 1:
+  433   2          motor_control(car.garage.enter_garage_speed,car.garage.enter_garage_speed);
+  434   2                      if (car.distance - car.garage.in_point > 10)
+  435   2                      {
+  436   3                              step = 2;
+  437   3                      }
+C251 COMPILER V5.60.0,  garage                                                             15/11/23  18:43:03  PAGE 8   
 
-  438   2                      {
-  439   3                              step = 2;
-  440   3                      }
-  441   2                      break;
-  442   2              case 2:
-  443   2          motor_control(0,0);
-  444   2                      Force_Stop();
-  445   2                      break;
-  446   2              }
-  447   1      }
+  438   2                      break;
+  439   2              case 2:
+  440   2          motor_control(0,0);
+  441   2                      Force_Stop();
+  442   2                      break;
+  443   2              }
+  444   1      }
 
 
 Module Information          Static   Overlayable
 ------------------------------------------------
-  code size            =      1903     ------
+  code size            =      1803     ------
   ecode size           =    ------     ------
   data size            =    ------     ------
   idata size           =    ------     ------

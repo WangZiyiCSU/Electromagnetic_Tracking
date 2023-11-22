@@ -30,15 +30,15 @@
 	car.ramp.kd                                =0.7;
 
 	//上坡道速度
-	car.ramp.speed                             =100;
+	car.ramp.speed                             =120;
 
 	//下坡道速度
-	car.ramp.speed2                            =200;
+	car.ramp.speed2                            =120;
 
 	//识别条件
-	car.ramp.adc_middle                        =75;
-	car.ramp.adc_left                          =50; 
-	car.ramp.adc_right                         =50;
+	car.ramp.adc_middle                        =40;
+	car.ramp.adc_left                          =20; 
+	car.ramp.adc_right                         =20;
 
 	car.ramp.distance_passed                   = 0;
 	car.ramp.in_point                          = 0;
@@ -71,9 +71,9 @@ void Ramp_judge()
 		// 	car.adc_parameter.adc_normalized[LEFT_H]<30 &&
 		// 	car.adc_parameter.adc_normalized[RIGHT_H]<30 
 		//if( distance_data.Dist!=0&&distance_data.Dist < 40 &&car.adc_parameter.adc_normalized[MIDDLE]>80 && my_abs(car.servo.error_Now) < 20)
-		if( car.adc_parameter.adc_normalized[MIDDLE]>car.ramp.adc_middle &&
-		 	car.adc_parameter.adc_normalized[LEFT_H]<car.ramp.adc_left   &&
-		 	car.adc_parameter.adc_normalized[RIGHT_H]<car.ramp.adc_right )
+		if( car.adc_parameter.adc_normalized[MIDDLE]>car.ramp.adc_middle 
+            /*&& car.adc_parameter.adc_normalized[LEFT_H]<car.ramp.adc_left
+            && car.adc_parameter.adc_normalized[RIGHT_H]<car.ramp.adc_right*/ )
 		{
 				judge_count++;
 				if(judge_count>2){
@@ -107,30 +107,32 @@ void Ramp_control()
 {
 	//static int step_ramp = 0;
 
-	car.ramp.distance_passed =  car.distance  - car.ramp.in_point;
-	car.adc_parameter.adc_min[LEFT_H]  = 200;
-	car.adc_parameter.adc_min[MIDDLE]  = 200;
-	car.adc_parameter.adc_min[RIGHT_H] = 200;
-	error_calculate(car.ramp.kp,car.ramp.kd);
-	car.ramp.angle = icmdata.Pitch;
+	//car.ramp.distance_passed =  car.distance  - car.ramp.in_point;
+//	car.adc_parameter.adc_min[LEFT_H]  = 400;
+//	car.adc_parameter.adc_min[MIDDLE]  = 400;
+//	car.adc_parameter.adc_min[RIGHT_H] = 400;
+	//error_calculate(car.ramp.kp,car.ramp.kd);
+	//car.ramp.angle = icmdata.Pitch;
 	// car.ramp.speed = 100+ 0.9*(car.ramp.distance_passed);
 	// if(car.ramp.speed>250)car.ramp.speed = 250;
 
 
-	motor_control(car.ramp.speed-car.steering.duty,car.ramp.speed+car.steering.duty);
+	//motor_control(car.ramp.speed, car.ramp.speed);
 	// if(car.ramp.distance_passed>200)
 	// {
 	// 	car.road_type = STRAIGHT;
 	// 	BEEP_OFF;
 	// }
 
-	switch(car.ramp.state){
+	switch(car.ramp.state)
+        {
 
 		case 0:
-		/***********************状态0：上坡减速*************************/
-		car.ramp.speed = (-3)*car.ramp.angle+250;
-		if(car.ramp.speed<150)car.ramp.speed = 150;
-		if(car.ramp.distance_passed>90){
+//		/***********************状态0：上坡减速*************************/
+//		car.ramp.speed = (-3)*car.ramp.angle+250;
+//		if(car.ramp.speed<150)car.ramp.speed = 150;
+		if(car.ramp.distance_passed>90)
+        {
 			car.ramp.state = 1;
 		}
 		break;
@@ -138,11 +140,11 @@ void Ramp_control()
 
 		case 1:
 		/***********************状态1：下坡加速*************************/
-		car.ramp.speed = (-1)*car.ramp.angle+150;
-		if(car.ramp.speed>250)car.ramp.speed = 250;
-		if(car.ramp.speed<150)car.ramp.speed = 150;
+//		car.ramp.speed = (-1)*car.ramp.angle+150;
+//		if(car.ramp.speed>250)car.ramp.speed = 250;
+//		if(car.ramp.speed<150)car.ramp.speed = 150;
 		/*****走过180距离切换直道*****/
-		if(car.ramp.distance_passed>120){
+		if(car.ramp.distance_passed > 120){
 			car.ramp.state  = 0;
 			car.road_type   = STRAIGHT; 
 			car.element.ELEMENT_NUM++;  //元素表个数加1

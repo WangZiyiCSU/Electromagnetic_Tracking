@@ -675,6 +675,11 @@
           <GroupName>doc</GroupName>
           <Files>
             <File>
+              <FileName>isr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\src\isr.c</FilePath>
+            </File>
+            <File>
               <FileName>version.txt</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\Libraries\doc\version.txt</FilePath>
@@ -684,11 +689,6 @@
         <Group>
           <GroupName>user_c</GroupName>
           <Files>
-            <File>
-              <FileName>isr.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USER\src\isr.c</FilePath>
-            </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>

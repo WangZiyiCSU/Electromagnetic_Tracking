@@ -12,7 +12,7 @@
 //#include "System.h"
 //#include "buzzer.h"
 #include "headfile.h"
-#include "SEEKFREE_ICM20602.h"
+#include "SEEKFREE_IMU660RA.h"
 //#include "car.h"
 ICMDatatypedef icmdata;
 
@@ -39,16 +39,16 @@ void ICM_OneOrderFilter(void)
 //	icmdata.Yaw = (icmdata.YawVelocity) * dt + icmdata.Yaw;
 //	if(abs(icmdata.YawVelocity)<0.5)icmdata.YawVelocity=0;
 	
-	icm20602_get_gyro();
-	icm20602_get_acc();
+	imu660ra_get_acc(); 		//获取加速度数据
+	imu660ra_get_gyro();    	//获取陀螺仪数据
 	/****************偏航角计算求解**************************/
-	icmdata.YawVelocity = (-1)+(float)icm20602_gyro_z /16.23;
+	icmdata.YawVelocity = (-1)+(float)imu660ra_gyro_z /16.23;
 	icmdata.Yaw         = (icmdata.YawVelocity) * dt + icmdata.Yaw;
 	if(abs(icmdata.YawVelocity)<0.5)icmdata.YawVelocity=0;
 	/****************偏航角计算求解**************************/
 
 	/****************俯仰角计算求解**************************/
-	icmdata.PitchVelocity = (float)icm20602_gyro_y/11;
+	icmdata.PitchVelocity = (float)imu660ra_gyro_y/11;
 	icmdata.Pitch         = (icmdata.PitchVelocity) *dt + icmdata.Pitch;
 	if(abs(icmdata.PitchVelocity)<0.5)icmdata.PitchVelocity = 0;
 	/****************俯仰角计算求解**************************/

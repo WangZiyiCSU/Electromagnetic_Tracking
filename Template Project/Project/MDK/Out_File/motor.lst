@@ -1,4 +1,4 @@
-C251 COMPILER V5.60.0,  motor                                                              16/10/23  23:33:45  PAGE 1   
+C251 COMPILER V5.60.0,  motor                                                              01/11/23  17:00:46  PAGE 1   
 
 
 C251 COMPILER V5.60.0, COMPILATION OF MODULE motor
@@ -66,7 +66,7 @@ stmt  level    source
    54   2              LEFT_MOTOR_DIR_PIN = 0;
    55   2            }
    56   1            else if(left_duty < 0 )
-C251 COMPILER V5.60.0,  motor                                                              16/10/23  23:33:45  PAGE 2   
+C251 COMPILER V5.60.0,  motor                                                              01/11/23  17:00:46  PAGE 2   
 
    57   1            {
    58   2              LEFT_MOTOR_DIR_PIN = 1;
